@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ChatArea from './components/ChatArea';
 import ContactList from './components/ContactList';
+import SecuritySettings from './components/SecuritySettings';
 
 function App() {
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
@@ -28,10 +29,7 @@ function App() {
             </div>
           )}
           {activeView === 'settings' && (
-            <div className="settings-view">
-              <h2>Settings</h2>
-              <p>App settings and preferences</p>
-            </div>
+            <SecuritySettings />
           )}
         </div>
       </div>
