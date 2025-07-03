@@ -1,5 +1,6 @@
 import React from 'react';
 import './Header.css';
+import Logo from './Logo';
 
 interface HeaderProps {
   onBackToHome?: () => void;
@@ -15,10 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
               <span className="btn-icon">🏠</span>
             </button>
           )}
-          <div className="logo">
-            <span className="logo-icon">📞</span>
-          </div>
-          <h1 className="app-title">Siphera</h1>
+          <Logo size={44} showText={true} className="header-logo" />
         </div>
         <div className="header-actions">
           <button className="header-btn">

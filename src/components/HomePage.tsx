@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
+import Logo from './Logo';
 
 interface HomePageProps {
   onLaunchApp: () => void;
@@ -72,7 +73,7 @@ const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
           <div className="hero-visual">
             <div className="app-preview">
               <div className="preview-header">
-                <div className="preview-logo">📞</div>
+                <Logo size={40} showText={false} className="preview-logo" />
                 <div className="preview-title">Siphera</div>
               </div>
               <div className="preview-content">
