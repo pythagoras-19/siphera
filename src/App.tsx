@@ -5,14 +5,32 @@ import Header from './components/Header';
 import ChatArea from './components/ChatArea';
 import ContactList from './components/ContactList';
 import SecuritySettings from './components/SecuritySettings';
+import HomePage from './components/HomePage';
 
 function App() {
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
+  const [showHomepage, setShowHomepage] = useState(true);
+
+  const handleLaunchApp = () => {
+    setShowHomepage(false);
+  };
+
+  const handleBackToHome = () => {
+    setShowHomepage(true);
+  };
+
+  if (showHomepage) {
+    return (
+      <div className="App">
+        <HomePage onLaunchApp={handleLaunchApp} />
+      </div>
+    );
+  }
 
   return (
     <div className="App">
-      <Header />
+      <Header onBackToHome={handleBackToHome} />
       <div className="main-container">
         <Sidebar activeView={activeView} setActiveView={setActiveView} />
         <div className="content-area">

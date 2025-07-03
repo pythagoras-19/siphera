@@ -1,11 +1,20 @@
 import React from 'react';
 import './Header.css';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onBackToHome?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
   return (
     <header className="header">
       <div className="header-content">
         <div className="logo-section">
+          {onBackToHome && (
+            <button className="back-btn" onClick={onBackToHome}>
+              <span className="btn-icon">🏠</span>
+            </button>
+          )}
           <div className="logo">
             <span className="logo-icon">📞</span>
           </div>
