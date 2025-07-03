@@ -5,13 +5,15 @@
 }
 
 body {
-  font-family: 'Garamond', 'Times New Roman', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
   color: #ffffff;
   overflow: hidden;
   line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .App {
@@ -72,6 +74,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.02em;
 }
 
 .calls-view p,
@@ -79,6 +82,7 @@ body {
   font-size: 16px;
   opacity: 0.8;
   line-height: 1.6;
+  font-weight: 400;
 }
 
 /* Scrollbar styling */
@@ -151,6 +155,7 @@ textarea:focus {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   backdrop-filter: blur(10px);
+  font-family: inherit;
 }
 
 .btn-modern:hover {
@@ -162,4 +167,37 @@ textarea:focus {
 
 .btn-modern:active {
   transform: translateY(0);
+}
+
+/* Typography utilities */
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.tracking-tight {
+  letter-spacing: -0.025em;
+}
+
+.tracking-normal {
+  letter-spacing: -0.01em;
+}
+
+.tracking-wide {
+  letter-spacing: 0.025em;
 }
