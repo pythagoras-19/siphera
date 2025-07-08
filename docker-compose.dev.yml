@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Backend service (development)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: siphera-backend-dev
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - siphera-network
+    restart: unless-stopped
+    command: npm run dev
+
+  # Frontend service (development)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: siphera-frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3007
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - siphera-network
+    restart: unless-stopped
+    command: npm start
+
+networks:
+  siphera-network:
+    driver: bridge 
