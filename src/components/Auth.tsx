@@ -1,0 +1,190 @@
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import './Auth.css';
+
+const Auth: React.FC = () => {
+  const { isAuthenticated, user, isLoading, signIn, signUp, signOut, confirmSignUp } = useAuth();
+  
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    code: '',
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+
+    try {
+      if (isConfirming) {
+        await confirmSignUp(formData.username, formData.code);
+        setMessage('Account confirmed successfully! You can now sign in.');
+        setIsConfirming(false);
+        setIsSignUp(false);
+      } else if (isSignUp) {
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        await signUp(formData.username, formData.email, formData.password);
+        setMessage('Account created! Please check your email for confirmation code.');
+        setIsConfirming(true);
+      } else {
+        await signIn(formData.username, formData.password);
+        setMessage('Signed in successfully!');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setMessage('Signed out successfully!');
+    } catch (err: any) {
+      setError(err.message || 'Error signing out');
+    }
+  };
+
+  if (isLoading) {
+    return <div className="auth-loading">Loading...</div>;
+  }
+
+  if (isAuthenticated && user) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <h2>Welcome, {user.username}!</h2>
+          <p>Email: {user.email}</p>
+          <p>User ID: {user.id}</p>
+          <button onClick={handleSignOut} className="auth-button">
+            Sign Out
+          </button>
+          {message && <div className="auth-message">{message}</div>}
+          {error && <div className="auth-error">{error}</div>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>{isConfirming ? 'Confirm Account' : isSignUp ? 'Sign Up' : 'Sign In'}</h2>
+        
+        <form onSubmit={handleSubmit}>
+          {!isConfirming && (
+            <>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {isSignUp && (
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {isSignUp && (
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          {isConfirming && (
+            <div className="form-group">
+              <label htmlFor="code">Confirmation Code</label>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                value={formData.code}
+                onChange={handleInputChange}
+                placeholder="Enter code from email"
+                required
+              />
+            </div>
+          )}
+
+          <button type="submit" className="auth-button">
+            {isConfirming ? 'Confirm' : isSignUp ? 'Sign Up' : 'Sign In'}
+          </button>
+        </form>
+
+        {!isConfirming && (
+          <div className="auth-toggle">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError(null);
+                setMessage(null);
+              }}
+              className="auth-link"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            </button>
+          </div>
+        )}
+
+        {message && <div className="auth-message">{message}</div>}
+        {error && <div className="auth-error">{error}</div>}
+      </div>
+    </div>
+  );
+};
+
+export default Auth; 

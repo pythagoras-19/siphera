@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import './App.css';
+import './amplify-config'; // Import Amplify configuration
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import ChatArea from './components/ChatArea';
 import ContactList from './components/ContactList';
 import SecuritySettings from './components/SecuritySettings';
 import HomePage from './components/HomePage';
+import Auth from './components/Auth';
 
-function App() {
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
   const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [showHomepage, setShowHomepage] = useState(true);
@@ -20,6 +24,17 @@ function App() {
     setShowHomepage(true);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  // Show authentication if not authenticated
+  if (!isAuthenticated) {
+    return <Auth />;
+  }
+
+  // Show homepage or main app
   if (showHomepage) {
     return (
       <div className="App">
@@ -52,6 +67,14 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

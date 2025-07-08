@@ -14,24 +14,59 @@
 const fs = require('fs');
 const path = require('path');
 
-// This is a placeholder script
-// In a real implementation, you would use a library like 'sharp' or 'svg2png'
-// to convert the SVG to PNG files
+// Check if sharp is installed
+try {
+  require('sharp');
+} catch (error) {
+  console.log('❌ Sharp is not installed. Installing...');
+  const { execSync } = require('child_process');
+  try {
+    execSync('npm install sharp', { stdio: 'inherit' });
+    console.log('✅ Sharp installed successfully!');
+  } catch (installError) {
+    console.error('❌ Failed to install sharp. Please run: npm install sharp');
+    process.exit(1);
+  }
+}
 
-console.log('Favicon generation script');
-console.log('========================');
-console.log('');
-console.log('To generate PNG favicons from the SVG:');
-console.log('1. Install sharp: npm install sharp');
-console.log('2. Run: node scripts/generate-favicons.js');
-console.log('');
-console.log('Or use an online converter:');
-console.log('- https://convertio.co/svg-png/');
-console.log('- https://cloudconvert.com/svg-to-png');
-console.log('');
-console.log('Generate these sizes:');
-console.log('- 16x16 pixels (favicon-16x16.png)');
-console.log('- 32x32 pixels (favicon-32x32.png)');
-console.log('- 48x48 pixels (favicon-48x48.png)');
-console.log('');
-console.log('The SVG favicon is already in place at: public/favicon.svg'); 
+const sharp = require('sharp');
+
+async function generateFavicons() {
+  const publicDir = path.join(__dirname, '..', 'public');
+  const svgPath = path.join(publicDir, 'favicon.svg');
+  
+  // Check if SVG exists
+  if (!fs.existsSync(svgPath)) {
+    console.error('❌ favicon.svg not found in public directory');
+    process.exit(1);
+  }
+
+  const sizes = [16, 32, 48];
+  
+  console.log('🎨 Generating favicons from SVG...');
+  
+  try {
+    for (const size of sizes) {
+      const outputPath = path.join(publicDir, `favicon-${size}x${size}.png`);
+      
+      await sharp(svgPath)
+        .resize(size, size)
+        .png()
+        .toFile(outputPath);
+      
+      console.log(`✅ Generated favicon-${size}x${size}.png`);
+    }
+    
+    console.log('\n🎉 All favicons generated successfully!');
+    console.log('📁 Files created in public/ directory:');
+    sizes.forEach(size => {
+      console.log(`   - favicon-${size}x${size}.png`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Error generating favicons:', error.message);
+    process.exit(1);
+  }
+}
+
+generateFavicons(); 
