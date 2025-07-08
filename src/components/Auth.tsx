@@ -13,6 +13,9 @@ const Auth: React.FC = () => {
     password: '',
     confirmPassword: '',
     code: '',
+    givenName: '',
+    familyName: '',
+    phoneNumber: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -40,7 +43,18 @@ const Auth: React.FC = () => {
           setError('Passwords do not match');
           return;
         }
-        await signUp(formData.username, formData.email, formData.password);
+        
+        // Prepare user attributes for Cognito
+        const userAttributes: any = {
+          email: formData.email,
+        };
+        
+        // Add optional attributes if provided
+        if (formData.givenName) userAttributes.given_name = formData.givenName;
+        if (formData.familyName) userAttributes.family_name = formData.familyName;
+        if (formData.phoneNumber) userAttributes.phone_number = formData.phoneNumber;
+        
+        await signUp(formData.username, formData.email, formData.password, userAttributes);
         setMessage('Account created! Please check your email for confirmation code.');
         setIsConfirming(true);
       } else {
@@ -103,17 +117,56 @@ const Auth: React.FC = () => {
               </div>
 
               {isSignUp && (
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+                <>
+                  <div className="form-group">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="givenName">First Name</label>
+                    <input
+                      type="text"
+                      id="givenName"
+                      name="givenName"
+                      value={formData.givenName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="familyName">Last Name</label>
+                    <input
+                      type="text"
+                      id="familyName"
+                      name="familyName"
+                      value={formData.familyName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="phoneNumber">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      placeholder="+1234567890"
+                      required
+                    />
+                  </div>
+                </>
               )}
 
               <div className="form-group">

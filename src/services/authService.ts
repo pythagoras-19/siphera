@@ -33,7 +33,7 @@ class AuthService {
   /**
    * Sign up a new user
    */
-  async signUp(username: string, email: string, password: string) {
+  async signUp(username: string, email: string, password: string, userAttributes?: any) {
     try {
       const { isSignUpComplete, userId } = await signUp({
         username,
@@ -41,6 +41,7 @@ class AuthService {
         options: {
           userAttributes: {
             email,
+            ...userAttributes,
           },
         },
       });
