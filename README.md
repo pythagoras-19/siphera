@@ -1,107 +1,74 @@
-# Siphera - Unified Communications App
+# 🛠️ Siphera Product Timeline
 
-A modern, sleek unified communications application built with React and TypeScript, featuring a beautiful black, silver, and white UI theme.
+A modern, WebRTC-first, end-to-end encrypted UCaaS platform.
 
-## Features
+⸻
 
-- **Modern UI Design**: Clean, professional interface with a dark theme
-- **Chat Interface**: Real-time messaging with contact selection
-- **Contact Management**: Searchable contact list with status indicators
-- **Responsive Layout**: Sidebar navigation with multiple views
-- **TypeScript**: Full type safety and better development experience
+## 🚀 Phase 0: Foundation (Month 0–1)
 
-## Screenshots
+**Goal:** Lay the infrastructure and cryptographic groundwork.
+- Finalize architecture, stack, and feature scope
+- Register domains and create brand assets
+- Deploy AWS infrastructure (IAM, Cognito, S3, Lambda)
+- Set up TURN/STUN (coturn or Twilio ICE)
+- Build WebSocket signaling server (Node.js or Go)
+- Choose E2EE approach (WebRTC + Signal Protocol)
+- Scaffold React + React Native apps
 
-The app features:
-- Header with app branding and action buttons
-- Sidebar navigation (Chat, Contacts, Calls, Settings)
-- Main content area that adapts based on selected view
-- Contact list with search functionality
-- Chat interface with message history
-- Status indicators for online/offline contacts
+⸻
 
-## Getting Started
+## 🎯 Phase 1: MVP Launch (Months 2–4)
 
-### Prerequisites
+**Goal:** Deliver 1:1 encrypted voice, video, and messaging.
+- Secure auth (JWT-based via Cognito/Auth0)
+- Encrypted 1:1 voice & video using WebRTC (DTLS/SRTP)
+- Encrypted 1:1 chat using Signal Protocol
+- Push notifications (SNS/Firebase)
+- File upload to S3 (with lifecycle policies)
+- Basic React web app
+- Basic React Native mobile app
+- Internal alpha testing & bug fixes
 
-- Node.js (version 14 or higher)
-- npm or yarn
+⸻
 
-### Installation
+## 🌱 Phase 2: Teams & Enterprise Beta (Months 5–8)
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd siphera
-```
+**Goal:** Enable secure collaboration at scale.
+- Org and user provisioning (multi-tenant)
+- Group chat and mentions
+- Threaded messaging
+- Group voice/video (via LiveKit or Mediasoup)
+- Admin Portal v1 (user roles, org config)
+- MFA and device management
+- Offline messaging & retry queue
+- Closed beta with pilot customers
 
-2. Install dependencies:
-```bash
-npm install
-```
+⸻
 
-3. Start the development server:
-```bash
-npm start
-```
+## 🏛️ Phase 3: Enterprise UCaaS (Months 9–12)
 
-4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**Goal:** Full enterprise compliance, scalability, and launch.
+- SIP gateway integration for E911 (Twilio/Kamailio)
+- E911 dispatch logic (location mapping, alerts)
+- Call recording + transcription (S3 + Transcribe)
+- Admin Portal v2 (RBAC, logs, billing)
+- SCIM + SSO (SAML, OIDC)
+- Stripe billing integration
+- Calendar integrations (Google, Outlook)
+- Public launch + investor/pitch deck
 
-## Available Scripts
+⸻
 
-- `npm start` - Runs the app in development mode
-- `npm run build` - Builds the app for production
-- `npm test` - Launches the test runner
-- `npm run eject` - Ejects from Create React App (one-way operation)
+## 📅 Milestone Summary
 
-## Project Structure
+| Month | Deliverable |
+|-------|-------------|
+| 1 | Infra, auth, E2EE core |
+| 3 | MVP: 1:1 voice/video/chat |
+| 5 | Beta: group features, admin panel |
+| 8 | Enterprise controls, E911 integration |
+| 12 | Public launch, full platform readiness |
 
-```
-src/
-├── components/
-│   ├── Header.tsx          # App header with logo and actions
-│   ├── Header.css
-│   ├── Sidebar.tsx         # Navigation sidebar
-│   ├── Sidebar.css
-│   ├── ChatArea.tsx        # Chat interface
-│   ├── ChatArea.css
-│   ├── ContactList.tsx     # Contact management
-│   └── ContactList.css
-├── App.tsx                 # Main app component
-├── App.css                 # Global styles
-└── index.tsx              # App entry point
-```
+⸻
 
-## UI Theme
-
-The app uses a sophisticated black, silver, and white color scheme:
-
-- **Primary Background**: Dark (#0f0f0f, #1a1a1a, #2d2d2d)
-- **Accent Color**: Blue (#4a90e2, #357abd)
-- **Text**: White and light gray (#ffffff, #b0b0b0)
-- **Borders**: Subtle gray (#404040)
-
-## Future Enhancements
-
-- Real-time messaging with WebSocket integration
-- Voice and video calling capabilities
-- File sharing and media support
-- User authentication and profiles
-- Message encryption
-- Mobile responsive design
-- Push notifications
-
-## Technologies Used
-
-- React 19
-- TypeScript
-- CSS3 with modern features
-- Create React App
-
-## Contributing
-
-This is a foundation project for a unified communications app. Feel free to extend it with additional features and improvements.
-
-## License
-
-This project is open source and available under the MIT License.
+This file is part of the core documentation for the Siphera GitHub repository. Stay lean, build secure, and scale smart.
