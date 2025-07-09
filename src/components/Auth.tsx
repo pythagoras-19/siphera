@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './Auth.css';
 
 const Auth: React.FC = () => {
   const { isAuthenticated, user, isLoading, signIn, signUp, signOut, confirmSignUp } = useAuth();
+  const navigate = useNavigate();
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -86,26 +88,34 @@ const Auth: React.FC = () => {
     }
   };
 
+  // Redirect to /app when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate('/app');
+    }
+  }, [isAuthenticated, user, navigate]);
+
   if (isLoading) {
     return <div className="auth-loading">Loading...</div>;
   }
 
-  if (isAuthenticated && user) {
-    return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <h2>Welcome, {user.username}!</h2>
-          <p>Email: {user.email}</p>
-          <p>User ID: {user.id}</p>
-          <button onClick={handleSignOut} className="auth-button">
-            Sign Out
-          </button>
-          {message && <div className="auth-message">{message}</div>}
-          {error && <div className="auth-error">{error}</div>}
-        </div>
-      </div>
-    );
-  }
+  // Remove the authenticated user display since we're redirecting
+  // if (isAuthenticated && user) {
+  //   return (
+  //     <div className="auth-container">
+  //       <div className="auth-card">
+  //         <h2>Welcome, {user.username}!</h2>
+  //         <p>Email: {user.email}</p>
+  //         <p>User ID: {user.id}</p>
+  //         <button onClick={handleSignOut} className="auth-button">
+  //           Sign Out
+  //         </button>
+  //         {message && <div className="auth-message">{message}</div>}
+  //         {error && <div className="auth-error">{error}</div>}
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="auth-container">

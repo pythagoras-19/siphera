@@ -57,6 +57,7 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  margin-bottom: 32px;
 }
 
 .feature-tag {
@@ -80,6 +81,35 @@
 
 .feature-icon {
   font-size: 1rem;
+}
+
+.hero-cta {
+  margin-top: 32px;
+}
+
+.launch-app-button {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 16px 32px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+  backdrop-filter: blur(10px);
+  letter-spacing: -0.01em;
+}
+
+.launch-app-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(74, 144, 226, 0.4);
+  background: linear-gradient(135deg, #357abd 0%, #2d5aa0 100%);
+}
+
+.launch-app-button:active {
+  transform: translateY(0);
 }
 
 .hero-visual {

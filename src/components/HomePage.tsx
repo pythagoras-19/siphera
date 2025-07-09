@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './HomePage.css';
 import Logo from './Logo';
 
@@ -8,6 +10,21 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
   const [currentFeature, setCurrentFeature] = useState(0);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Get user's first name from attributes
+  const getFirstName = () => {
+    if (user?.attributes?.given_name) {
+      return user.attributes.given_name;
+    }
+    // Fallback to username if no first name is available
+    return user?.username || 'User';
+  };
+
+  const handleLaunchApp = () => {
+    navigate('/app');
+  };
 
   const features = [
     {
@@ -50,7 +67,7 @@ const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
         <div className="hero-content">
           <div className="hero-text">
             <h1 className="hero-title">
-              Welcome to <span className="gradient-text">Siphera</span>
+              Welcome, <span className="gradient-text">{getFirstName()}</span>
             </h1>
             <p className="hero-subtitle">
               The next generation of unified communications. Secure, modern, and designed for the future.
@@ -68,6 +85,11 @@ const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
                 <span className="feature-icon">🎨</span>
                 Modern Design
               </div>
+            </div>
+            <div className="hero-cta">
+              <button className="launch-app-button" onClick={handleLaunchApp}>
+                Launch App
+              </button>
             </div>
           </div>
           <div className="hero-visual">

@@ -105,6 +105,11 @@ class AuthService {
   async getCurrentUser(): Promise<User | null> {
     try {
       const user = await getCurrentUser();
+      const session = await fetchAuthSession();
+      
+      // Get user attributes from the session
+      const attributes = session.tokens?.accessToken?.payload || {};
+      
       return {
         id: user.userId,
         email: user.signInDetails?.loginId || '',
@@ -113,6 +118,10 @@ class AuthService {
           email: user.signInDetails?.loginId || '',
           email_verified: true,
           sub: user.userId,
+          given_name: attributes.given_name || null,
+          family_name: attributes.family_name || null,
+          phone_number: attributes.phone_number || null,
+          ...attributes,
         },
       };
     } catch (error) {
@@ -198,22 +207,47 @@ class AuthService {
    */
   onAuthStateChange(callback: (authState: AuthState) => void): () => void {
     getCurrentUser()
-      .then((user) => {
+      .then(async (user) => {
         if (user) {
-          callback({
-            isAuthenticated: true,
-            user: {
-              id: user.userId,
-              email: user.signInDetails?.loginId || '',
-              username: user.username,
-              attributes: {
+          try {
+            const session = await fetchAuthSession();
+            const attributes = session.tokens?.accessToken?.payload || {};
+            
+            callback({
+              isAuthenticated: true,
+              user: {
+                id: user.userId,
                 email: user.signInDetails?.loginId || '',
-                email_verified: true,
-                sub: user.userId,
+                username: user.username,
+                attributes: {
+                  email: user.signInDetails?.loginId || '',
+                  email_verified: true,
+                  sub: user.userId,
+                  given_name: attributes.given_name || null,
+                  family_name: attributes.family_name || null,
+                  phone_number: attributes.phone_number || null,
+                  ...attributes,
+                },
               },
-            },
-            isLoading: false,
-          });
+              isLoading: false,
+            });
+          } catch (error) {
+            console.error('Error fetching user attributes:', error);
+            callback({
+              isAuthenticated: true,
+              user: {
+                id: user.userId,
+                email: user.signInDetails?.loginId || '',
+                username: user.username,
+                attributes: {
+                  email: user.signInDetails?.loginId || '',
+                  email_verified: true,
+                  sub: user.userId,
+                },
+              },
+              isLoading: false,
+            });
+          }
         } else {
           callback({
             isAuthenticated: false,
