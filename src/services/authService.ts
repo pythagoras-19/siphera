@@ -35,6 +35,7 @@ class AuthService {
    */
   async signUp(username: string, email: string, password: string, userAttributes?: any) {
     try {
+      console.log('AuthService: Starting signUp with:', { username, email, userAttributes });
       const { isSignUpComplete, userId } = await signUp({
         username,
         password,
@@ -45,9 +46,10 @@ class AuthService {
           },
         },
       });
+      console.log('AuthService: SignUp completed:', { isSignUpComplete, userId });
       return { isSignUpComplete, userId };
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error('AuthService: Error signing up:', error);
       throw error;
     }
   }

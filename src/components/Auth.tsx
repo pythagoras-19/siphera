@@ -20,6 +20,15 @@ const Auth: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const confirm = localStorage.getItem('isConfirming');
+    const confirmUsername = localStorage.getItem('confirmUsername');
+    if (confirm === 'true' && confirmUsername) {
+      setIsConfirming(true);
+      setFormData(prev => ({ ...prev, username: confirmUsername }));
+    }
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -33,16 +42,23 @@ const Auth: React.FC = () => {
     setMessage(null);
 
     try {
+      
+      console.log('trying to sign in');
       if (isConfirming) {
+        console.log('Confirming sign up with code:', formData.code);
         await confirmSignUp(formData.username, formData.code);
         setMessage('Account confirmed successfully! You can now sign in.');
         setIsConfirming(false);
         setIsSignUp(false);
+        localStorage.removeItem('isConfirming');
+        localStorage.removeItem('confirmUsername');
       } else if (isSignUp) {
         if (formData.password !== formData.confirmPassword) {
           setError('Passwords do not match');
           return;
         }
+        
+        console.log('Starting sign up process...');
         
         // Prepare user attributes for Cognito
         const userAttributes: any = {
@@ -54,14 +70,23 @@ const Auth: React.FC = () => {
         if (formData.familyName) userAttributes.family_name = formData.familyName;
         if (formData.phoneNumber) userAttributes.phone_number = formData.phoneNumber;
         
-        await signUp(formData.username, formData.email, formData.password, userAttributes);
+        console.log('Sign up attributes:', { username: formData.username, email: formData.email, userAttributes });
+        
+        const result = await signUp(formData.username, formData.email, formData.password, userAttributes);
+        console.log('Sign up result:', result);
+        
         setMessage('Account created! Please check your email for confirmation code.');
+        console.log('Setting isConfirming to true');
         setIsConfirming(true);
+        localStorage.setItem('isConfirming', 'true');
+        localStorage.setItem('confirmUsername', formData.username);
       } else {
+        console.log('Signing in...');
         await signIn(formData.username, formData.password);
         setMessage('Signed in successfully!');
       }
     } catch (err: any) {
+      console.error('Auth error:', err);
       setError(err.message || 'An error occurred');
     }
   };
@@ -96,6 +121,8 @@ const Auth: React.FC = () => {
     );
   }
 
+  console.log('Render: isConfirming', isConfirming, 'isSignUp', isSignUp);
+  console.log('Auth component mounted');
   return (
     <div className="auth-container">
       <div className="auth-card">

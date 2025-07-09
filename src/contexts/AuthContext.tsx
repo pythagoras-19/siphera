@@ -3,7 +3,7 @@ import { authService, AuthState, User } from '../services/authService';
 
 interface AuthContextType extends AuthState {
   signIn: (username: string, password: string) => Promise<void>;
-  signUp: (username: string, email: string, password: string, userAttributes?: any) => Promise<void>;
+  signUp: (username: string, email: string, password: string, userAttributes?: any) => Promise<{ isSignUpComplete: boolean; userId: string | undefined }>;
   signOut: () => Promise<void>;
   confirmSignUp: (username: string, code: string) => Promise<void>;
   forgotPassword: (username: string) => Promise<void>;
@@ -72,10 +72,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (username: string, email: string, password: string, userAttributes?: any) => {
     try {
+      console.log('AuthContext: Starting signUp...');
       setAuthState(prev => ({ ...prev, isLoading: true }));
-      await authService.signUp(username, email, password, userAttributes);
+      const result = await authService.signUp(username, email, password, userAttributes);
+      console.log('AuthContext: SignUp result:', result);
       setAuthState(prev => ({ ...prev, isLoading: false }));
+      return result;
     } catch (error) {
+      console.error('AuthContext: SignUp error:', error);
       setAuthState(prev => ({ ...prev, isLoading: false }));
       throw error;
     }
