@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import './amplify-config'; // Import Amplify configuration
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -9,12 +9,20 @@ import ContactList from './components/ContactList';
 import SecuritySettings from './components/SecuritySettings';
 import HomePage from './components/HomePage';
 import Auth from './components/Auth';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
-function AppContent() {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
-  const [selectedContact, setSelectedContact] = useState<string | null>(null);
-  const [showHomepage, setShowHomepage] = useState(true);
+  if (isLoading) return <div>Loading...</div>;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
+}
+
+function MainApp() {
+  const [activeView, setActiveView] = React.useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
+  const [selectedContact, setSelectedContact] = React.useState<string | null>(null);
+  const [showHomepage, setShowHomepage] = React.useState(true);
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleLaunchApp = () => {
     setShowHomepage(false);
@@ -24,17 +32,11 @@ function AppContent() {
     setShowHomepage(true);
   };
 
-  // Show loading state
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
-  // Show authentication if not authenticated
-  if (!isAuthenticated) {
-    return <Auth />;
-  }
-
-  // Show homepage or main app
   if (showHomepage) {
     return (
       <div className="App">
@@ -46,6 +48,9 @@ function AppContent() {
   return (
     <div className="App">
       <Header onBackToHome={handleBackToHome} />
+      <button className="signout-btn" onClick={handleSignOut} style={{ position: 'absolute', right: 24, top: 24, zIndex: 1000 }}>
+        Sign Out
+      </button>
       <div className="main-container">
         <Sidebar activeView={activeView} setActiveView={setActiveView} />
         <div className="content-area">
@@ -73,7 +78,13 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/app" element={<PrivateRoute><MainApp /></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/auth" replace />} />
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }
