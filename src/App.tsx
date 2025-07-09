@@ -17,19 +17,13 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
 }
 
-function MainApp() {
-  const [activeView, setActiveView] = React.useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
-  const [selectedContact, setSelectedContact] = React.useState<string | null>(null);
-  const [showHomepage, setShowHomepage] = React.useState(true);
+// Welcome Screen Component (for /app route)
+function WelcomeScreen() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
   const handleLaunchApp = () => {
-    setShowHomepage(false);
-  };
-
-  const handleBackToHome = () => {
-    setShowHomepage(true);
+    navigate('/dashboard');
   };
 
   const handleSignOut = async () => {
@@ -37,13 +31,31 @@ function MainApp() {
     navigate('/auth');
   };
 
-  if (showHomepage) {
-    return (
-      <div className="App">
-        <HomePage onLaunchApp={handleLaunchApp} />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <button className="signout-btn" onClick={handleSignOut} style={{ position: 'absolute', right: 24, top: 24, zIndex: 1000 }}>
+        Sign Out
+      </button>
+      <HomePage onLaunchApp={handleLaunchApp} />
+    </div>
+  );
+}
+
+// Dashboard Component (for /dashboard route)
+function Dashboard() {
+  const [activeView, setActiveView] = React.useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
+  const [selectedContact, setSelectedContact] = React.useState<string | null>(null);
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleBackToHome = () => {
+    navigate('/app');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
     <div className="App">
@@ -81,7 +93,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/auth" element={<Auth />} />
-          <Route path="/app" element={<PrivateRoute><MainApp /></PrivateRoute>} />
+          <Route path="/app" element={<PrivateRoute><WelcomeScreen /></PrivateRoute>} />
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
       </Router>

@@ -23,7 +23,7 @@ const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
   };
 
   const handleLaunchApp = () => {
-    navigate('/app');
+    navigate('/dashboard');
   };
 
   const features = [
