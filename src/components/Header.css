@@ -162,6 +162,16 @@
   transform: scale(1.1);
 }
 
+.btn-text {
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
 .profile-btn {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   border-color: #4a90e2;
@@ -180,6 +190,9 @@
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
   margin-left: 8px;
   position: relative;
+  width: auto;
+  min-width: 100px;
+  padding: 0 16px;
 }
 
 .signout-btn::after {

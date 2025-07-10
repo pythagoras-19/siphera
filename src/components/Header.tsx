@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome, onSignOut }) => {
               title="Sign Out"
               data-tooltip="Sign Out"
             >
-              <span className="btn-icon">🚪</span>
+              <span className="btn-text">Sign out</span>
             </button>
           )}
         </div>
