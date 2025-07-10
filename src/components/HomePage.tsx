@@ -67,7 +67,7 @@ const HomePage: React.FC<HomePageProps> = ({ onLaunchApp }) => {
         <div className="hero-content">
           <div className="hero-text">
             <h1 className="hero-title">
-              Welcome, <span className="gradient-text">{getFirstName()}</span>
+              Welcome to Siphera, <span className="gradient-text">where privacy is the priority</span>
             </h1>
             <p className="hero-subtitle">
               The next generation of unified communications. Secure, modern, and designed for the future.
