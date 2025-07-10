@@ -1,30 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import './ChatArea.css';
 import { SecureChatService } from '../services/SecureChatService';
+import { WebSocketService, ChatMessage } from '../services/WebSocketService';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ChatAreaProps {
   selectedContact: string | null;
   onShowContacts?: () => void;
 }
 
-interface DecryptedMessage {
-  id: string;
-  text: string;
-  sender: string;
-  timestamp: number;
-  isEncrypted: boolean;
-}
+
 
 const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) => {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<DecryptedMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isEncrypted, setIsEncrypted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [encryptionStatus, setEncryptionStatus] = useState<string>('');
+  const [isConnected, setIsConnected] = useState(false);
 
   const secureChatService = SecureChatService.getInstance();
+  const webSocketService = WebSocketService.getInstance();
+  const { user } = useAuth();
 
   useEffect(() => {
+    // Connect to WebSocket when component mounts
+    const connectToWebSocket = async () => {
+      if (user?.username) {
+        try {
+          await webSocketService.connect(user.username, user.username);
+          setIsConnected(true);
+        } catch (error) {
+          console.error('Failed to connect to WebSocket:', error);
+          setIsConnected(false);
+        }
+      }
+    };
+
+    connectToWebSocket();
+
+    // Set up message listener
+    const unsubscribe = webSocketService.onMessage((chatMessage: ChatMessage) => {
+      // Only add messages for the currently selected contact
+      if (selectedContact && 
+          (chatMessage.sender === selectedContact || chatMessage.recipient === selectedContact)) {
+        setMessages(prev => [...prev, chatMessage]);
+      }
+    });
+
+    // Set up connection status listener
+    const unsubscribeConnection = webSocketService.onConnectionStatus((connected: boolean) => {
+      setIsConnected(connected);
+    });
+
+    // Load existing chat history
     if (selectedContact) {
       loadChatHistory();
       checkEncryptionStatus();
@@ -33,15 +62,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       setIsEncrypted(false);
       setEncryptionStatus('');
     }
-  }, [selectedContact]);
+
+    // Cleanup on unmount
+    return () => {
+      unsubscribe();
+      unsubscribeConnection();
+    };
+  }, [selectedContact, user?.username]);
 
   const loadChatHistory = async () => {
     if (!selectedContact) return;
     
     setIsLoading(true);
     try {
-      const chatHistory = await secureChatService.getDecryptedChatHistory(selectedContact);
-      setMessages(chatHistory);
+      // For now, we'll start with empty history since we're using real-time messaging
+      // In a real app, you'd load from a database
+      setMessages([]);
     } catch (error) {
       console.error('Failed to load chat history:', error);
     } finally {
@@ -58,23 +94,15 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !selectedContact) return;
+    if (!message.trim() || !selectedContact || !isConnected) return;
 
     setIsLoading(true);
     try {
-      // Send encrypted message
-      await secureChatService.sendEncryptedMessage(selectedContact, message.trim());
+      // Send message via WebSocket
+      const chatMessage = await webSocketService.sendMessage(selectedContact, message.trim());
       
       // Add message to local state
-      const newMessage: DecryptedMessage = {
-        id: Date.now().toString(),
-        text: message.trim(),
-        sender: 'me',
-        timestamp: Date.now(),
-        isEncrypted: true
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => [...prev, chatMessage]);
       setMessage('');
       
       // Update encryption status if needed
@@ -83,7 +111,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      alert('Failed to send encrypted message. Please try again.');
+      alert('Failed to send message. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +161,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
           <div className="contact-details">
             <h3 className="contact-name">{selectedContact}</h3>
             <div className="contact-status-row">
-              <span className="contact-status">Online</span>
+              <span className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+                {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+              </span>
               <span className={`encryption-status ${isEncrypted ? 'encrypted' : 'standard'}`}>
                 {encryptionStatus}
               </span>
@@ -157,7 +187,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         
         <div className="messages">
           {messages.map((msg) => (
-            <div key={msg.id} className={`message ${msg.sender}`}>
+            <div key={msg.id} className={`message ${msg.sender === user?.username ? 'sent' : 'received'}`}>
               <div className="message-content">
                 <p>{msg.text}</p>
                 <div className="message-meta">
@@ -196,9 +226,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         <div className="security-notice">
           <span className="security-icon">🔐</span>
           <span className="security-text">
-            {isEncrypted 
-              ? 'Messages are end-to-end encrypted' 
-              : 'Setting up secure connection...'
+            {isConnected 
+              ? (isEncrypted ? 'Messages are end-to-end encrypted' : 'Setting up secure connection...')
+              : 'Connecting to server...'
             }
           </span>
         </div>

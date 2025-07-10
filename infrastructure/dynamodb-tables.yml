@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Siphera DynamoDB Tables for User Management and Message Storage'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment name (dev, staging, prod)
+    AllowedValues: [dev, staging, prod]
+
+Resources:
+  # Users Table
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'siphera-users-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: username
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: username-index
+          KeySchema:
+            - AttributeName: username
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Service
+          Value: Siphera
+
+  # Messages Table
+  MessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'siphera-messages-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: messageId
+          AttributeType: S
+        - AttributeName: senderId
+          AttributeType: S
+        - AttributeName: recipientId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: messageId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: sender-recipient-index
+          KeySchema:
+            - AttributeName: senderId
+              KeyType: HASH
+            - AttributeName: recipientId
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: timestamp-index
+          KeySchema:
+            - AttributeName: timestamp
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Service
+          Value: Siphera
+
+  # Chat Sessions Table
+  SessionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'siphera-sessions-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: sessionId
+          AttributeType: S
+        - AttributeName: participants
+          AttributeType: S
+        - AttributeName: updatedAt
+          AttributeType: N
+      KeySchema:
+        - AttributeName: sessionId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: participants-index
+          KeySchema:
+            - AttributeName: participants
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: updated-at-index
+          KeySchema:
+            - AttributeName: updatedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Service
+          Value: Siphera
+
+Outputs:
+  UsersTableName:
+    Description: Name of the Users table
+    Value: !Ref UsersTable
+    Export:
+      Name: !Sub '${AWS::StackName}-UsersTable'
+
+  MessagesTableName:
+    Description: Name of the Messages table
+    Value: !Ref MessagesTable
+    Export:
+      Name: !Sub '${AWS::StackName}-MessagesTable'
+
+  SessionsTableName:
+    Description: Name of the Sessions table
+    Value: !Ref SessionsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-SessionsTable'
+
+  UsersTableArn:
+    Description: ARN of the Users table
+    Value: !GetAtt UsersTable.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-UsersTableArn'
+
+  MessagesTableArn:
+    Description: ARN of the Messages table
+    Value: !GetAtt MessagesTable.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-MessagesTableArn'
+
+  SessionsTableArn:
+    Description: ARN of the Sessions table
+    Value: !GetAtt SessionsTable.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-SessionsTableArn' 

@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import dotenv from 'dotenv';
+import { userService } from './services/UserService';
+import { dynamoDBService } from './services/DynamoDBService';
 
 // Load environment variables
 dotenv.config();
@@ -15,7 +17,7 @@ const server = createServer(app);
 
 // Configuration
 const PORT = parseInt(process.env.PORT || '3007', 10);
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3005';
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 // Create Socket.IO server
 const io = new Server(server, {
@@ -45,32 +47,295 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Store connected users
+const connectedUsers = new Map<string, { socketId: string; userId: string; userName: string }>();
+
+// API Routes for user management
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await userService.getAllUsers();
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+  }
+});
+
+app.get('/api/users/:userId', async (req, res) => {
+  try {
+    const user = await userService.getUserByCognitoId(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch user' });
+  }
+});
+
+app.get('/api/users/:userId/contacts', async (req, res) => {
+  try {
+    const contacts = await userService.getUserContacts(req.params.userId);
+    res.json({ success: true, contacts });
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch contacts' });
+  }
+});
+
+app.post('/api/users/:userId/contacts', async (req, res) => {
+  try {
+    const { contactId } = req.body;
+    await userService.addContact(req.params.userId, contactId);
+    res.json({ success: true, message: 'Contact added successfully' });
+  } catch (error) {
+    console.error('Error adding contact:', error);
+    res.status(500).json({ success: false, error: 'Failed to add contact' });
+  }
+});
+
+app.delete('/api/users/:userId/contacts/:contactId', async (req, res) => {
+  try {
+    await userService.removeContact(req.params.userId, req.params.contactId);
+    res.json({ success: true, message: 'Contact removed successfully' });
+  } catch (error) {
+    console.error('Error removing contact:', error);
+    res.status(500).json({ success: false, error: 'Failed to remove contact' });
+  }
+});
+
+app.get('/api/users/search/:query', async (req, res) => {
+  try {
+    const currentUserId = req.query.currentUserId as string;
+    if (!currentUserId) {
+      return res.status(400).json({ success: false, error: 'currentUserId is required' });
+    }
+    
+    const users = await userService.searchUsers(req.params.query, currentUserId);
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('Error searching users:', error);
+    res.status(500).json({ success: false, error: 'Failed to search users' });
+  }
+});
+
+app.put('/api/users/:userId/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    await userService.updateUserStatus(req.params.userId, status);
+    res.json({ success: true, message: 'Status updated successfully' });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ success: false, error: 'Failed to update status' });
+  }
+});
+
+app.put('/api/users/:userId/profile', async (req, res) => {
+  try {
+    const updates = req.body;
+    await userService.updateUserProfile(req.params.userId, updates);
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ success: false, error: 'Failed to update profile' });
+  }
+});
+
+// Message management endpoints
+app.get('/api/messages/:senderId/:recipientId', async (req, res) => {
+  try {
+    const { senderId, recipientId } = req.params;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const messages = await dynamoDBService.getMessages(senderId, recipientId, limit);
+    res.json({ success: true, messages });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch messages' });
+  }
+});
+
+app.put('/api/messages/:messageId/read', async (req, res) => {
+  try {
+    await dynamoDBService.markMessageAsRead(req.params.messageId);
+    res.json({ success: true, message: 'Message marked as read' });
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+    res.status(500).json({ success: false, error: 'Failed to mark message as read' });
+  }
+});
+
+// Chat session management
+app.post('/api/sessions', async (req, res) => {
+  try {
+    const { participants } = req.body;
+    const session = await dynamoDBService.createChatSession(participants);
+    res.json({ success: true, session });
+  } catch (error) {
+    console.error('Error creating chat session:', error);
+    res.status(500).json({ success: false, error: 'Failed to create chat session' });
+  }
+});
+
+app.get('/api/sessions/:sessionId', async (req, res) => {
+  try {
+    const session = await dynamoDBService.getChatSession(req.params.sessionId);
+    if (!session) {
+      return res.status(404).json({ success: false, error: 'Session not found' });
+    }
+    res.json({ success: true, session });
+  } catch (error) {
+    console.error('Error fetching chat session:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch chat session' });
+  }
+});
+
+app.get('/api/users/:userId/sessions', async (req, res) => {
+  try {
+    const sessions = await dynamoDBService.getUserChatSessions(req.params.userId);
+    res.json({ success: true, sessions });
+  } catch (error) {
+    console.error('Error fetching user sessions:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch user sessions' });
+  }
+});
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
+  // Handle user joining
+  socket.on('user:join', async (data: { userId: string; userName: string }) => {
+    console.log('User joined:', data);
+    
+    try {
+      // Update user status in DynamoDB
+      await userService.updateUserStatus(data.userId, 'online');
+      
+      // Store user info
+      connectedUsers.set(data.userId, {
+        socketId: socket.id,
+        userId: data.userId,
+        userName: data.userName
+      });
+
+      // Join user to their personal room
+      socket.join(`user:${data.userId}`);
+      
+      // Broadcast user status to all clients
+      io.emit('user:status', {
+        id: data.userId,
+        name: data.userName,
+        status: 'online',
+        lastSeen: Date.now()
+      });
+
+      console.log(`👤 ${data.userName} (${data.userId}) joined the chat`);
+    } catch (error) {
+      console.error('Error handling user join:', error);
+    }
+  });
+
   // Handle disconnection
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     console.log('User disconnected:', socket.id);
+    
+    // Find and remove user
+    let disconnectedUser = null;
+    for (const [userId, userInfo] of connectedUsers.entries()) {
+      if (userInfo.socketId === socket.id) {
+        disconnectedUser = userInfo;
+        connectedUsers.delete(userId);
+        break;
+      }
+    }
+
+    if (disconnectedUser) {
+      try {
+        // Update user status in DynamoDB
+        await userService.updateUserStatus(disconnectedUser.userId, 'offline');
+        
+        // Broadcast user offline status
+        io.emit('user:status', {
+          id: disconnectedUser.userId,
+          name: disconnectedUser.userName,
+          status: 'offline',
+          lastSeen: Date.now()
+        });
+
+        console.log(`👤 ${disconnectedUser.userName} (${disconnectedUser.userId}) left the chat`);
+      } catch (error) {
+        console.error('Error handling user disconnect:', error);
+      }
+    }
   });
 
   // Handle chat messages
-  socket.on('message:send', (data) => {
+  socket.on('message:send', async (data: any) => {
     console.log('Message received:', data);
-    socket.broadcast.emit('message:received', data);
+    
+    try {
+      // Save message to DynamoDB
+      const message = await dynamoDBService.saveMessage({
+        senderId: data.sender,
+        recipientId: data.recipient,
+        content: data.content,
+        encryptedContent: data.encryptedContent || data.content,
+        timestamp: Date.now(),
+        isEncrypted: data.isEncrypted || false,
+        isRead: false,
+        messageType: data.messageType || 'text',
+        metadata: data.metadata || {},
+      });
+
+      // Route message to specific recipient
+      const recipientUser = connectedUsers.get(data.recipient);
+      if (recipientUser) {
+        // Send to recipient's room
+        io.to(`user:${data.recipient}`).emit('message:received', {
+          ...data,
+          messageId: message.messageId,
+        });
+        console.log(`📤 Message routed to ${recipientUser.userName} (${data.recipient})`);
+      } else {
+        // Recipient not online, message stored in DynamoDB for later delivery
+        console.log(`📤 Recipient ${data.recipient} not online, message stored for later delivery`);
+      }
+
+      // Send confirmation back to sender
+      socket.emit('message:sent', {
+        messageId: message.messageId,
+        timestamp: message.timestamp,
+      });
+    } catch (error) {
+      console.error('Error handling message:', error);
+      socket.emit('message:error', {
+        error: 'Failed to send message',
+        originalMessage: data,
+      });
+    }
   });
 
   // Handle WebRTC signaling
   socket.on('webrtc:offer', (data) => {
-    socket.broadcast.emit('webrtc:offer', data);
+    const recipientUser = connectedUsers.get(data.recipient);
+    if (recipientUser) {
+      io.to(`user:${data.recipient}`).emit('webrtc:offer', data);
+    }
   });
 
   socket.on('webrtc:answer', (data) => {
-    socket.broadcast.emit('webrtc:answer', data);
+    const recipientUser = connectedUsers.get(data.recipient);
+    if (recipientUser) {
+      io.to(`user:${data.recipient}`).emit('webrtc:answer', data);
+    }
   });
 
   socket.on('webrtc:ice-candidate', (data) => {
-    socket.broadcast.emit('webrtc:ice-candidate', data);
+    const recipientUser = connectedUsers.get(data.recipient);
+    if (recipientUser) {
+      io.to(`user:${data.recipient}`).emit('webrtc:ice-candidate', data);
+    }
   });
 });
 
