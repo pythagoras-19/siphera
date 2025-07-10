@@ -4,6 +4,7 @@ import { SecureChatService } from '../services/SecureChatService';
 
 interface ChatAreaProps {
   selectedContact: string | null;
+  onShowContacts?: () => void;
 }
 
 interface DecryptedMessage {
@@ -14,7 +15,7 @@ interface DecryptedMessage {
   isEncrypted: boolean;
 }
 
-const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact }) => {
+const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<DecryptedMessage[]>([]);
   const [isEncrypted, setIsEncrypted] = useState(false);
@@ -109,6 +110,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact }) => {
           <div className="no-chat-icon">💬</div>
           <h2>Welcome to Siphera</h2>
           <p>Select a contact to start chatting</p>
+          {onShowContacts && (
+            <button className="show-contacts-btn" onClick={onShowContacts}>
+              Browse Contacts
+            </button>
+          )}
           <div className="security-info">
             <p>🔐 All messages are end-to-end encrypted</p>
           </div>

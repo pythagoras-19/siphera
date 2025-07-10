@@ -2,13 +2,13 @@ import React from 'react';
 import './App.css';
 import './amplify-config'; // Import Amplify configuration
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import ChatArea from './components/ChatArea';
-import ContactList from './components/ContactList';
-import SecuritySettings from './components/SecuritySettings';
 import HomePage from './components/HomePage';
 import Auth from './components/Auth';
+import Header from './components/Header';
+import ChatPage from './components/ChatPage';
+import ContactsPage from './components/ContactsPage';
+import CallsPage from './components/CallsPage';
+import SettingsPage from './components/SettingsPage';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -39,47 +39,15 @@ function WelcomeScreen() {
   );
 }
 
-// Dashboard Component (for /dashboard route)
+// Dashboard Component (for /dashboard route) - redirects to chat
 function Dashboard() {
-  const [activeView, setActiveView] = React.useState<'chat' | 'contacts' | 'calls' | 'settings'>('chat');
-  const [selectedContact, setSelectedContact] = React.useState<string | null>(null);
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-
-  const handleBackToHome = () => {
-    navigate('/app');
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-  };
-
-  return (
-    <div className="App">
-      <Header onBackToHome={handleBackToHome} onSignOut={handleSignOut} />
-      <div className="main-container">
-        <Sidebar activeView={activeView} setActiveView={setActiveView} />
-        <div className="content-area">
-          {activeView === 'chat' && (
-            <ChatArea selectedContact={selectedContact} />
-          )}
-          {activeView === 'contacts' && (
-            <ContactList onContactSelect={setSelectedContact} />
-          )}
-          {activeView === 'calls' && (
-            <div className="calls-view">
-              <h2>Call History</h2>
-              <p>Recent calls will appear here</p>
-            </div>
-          )}
-          {activeView === 'settings' && (
-            <SecuritySettings />
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  
+  React.useEffect(() => {
+    navigate('/chat', { replace: true });
+  }, [navigate]);
+  
+  return null;
 }
 
 function App() {
@@ -90,6 +58,10 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/app" element={<PrivateRoute><WelcomeScreen /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
+          <Route path="/contacts" element={<PrivateRoute><ContactsPage /></PrivateRoute>} />
+          <Route path="/calls" element={<PrivateRoute><CallsPage /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
       </Router>

@@ -1,0 +1,8 @@
+/* ContactsPage specific styles */
+.contacts-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Additional styles can be added here if needed */ 

@@ -79,6 +79,32 @@
   font-size: 15px;
 }
 
+.show-contacts-btn {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 20px 0;
+  box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+  letter-spacing: 0.3px;
+}
+
+.show-contacts-btn:hover {
+  background: linear-gradient(135deg, #357abd 0%, #2d6da3 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+.show-contacts-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
+}
+
 .chat-header {
   background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(45, 45, 45, 0.95) 100%);
   backdrop-filter: blur(20px);

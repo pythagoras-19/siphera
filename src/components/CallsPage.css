@@ -1,0 +1,43 @@
+/* CallsPage specific styles */
+.calls-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.calls-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #b0b0b0;
+}
+
+.calls-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  opacity: 0.4;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: float 3s ease-in-out infinite;
+}
+
+.calls-placeholder p {
+  margin: 8px 0;
+  font-size: 16px;
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.calls-placeholder p:first-of-type {
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+} 
