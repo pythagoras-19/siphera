@@ -54,10 +54,10 @@ const connectedUsers = new Map<string, { socketId: string; userId: string; userN
 app.get('/api/users', async (req, res) => {
   try {
     const users = await userService.getAllUsers();
-    res.json({ success: true, users });
+    return res.json({ success: true, users });
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch users' });
   }
 });
 
@@ -67,20 +67,20 @@ app.get('/api/users/:userId', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
-    res.json({ success: true, user });
+    return res.json({ success: true, user });
   } catch (error) {
     console.error('Error fetching user:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch user' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch user' });
   }
 });
 
 app.get('/api/users/:userId/contacts', async (req, res) => {
   try {
     const contacts = await userService.getUserContacts(req.params.userId);
-    res.json({ success: true, contacts });
+    return res.json({ success: true, contacts });
   } catch (error) {
     console.error('Error fetching contacts:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch contacts' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch contacts' });
   }
 });
 
@@ -88,20 +88,20 @@ app.post('/api/users/:userId/contacts', async (req, res) => {
   try {
     const { contactId } = req.body;
     await userService.addContact(req.params.userId, contactId);
-    res.json({ success: true, message: 'Contact added successfully' });
+    return res.json({ success: true, message: 'Contact added successfully' });
   } catch (error) {
     console.error('Error adding contact:', error);
-    res.status(500).json({ success: false, error: 'Failed to add contact' });
+    return res.status(500).json({ success: false, error: 'Failed to add contact' });
   }
 });
 
 app.delete('/api/users/:userId/contacts/:contactId', async (req, res) => {
   try {
     await userService.removeContact(req.params.userId, req.params.contactId);
-    res.json({ success: true, message: 'Contact removed successfully' });
+    return res.json({ success: true, message: 'Contact removed successfully' });
   } catch (error) {
     console.error('Error removing contact:', error);
-    res.status(500).json({ success: false, error: 'Failed to remove contact' });
+    return res.status(500).json({ success: false, error: 'Failed to remove contact' });
   }
 });
 
@@ -113,10 +113,10 @@ app.get('/api/users/search/:query', async (req, res) => {
     }
     
     const users = await userService.searchUsers(req.params.query, currentUserId);
-    res.json({ success: true, users });
+    return res.json({ success: true, users });
   } catch (error) {
     console.error('Error searching users:', error);
-    res.status(500).json({ success: false, error: 'Failed to search users' });
+    return res.status(500).json({ success: false, error: 'Failed to search users' });
   }
 });
 
@@ -124,10 +124,10 @@ app.put('/api/users/:userId/status', async (req, res) => {
   try {
     const { status } = req.body;
     await userService.updateUserStatus(req.params.userId, status);
-    res.json({ success: true, message: 'Status updated successfully' });
+    return res.json({ success: true, message: 'Status updated successfully' });
   } catch (error) {
     console.error('Error updating status:', error);
-    res.status(500).json({ success: false, error: 'Failed to update status' });
+    return res.status(500).json({ success: false, error: 'Failed to update status' });
   }
 });
 
@@ -135,10 +135,10 @@ app.put('/api/users/:userId/profile', async (req, res) => {
   try {
     const updates = req.body;
     await userService.updateUserProfile(req.params.userId, updates);
-    res.json({ success: true, message: 'Profile updated successfully' });
+    return res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
     console.error('Error updating profile:', error);
-    res.status(500).json({ success: false, error: 'Failed to update profile' });
+    return res.status(500).json({ success: false, error: 'Failed to update profile' });
   }
 });
 
@@ -148,20 +148,20 @@ app.get('/api/messages/:senderId/:recipientId', async (req, res) => {
     const { senderId, recipientId } = req.params;
     const limit = parseInt(req.query.limit as string) || 50;
     const messages = await dynamoDBService.getMessages(senderId, recipientId, limit);
-    res.json({ success: true, messages });
+    return res.json({ success: true, messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch messages' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch messages' });
   }
 });
 
 app.put('/api/messages/:messageId/read', async (req, res) => {
   try {
     await dynamoDBService.markMessageAsRead(req.params.messageId);
-    res.json({ success: true, message: 'Message marked as read' });
+    return res.json({ success: true, message: 'Message marked as read' });
   } catch (error) {
     console.error('Error marking message as read:', error);
-    res.status(500).json({ success: false, error: 'Failed to mark message as read' });
+    return res.status(500).json({ success: false, error: 'Failed to mark message as read' });
   }
 });
 
@@ -170,10 +170,10 @@ app.post('/api/sessions', async (req, res) => {
   try {
     const { participants } = req.body;
     const session = await dynamoDBService.createChatSession(participants);
-    res.json({ success: true, session });
+    return res.json({ success: true, session });
   } catch (error) {
     console.error('Error creating chat session:', error);
-    res.status(500).json({ success: false, error: 'Failed to create chat session' });
+    return res.status(500).json({ success: false, error: 'Failed to create chat session' });
   }
 });
 
@@ -183,20 +183,20 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
     if (!session) {
       return res.status(404).json({ success: false, error: 'Session not found' });
     }
-    res.json({ success: true, session });
+    return res.json({ success: true, session });
   } catch (error) {
     console.error('Error fetching chat session:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch chat session' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch chat session' });
   }
 });
 
 app.get('/api/users/:userId/sessions', async (req, res) => {
   try {
     const sessions = await dynamoDBService.getUserChatSessions(req.params.userId);
-    res.json({ success: true, sessions });
+    return res.json({ success: true, sessions });
   } catch (error) {
     console.error('Error fetching user sessions:', error);
-    res.status(500).json({ success: false, error: 'Failed to fetch user sessions' });
+    return res.status(500).json({ success: false, error: 'Failed to fetch user sessions' });
   }
 });
 
