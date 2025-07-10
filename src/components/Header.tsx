@@ -4,9 +4,10 @@ import Logo from './Logo';
 
 interface HeaderProps {
   onBackToHome?: () => void;
+  onSignOut?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
+const Header: React.FC<HeaderProps> = ({ onBackToHome, onSignOut }) => {
   return (
     <header className="header">
       <div className="header-content">
@@ -28,6 +29,16 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome }) => {
           <button className="header-btn profile-btn">
             <span className="btn-icon">👤</span>
           </button>
+          {onSignOut && (
+            <button 
+              className="header-btn signout-btn" 
+              onClick={onSignOut}
+              title="Sign Out"
+              data-tooltip="Sign Out"
+            >
+              <span className="btn-icon">🚪</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

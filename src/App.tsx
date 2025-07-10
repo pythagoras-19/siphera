@@ -33,9 +33,7 @@ function WelcomeScreen() {
 
   return (
     <div className="App">
-      <button className="signout-btn" onClick={handleSignOut} style={{ position: 'absolute', right: 24, top: 24, zIndex: 1000 }}>
-        Sign Out
-      </button>
+      <Header onSignOut={handleSignOut} />
       <HomePage onLaunchApp={handleLaunchApp} />
     </div>
   );
@@ -59,10 +57,7 @@ function Dashboard() {
 
   return (
     <div className="App">
-      <Header onBackToHome={handleBackToHome} />
-      <button className="signout-btn" onClick={handleSignOut} style={{ position: 'absolute', right: 24, top: 24, zIndex: 1000 }}>
-        Sign Out
-      </button>
+      <Header onBackToHome={handleBackToHome} onSignOut={handleSignOut} />
       <div className="main-container">
         <Sidebar activeView={activeView} setActiveView={setActiveView} />
         <div className="content-area">

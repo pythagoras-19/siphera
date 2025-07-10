@@ -10,6 +10,7 @@
               0 0 0 1px rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 10;
+  overflow: visible;
 }
 
 .header::before {
@@ -33,12 +34,14 @@
   width: 100%;
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
   gap: 16px;
+  overflow: visible;
 }
 
 .back-btn {
@@ -98,7 +101,10 @@
 
 .header-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  align-items: center;
+  overflow: visible;
+  position: relative;
 }
 
 .header-btn {
@@ -166,6 +172,99 @@
   background: linear-gradient(135deg, #357abd 0%, #2d5aa0 100%);
   box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4),
               0 0 0 1px rgba(74, 144, 226, 0.2);
+}
+
+.signout-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border-color: #ef4444;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  margin-left: 8px;
+  position: relative;
+}
+
+.signout-btn::after {
+  content: 'Sign Out';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.signout-btn::before {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15) 0%, 
+    transparent 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+}
+
+.signout-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4),
+              0 0 0 1px rgba(239, 68, 68, 0.2);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.signout-btn:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.signout-btn:hover::before {
+  opacity: 1;
+}
+
+/* Alternative tooltip implementation */
+.signout-btn[data-tooltip] {
+  position: relative;
+}
+
+.signout-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* Responsive design */
