@@ -13,9 +13,9 @@
   content: 'Siphera';
   position: absolute;
   left: 50%;
-  top: 5%;
+  top: 8%;
   transform: translateX(-50%);
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 50%, #2d5aa0 100%);
   -webkit-background-clip: text;
@@ -34,7 +34,7 @@
   content: 'the privacy first enterprise uc';
   position: absolute;
   left: 50%;
-  top: calc(5% + 3.5rem + 1%);
+  top: calc(8% + 4rem + 0.5rem);
   transform: translateX(-50%);
   font-size: 0.875rem;
   font-weight: 400;
@@ -69,6 +69,7 @@
   max-width: 400px;
   position: relative;
   z-index: 1;
+  margin-top: 2rem;
 }
 
 .auth-card h2 {
