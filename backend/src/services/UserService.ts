@@ -196,7 +196,7 @@ export class UserService {
         Username: username,
       });
 
-      const response = await this.cognitoClient.send(command);
+      const response = await this.cognitoClient.send(command) as any;
       
       if (response.User) {
         const attributes: Record<string, string> = {};
