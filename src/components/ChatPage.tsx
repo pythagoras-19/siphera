@@ -27,7 +27,7 @@ const ChatPage: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate('/sign-in');
   };
 
   const handleContactSelect = (contact: string) => {

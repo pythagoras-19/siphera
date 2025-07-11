@@ -3,7 +3,8 @@ import './App.css';
 import './amplify-config'; // Import Amplify configuration
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import HomePage from './components/HomePage';
-import Auth from './components/Auth';
+import SignIn from './components/SignIn';
+import SignUp from './components/SignUp';
 import Header from './components/Header';
 import ChatPage from './components/ChatPage';
 import ContactsPage from './components/ContactsPage';
@@ -14,7 +15,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return <div>Loading...</div>;
-  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" replace />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/sign-in" replace />;
 }
 
 // Welcome Screen Component (for /app route)
@@ -28,7 +29,7 @@ function WelcomeScreen() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate('/sign-in');
   };
 
   return (
@@ -55,14 +56,15 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
           <Route path="/app" element={<PrivateRoute><WelcomeScreen /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
           <Route path="/contacts" element={<PrivateRoute><ContactsPage /></PrivateRoute>} />
           <Route path="/calls" element={<PrivateRoute><CallsPage /></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
-          <Route path="*" element={<Navigate to="/auth" replace />} />
+          <Route path="*" element={<Navigate to="/sign-in" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -15,7 +15,7 @@ const CallsPage: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate('/sign-in');
   };
 
   return (
