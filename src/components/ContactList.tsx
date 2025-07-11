@@ -1,33 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ContactList.css';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ContactListProps {
   onContactSelect: (contact: string) => void;
 }
 
+interface DiscoverableUser {
+  userId: string;
+  username: string;
+  displayName?: string;
+  avatar?: string;
+}
+
 const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [contacts] = useState([
-    { id: 1, name: 'Alice Johnson', status: 'online', lastMessage: 'Hey, how are you?', time: '2 min ago' },
-    { id: 2, name: 'Bob Smith', status: 'offline', lastMessage: 'Thanks for the help!', time: '1 hour ago' },
-    { id: 3, name: 'Carol Davis', status: 'online', lastMessage: 'Meeting at 3 PM', time: '30 min ago' },
-    { id: 4, name: 'David Wilson', status: 'away', lastMessage: 'Can you review this?', time: '2 hours ago' },
-    { id: 5, name: 'Emma Brown', status: 'online', lastMessage: 'Great work!', time: '5 min ago' },
-    { id: 6, name: 'Frank Miller', status: 'offline', lastMessage: 'See you tomorrow', time: '1 day ago' },
-  ]);
+  const [contacts, setContacts] = useState<DiscoverableUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
+    fetch(`/api/contacts?currentUserId=${encodeURIComponent(user.id)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setContacts(data.users);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [user?.id]);
 
   const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (contact.displayName || contact.username).toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'online': return '#4caf50';
-      case 'away': return '#ff9800';
-      case 'offline': return '#9e9e9e';
-      default: return '#9e9e9e';
-    }
-  };
 
   return (
     <div className="contact-list">
@@ -45,34 +51,30 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
       </div>
 
       <div className="contacts-container">
-        {filteredContacts.map((contact) => (
-          <div
-            key={contact.id}
-            className="contact-item"
-            onClick={() => onContactSelect(contact.name)}
-          >
-            <div className="contact-avatar">
-              <span className="avatar-text">{contact.name.charAt(0).toUpperCase()}</span>
-              <div 
-                className="status-indicator"
-                style={{ backgroundColor: getStatusColor(contact.status) }}
-              ></div>
-            </div>
-            <div className="contact-info">
-              <div className="contact-name">{contact.name}</div>
-              <div className="contact-last-message">{contact.lastMessage}</div>
-            </div>
-            <div className="contact-time">{contact.time}</div>
+        {loading ? (
+          <div className="no-contacts">Loading...</div>
+        ) : filteredContacts.length === 0 ? (
+          <div className="no-contacts">
+            <div className="no-contacts-icon">👥</div>
+            <p>No contacts found</p>
           </div>
-        ))}
+        ) : (
+          filteredContacts.map((contact) => (
+            <div
+              key={contact.userId}
+              className="contact-item"
+              onClick={() => onContactSelect(contact.username)}
+            >
+              <div className="contact-avatar">
+                <span className="avatar-text">{(contact.displayName || contact.username).charAt(0).toUpperCase()}</span>
+              </div>
+              <div className="contact-info">
+                <div className="contact-name">{contact.displayName || contact.username}</div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
-
-      {filteredContacts.length === 0 && (
-        <div className="no-contacts">
-          <div className="no-contacts-icon">👥</div>
-          <p>No contacts found</p>
-        </div>
-      )}
     </div>
   );
 };

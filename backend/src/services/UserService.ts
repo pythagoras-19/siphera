@@ -45,6 +45,7 @@ export class UserService {
         status: 'offline',
         lastSeen: Date.now(),
         contacts: [],
+        discoverable: true, // <-- Set discoverable true by default
       };
 
       const user = await dynamoDBService.createUser(newUser);
@@ -247,6 +248,13 @@ export class UserService {
       console.error('Error updating user public key:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get all discoverable users
+   */
+  async getAllDiscoverableUsers(currentUserId: string): Promise<User[]> {
+    return await dynamoDBService.getAllDiscoverableUsers(currentUserId);
   }
 }
 

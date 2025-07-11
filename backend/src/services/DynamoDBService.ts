@@ -13,6 +13,7 @@ export interface User {
   updatedAt: number;
   contacts: string[];
   publicKey?: string;
+  discoverable?: boolean; // <-- Added discoverable flag
 }
 
 export interface Message {
@@ -204,6 +205,24 @@ export class DynamoDBService {
       return result.Items as User[] || [];
     } catch (error) {
       console.error('Error getting all users:', error);
+      return [];
+    }
+  }
+
+  async getAllDiscoverableUsers(currentUserId: string): Promise<User[]> {
+    try {
+      const result = await this.docClient.send(new ScanCommand({
+        TableName: this.USERS_TABLE,
+        FilterExpression: 'discoverable = :d AND userId <> :me',
+        ExpressionAttributeValues: {
+          ':d': true,
+          ':me': currentUserId,
+        },
+        ProjectionExpression: 'userId, username, displayName, avatar',
+      }));
+      return result.Items as User[] || [];
+    } catch (error) {
+      console.error('Error getting discoverable users:', error);
       return [];
     }
   }

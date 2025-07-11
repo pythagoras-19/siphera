@@ -200,6 +200,22 @@ app.get('/api/users/:userId/sessions', async (req, res) => {
   }
 });
 
+app.get('/api/contacts', async (req, res) => {
+  try {
+    const currentUserId = req.query.currentUserId as string;
+    if (!currentUserId) {
+      return res.status(400).json({ success: false, error: 'currentUserId is required' });
+    }
+    // Log access
+    console.log(`[CONTACTS] userId=${currentUserId} ip=${req.ip} at=${new Date().toISOString()}`);
+    const users = await userService.getAllDiscoverableUsers(currentUserId);
+    return res.json({ success: true, users });
+  } catch (error) {
+    console.error('Error fetching discoverable contacts:', error);
+    return res.status(500).json({ success: false, error: 'Failed to fetch contacts' });
+  }
+});
+
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
