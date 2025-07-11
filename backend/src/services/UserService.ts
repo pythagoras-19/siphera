@@ -176,6 +176,9 @@ export class UserService {
 
       return allUsers
         .filter(user => 
+          user && 
+          user.userId && 
+          user.username &&
           user.userId !== currentUserId && // Exclude current user
           (user.username.toLowerCase().includes(searchTerm) ||
            (user.displayName && user.displayName.toLowerCase().includes(searchTerm)))

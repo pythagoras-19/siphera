@@ -142,6 +142,42 @@ app.put('/api/users/:userId/profile', async (req, res) => {
   }
 });
 
+app.post('/api/users', async (req, res) => {
+  try {
+    const { username, email, givenName, familyName, phoneNumber } = req.body;
+    if (!username || !email) {
+      res.status(400).json({ success: false, error: 'username and email are required' });
+      return;
+    }
+    // Use username as userId for simplicity (replace with Cognito ID if available)
+    const userId = username;
+    const now = Date.now();
+    const newUser = {
+      userId,
+      username,
+      email,
+      displayName: `${givenName || ''} ${familyName || ''}`.trim() || username,
+      status: 'offline' as 'offline',
+      lastSeen: now,
+      createdAt: now,
+      updatedAt: now,
+      contacts: [],
+      discoverable: true,
+      givenName,
+      familyName,
+      phoneNumber,
+    };
+    await dynamoDBService.createUser(newUser);
+    console.log(`👤 User created via API: ${username} (${userId})`);
+    res.json({ success: true });
+    return;
+  } catch (error) {
+    console.error('Error creating user via API:', error);
+    res.status(500).json({ success: false, error: 'Failed to create user' });
+    return;
+  }
+});
+
 // Message management endpoints
 app.get('/api/messages/:senderId/:recipientId', async (req, res) => {
   try {

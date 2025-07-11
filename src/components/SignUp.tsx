@@ -37,9 +37,27 @@ const SignUp: React.FC = () => {
       if (isConfirming) {
         console.log('Confirming sign up with code:', formData.code);
         await confirmSignUp(formData.username, formData.code);
+
+        // Call backend to create user in DynamoDB
+        try {
+          await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: formData.username,
+              email: formData.email,
+              givenName: formData.givenName,
+              familyName: formData.familyName,
+              phoneNumber: formData.phoneNumber,
+              // add any other fields you want
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to create user in backend:', err);
+        }
+
         setMessage('Account confirmed successfully! You can now sign in.');
         setIsConfirming(false);
-        // Redirect to sign-in page after successful confirmation
         setTimeout(() => {
           navigate('/sign-in');
         }, 2000);
