@@ -14,6 +14,20 @@ services:
       - NODE_ENV=production
       - PORT=3007
       - CORS_ORIGIN=http://localhost:3000
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - COGNITO_IDENTITY_POOL_ID=${COGNITO_IDENTITY_POOL_ID}
+      - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
+      - USERS_TABLE=${USERS_TABLE:-siphera-users-dev}
+      - MESSAGES_TABLE=${MESSAGES_TABLE:-siphera-messages-dev}
+      - SESSIONS_TABLE=${SESSIONS_TABLE:-siphera-sessions-dev}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     networks:
       - siphera-network
     restart: unless-stopped
@@ -33,24 +47,27 @@ services:
     container_name: siphera-frontend
     ports:
       - "3000:80"
+    environment:
+      - PORT=3000
+      - REACT_APP_API_URL=http://localhost:3007
+      - REACT_APP_WEBSOCKET_URL=ws://localhost:3007
+      - REACT_APP_AWS_REGION=${AWS_REGION:-us-east-1}
+      - REACT_APP_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - REACT_APP_USER_POOL_WEB_CLIENT_ID=${COGNITO_CLIENT_ID}
+      - REACT_APP_IDENTITY_POOL_ID=${COGNITO_IDENTITY_POOL_ID}
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - siphera-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
 networks:
   siphera-network:
     driver: bridge
-
-volumes:
-  # Add any persistent volumes here if needed
-  # backend-data:
-  # frontend-logs: 

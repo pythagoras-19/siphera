@@ -143,6 +143,7 @@ app.put('/api/users/:userId/profile', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
+  console.log('Received POST /api/users with body:', req.body);
   try {
     const { username, email, givenName, familyName, phoneNumber } = req.body;
     if (!username || !email) {
@@ -172,7 +173,7 @@ app.post('/api/users', async (req, res) => {
     res.json({ success: true });
     return;
   } catch (error) {
-    console.error('Error creating user via API:', error);
+    console.error('Error creating user via API:', error, JSON.stringify(error), req.body);
     res.status(500).json({ success: false, error: 'Failed to create user' });
     return;
   }
