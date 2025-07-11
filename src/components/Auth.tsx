@@ -119,143 +119,147 @@ const Auth: React.FC = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h2>{isConfirming ? 'Confirm Account' : isSignUp ? 'Sign Up' : 'Sign In'}</h2>
+      <div className="auth-center-col">
+        <div className="auth-logo">Siphera</div>
+        <div className="auth-tagline">THE PRIVACY FIRST ENTERPRISE UC</div>
+        <div className="auth-card">
+          <h2>{isConfirming ? 'Confirm Account' : isSignUp ? 'Sign Up' : 'Sign In'}</h2>
         
-        <form onSubmit={handleSubmit}>
-          {!isConfirming && (
-            <>
-              <div className="form-group">
-                <label htmlFor="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              {isSignUp && (
-                <>
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="givenName">First Name</label>
-                    <input
-                      type="text"
-                      id="givenName"
-                      name="givenName"
-                      value={formData.givenName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="familyName">Last Name</label>
-                    <input
-                      type="text"
-                      id="familyName"
-                      name="familyName"
-                      value={formData.familyName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="phoneNumber">Phone Number</label>
-                    <input
-                      type="tel"
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      placeholder="+1234567890"
-                      required
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              {isSignUp && (
+          <form onSubmit={handleSubmit}>
+            {!isConfirming && (
+              <>
                 <div className="form-group">
-                  <label htmlFor="confirmPassword">Confirm Password</label>
+                  <label htmlFor="username">Username</label>
                   <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
-              )}
-            </>
-          )}
 
-          {isConfirming && (
-            <div className="form-group">
-              <label htmlFor="code">Confirmation Code</label>
-              <input
-                type="text"
-                id="code"
-                name="code"
-                value={formData.code}
-                onChange={handleInputChange}
-                placeholder="Enter code from email"
-                required
-              />
+                {isSignUp && (
+                  <>
+                    <div className="form-group">
+                      <label htmlFor="email">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="givenName">First Name</label>
+                      <input
+                        type="text"
+                        id="givenName"
+                        name="givenName"
+                        value={formData.givenName}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="familyName">Last Name</label>
+                      <input
+                        type="text"
+                        id="familyName"
+                        name="familyName"
+                        value={formData.familyName}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="phoneNumber">Phone Number</label>
+                      <input
+                        type="tel"
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleInputChange}
+                        placeholder="+1234567890"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="form-group">
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {isSignUp && (
+                  <div className="form-group">
+                    <label htmlFor="confirmPassword">Confirm Password</label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {isConfirming && (
+              <div className="form-group">
+                <label htmlFor="code">Confirmation Code</label>
+                <input
+                  type="text"
+                  id="code"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleInputChange}
+                  placeholder="Enter code from email"
+                  required
+                />
+              </div>
+            )}
+
+            <button type="submit" className="auth-button">
+              {isConfirming ? 'Confirm' : isSignUp ? 'Sign Up' : 'Sign In'}
+            </button>
+          </form>
+
+          {!isConfirming && (
+            <div className="auth-toggle">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError(null);
+                  setMessage(null);
+                }}
+                className="auth-link"
+              >
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+              </button>
             </div>
           )}
 
-          <button type="submit" className="auth-button">
-            {isConfirming ? 'Confirm' : isSignUp ? 'Sign Up' : 'Sign In'}
-          </button>
-        </form>
-
-        {!isConfirming && (
-          <div className="auth-toggle">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setError(null);
-                setMessage(null);
-              }}
-              className="auth-link"
-            >
-              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-            </button>
-          </div>
-        )}
-
-        {message && <div className="auth-message">{message}</div>}
-        {error && <div className="auth-error">{error}</div>}
+          {message && <div className="auth-message">{message}</div>}
+          {error && <div className="auth-error">{error}</div>}
+        </div>
       </div>
     </div>
   );
