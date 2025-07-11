@@ -13,7 +13,9 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 2.5rem;
+  min-height: 100vh;
+  padding-top: 8vh;
+  /* margin-top removed for better vertical centering */
 }
 
 .auth-container::before,
@@ -72,11 +74,11 @@
   padding: 24px;
   width: 100%;
   max-width: 400px;
-  max-height: 80vh;
+  max-height: 60vh;
   overflow-y: auto;
   position: relative;
   z-index: 1;
-  margin-top: 2rem;
+  margin-top: 0.5rem; /* reduced from 2rem */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
@@ -245,4 +247,16 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.signup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(0, auto);
+  gap: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.signup-grid .form-group {
+  margin-bottom: 0;
 } 
