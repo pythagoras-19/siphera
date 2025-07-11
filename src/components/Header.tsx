@@ -1,6 +1,7 @@
 import React from 'react';
 import './Header.css';
 import Logo from './Logo';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   onBackToHome?: () => void;
@@ -8,6 +9,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onBackToHome, onSignOut }) => {
+  const { user } = useAuth();
+  const email = user?.email || user?.attributes?.email;
   return (
     <header className="header">
       <div className="header-content">
@@ -29,6 +32,9 @@ const Header: React.FC<HeaderProps> = ({ onBackToHome, onSignOut }) => {
           <button className="header-btn profile-btn">
             <span className="btn-icon">👤</span>
           </button>
+          {email && (
+            <span className="header-user-email">{email}</span>
+          )}
           {onSignOut && (
             <button 
               className="header-btn signout-btn" 

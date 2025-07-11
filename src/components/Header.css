@@ -280,6 +280,20 @@
   }
 }
 
+.header-user-email {
+  color: #b0b0b0;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 12px 0 16px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .header {
