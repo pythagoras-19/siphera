@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
-
+console.log('In DynamoDBService.ts');
 export interface User {
   userId: string;
   username: string;
@@ -41,16 +41,23 @@ export interface ChatSession {
 export class DynamoDBService {
   private client: DynamoDBClient;
   private docClient: DynamoDBDocumentClient;
-  private readonly USERS_TABLE = process.env.USERS_TABLE || 'siphera-users';
+  private readonly USERS_TABLE = 'siphera-users-dev';
   private readonly MESSAGES_TABLE = process.env.MESSAGES_TABLE || 'siphera-messages';
   private readonly SESSIONS_TABLE = process.env.SESSIONS_TABLE || 'siphera-sessions';
 
   constructor() {
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+    if (!accessKeyId || !secretAccessKey) {
+      throw new Error('Missing AWS credentials in environment variables');
+    }
+
     this.client = new DynamoDBClient({
-      region: process.env.AWS_REGION || 'us-east-1',
+      region: 'us-east-1',
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        accessKeyId,
+        secretAccessKey,
       },
     });
 

@@ -1,15 +1,24 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import dotenv from 'dotenv';
 import { userService } from './services/UserService';
 import { dynamoDBService } from './services/DynamoDBService';
 
 // Load environment variables
-dotenv.config();
+console.log('HEREEEEEEE!!!!!!!!!!!');
+console.log('Backend AWS credentials:', {
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
+  AWS_REGION: process.env.AWS_REGION,
+});
+
 
 // Create Express app
 const app = express();
@@ -17,7 +26,7 @@ const server = createServer(app);
 
 // Configuration
 const PORT = parseInt(process.env.PORT || '3007', 10);
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3005';
 
 // Create Socket.IO server
 const io = new Server(server, {
@@ -172,9 +181,13 @@ app.post('/api/users', async (req, res) => {
     console.log(`👤 User created via API: ${username} (${userId})`);
     res.json({ success: true });
     return;
-  } catch (error) {
-    console.error('Error creating user via API:', error, JSON.stringify(error), req.body);
-    res.status(500).json({ success: false, error: 'Failed to create user' });
+  } catch (error: any) {
+    console.error('Error creating user via API:', error);
+    if (error && error.stack) {
+      console.error('Error stack:', error.stack);
+    }
+    console.error('Request body was:', req.body);
+    res.status(500).json({ success: false, error: 'Failed to create user', details: error && error.message ? error.message : String(error) });
     return;
   }
 });
