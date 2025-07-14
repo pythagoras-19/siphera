@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ContactList.css';
 import { useAuth } from '../contexts/AuthContext';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ContactListProps {
   onContactSelect: (contact: string) => void;
@@ -36,7 +37,7 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
   }, [user?.id]);
 
   const filteredContacts = contacts.filter(contact =>
-    (contact.displayName || contact.username).toLowerCase().includes(searchTerm.toLowerCase())
+    contact.username && contact.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSearchUsers = async () => {

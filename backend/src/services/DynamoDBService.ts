@@ -1,5 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 console.log('In DynamoDBService.ts');
 export interface User {
   userId: string;
@@ -238,7 +239,7 @@ export class DynamoDBService {
   async saveMessage(message: Omit<Message, 'messageId'>): Promise<Message> {
     const messageWithId: Message = {
       ...message,
-      messageId: `${message.senderId}-${message.timestamp}-${Math.random().toString(36).substr(2, 9)}`,
+      messageId: uuidv4(),
     };
 
     await this.docClient.send(new PutCommand({
