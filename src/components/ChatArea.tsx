@@ -42,11 +42,48 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     connectToWebSocket();
 
     // Set up message listener
-    const unsubscribe = webSocketService.onMessage((chatMessage: ChatMessage) => {
+    const unsubscribe = webSocketService.onMessage(async (chatMessage: ChatMessage) => {
       // Only add messages for the currently selected contact
       if (selectedContact && 
           (chatMessage.sender === selectedContact || chatMessage.recipient === selectedContact)) {
-        setMessages(prev => [...prev, chatMessage]);
+        
+        // Decrypt incoming message if it's encrypted
+        let decryptedMessage = chatMessage;
+        if (chatMessage.isEncrypted && chatMessage.content) {
+          try {
+            const decryptedText = await secureChatService.receiveEncryptedMessage(
+              chatMessage.sender,
+              {
+                id: chatMessage.id || '',
+                sender: chatMessage.sender,
+                recipient: chatMessage.recipient,
+                encryptedData: {
+                  encryptedText: chatMessage.content,
+                  iv: chatMessage.metadata?.iv || '',
+                  timestamp: chatMessage.timestamp
+                },
+                messageHash: '',
+                timestamp: chatMessage.timestamp,
+                isEncrypted: true
+              }
+            );
+            
+            decryptedMessage = {
+              ...chatMessage,
+              text: decryptedText,
+              content: decryptedText
+            };
+          } catch (error) {
+            console.error('Failed to decrypt incoming message:', error);
+            decryptedMessage = {
+              ...chatMessage,
+              text: '[Encrypted Message - Decryption Failed]',
+              content: '[Encrypted Message - Decryption Failed]'
+            };
+          }
+        }
+        
+        setMessages(prev => [...prev, decryptedMessage]);
       }
     });
 
@@ -81,16 +118,64 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     return data.messages;
   };
 
-  // Update loadChatHistory to use fetchMessages
+  // Update loadChatHistory to use fetchMessages and decrypt them
   const loadChatHistory = async () => {
     if (!selectedContact || !user?.username) return;
     setIsLoading(true);
     try {
       console.log('Fetching messages for:', user?.username, selectedContact);
       // Fetch messages between current user and selected contact
-      const msgs = await fetchMessages(user.username, selectedContact);
-      console.log('Fetched messages:', msgs);
-      setMessages(msgs || []);
+      const encryptedMsgs = await fetchMessages(user.username, selectedContact);
+      console.log('Fetched encrypted messages:', encryptedMsgs);
+      
+      // Decrypt messages using SecureChatService
+      const decryptedMsgs = await Promise.all(
+        encryptedMsgs.map(async (msg: any) => {
+          try {
+            if (msg.isEncrypted && msg.content) {
+              // Decrypt the message content
+              const decryptedText = await secureChatService.receiveEncryptedMessage(
+                msg.sender || msg.senderId || '',
+                {
+                  id: msg.messageId || msg.id || '',
+                  sender: msg.sender || msg.senderId || '',
+                  recipient: msg.recipient || msg.recipientId || '',
+                  encryptedData: {
+                    encryptedText: msg.content,
+                    iv: msg.metadata?.iv || '',
+                    timestamp: msg.timestamp
+                  },
+                  messageHash: '',
+                  timestamp: msg.timestamp,
+                  isEncrypted: true
+                }
+              );
+              
+              return {
+                ...msg,
+                text: decryptedText,
+                content: decryptedText
+              };
+            } else {
+              // Message is not encrypted, use content as-is
+              return {
+                ...msg,
+                text: msg.content || msg.text || '',
+                content: msg.content || msg.text || ''
+              };
+            }
+          } catch (error) {
+            console.error('Failed to decrypt message:', error);
+            return {
+              ...msg,
+              text: '[Encrypted Message - Decryption Failed]',
+              content: '[Encrypted Message - Decryption Failed]'
+            };
+          }
+        })
+      );
+      
+      setMessages(decryptedMsgs || []);
     } catch (error) {
       console.error('Failed to load chat history:', error);
     } finally {
@@ -218,7 +303,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
             return (
               <div key={msg.messageId || msg.id || idx} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
                 <div className="message-content">
-                  <p>{msg.text}</p>
+                  <p>{msg.text || msg.content}</p>
                   <div className="message-meta">
                     <span className="message-time">{formatTime(msg.timestamp)}</span>
                     {msg.isEncrypted && (

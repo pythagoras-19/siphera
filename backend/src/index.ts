@@ -342,17 +342,20 @@ io.on('connection', (socket) => {
     console.log('Message received:', data);
     
     try {
-      // Save message to DynamoDB
+      // Save message to DynamoDB - only store encrypted content
       const message = await dynamoDBService.saveMessage({
         senderId: data.sender,
         recipientId: data.recipient,
-        content: data.content,
-        encryptedContent: data.encryptedContent || data.content,
+        content: data.encryptedContent || data.encryptedData?.encryptedText || '', // Store only encrypted content
+        encryptedContent: data.encryptedContent || data.encryptedData?.encryptedText || '',
         timestamp: Date.now(),
-        isEncrypted: data.isEncrypted || false,
+        isEncrypted: true, // Always true for E2E encryption
         isRead: false,
         messageType: data.messageType || 'text',
-        metadata: data.metadata || {},
+        metadata: {
+          iv: data.encryptedData?.iv || '',
+          ...data.metadata
+        },
       });
 
       // Route message to specific recipient

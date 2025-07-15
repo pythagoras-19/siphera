@@ -6,11 +6,13 @@ export interface ChatMessage {
   id?: string;
   senderId?: string; // Add this for backend compatibility
   recipientId?: string; // Add this for backend compatibility
-  text: string;
+  text?: string; // For WebSocket messages
+  content?: string; // For backend API messages
   sender: string;
   recipient: string;
   timestamp: number;
   isEncrypted: boolean;
+  metadata?: any; // For encryption metadata like IV
 }
 
 export interface User {
@@ -168,16 +170,18 @@ export class WebSocketService {
       // Create chat message for transmission
       const chatMessage: ChatMessage = {
         id: secureMessage.id,
-        text: messageText, // Send plain text for demo, in production this would be encrypted
+        text: messageText, // Keep plain text for local display
+        content: secureMessage.encryptedData.encryptedText, // Send encrypted content
         sender: this.currentUser?.id || 'unknown',
         recipient: recipientId,
         timestamp: Date.now(),
         isEncrypted: true
       };
 
-      // Send to server
+      // Send to server with encrypted data
       this.socket.emit('message:send', {
         ...chatMessage,
+        encryptedContent: secureMessage.encryptedData.encryptedText,
         encryptedData: secureMessage.encryptedData
       });
 
