@@ -343,11 +343,11 @@
 }
 
 .message.them {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .message.me {
-  align-self: flex-start;
+  align-self: flex-end;
 }
 
 .message-content {
@@ -366,7 +366,7 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.message.me .message-content {
+.message.them .message-content {
   background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   border-color: rgba(74, 144, 226, 0.3);
   box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);

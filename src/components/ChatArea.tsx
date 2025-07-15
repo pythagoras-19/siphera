@@ -211,8 +211,12 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
               userID: user?.id 
             });
             
+            // Handle both backend (senderId) and frontend (sender) field names
+            const messageSender = msg.sender || msg.senderId;
+            const isOwnMessage = messageSender === user?.username;
+            
             return (
-              <div key={msg.messageId || msg.id || idx} className={`message ${msg.senderId === user?.username ? 'me' : 'them'}`}>
+              <div key={msg.messageId || msg.id || idx} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
                 <div className="message-content">
                   <p>{msg.text}</p>
                   <div className="message-meta">
