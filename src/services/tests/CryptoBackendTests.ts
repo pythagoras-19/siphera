@@ -98,10 +98,12 @@ export class CryptoBackendTests {
       
       // Test encryption/decryption
       try {
-        const keyPair = await backend.generateKeyPair();
+        const keyPair1 = await backend.generateKeyPair();
+        const keyPair2 = await backend.generateKeyPair();
+        const sharedSecret = await backend.generateSharedSecret(keyPair1.privateKey, keyPair2.publicKey);
         const testMessage = 'Hello, World!';
-        const encrypted = await backend.encryptMessage(testMessage, keyPair.publicKey);
-        const decrypted = await backend.decryptMessage(encrypted, keyPair.publicKey);
+        const encrypted = await backend.encryptMessage(testMessage, sharedSecret);
+        const decrypted = await backend.decryptMessage(encrypted, sharedSecret);
         results.push({
           test: 'WebCrypto: Encryption/Decryption',
           passed: decrypted === testMessage
@@ -186,10 +188,12 @@ export class CryptoBackendTests {
       
       // Test encryption/decryption
       try {
-        const keyPair = await backend.generateKeyPair();
+        const keyPair1 = await backend.generateKeyPair();
+        const keyPair2 = await backend.generateKeyPair();
+        const sharedSecret = await backend.generateSharedSecret(keyPair1.privateKey, keyPair2.publicKey);
         const testMessage = 'Hello, World!';
-        const encrypted = await backend.encryptMessage(testMessage, keyPair.publicKey);
-        const decrypted = await backend.decryptMessage(encrypted, keyPair.publicKey);
+        const encrypted = await backend.encryptMessage(testMessage, sharedSecret);
+        const decrypted = await backend.decryptMessage(encrypted, sharedSecret);
         results.push({
           test: 'CryptoJS: Encryption/Decryption',
           passed: decrypted === testMessage

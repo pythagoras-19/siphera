@@ -262,9 +262,21 @@ export class WebCryptoBackend implements ICryptoBackend {
   private async deriveEncryptionKey(sharedSecret: string): Promise<CryptoKey> {
     const sharedSecretBuffer = this.base64ToArrayBuffer(sharedSecret);
     
+    // Ensure the key is exactly 256 bits (32 bytes) for AES-256-GCM
+    let keyMaterial = sharedSecretBuffer;
+    if (keyMaterial.byteLength < 32) {
+      // Pad with zeros if too short
+      const padded = new Uint8Array(32);
+      padded.set(new Uint8Array(keyMaterial));
+      keyMaterial = padded.buffer;
+    } else if (keyMaterial.byteLength > 32) {
+      // Truncate if too long
+      keyMaterial = keyMaterial.slice(0, 32);
+    }
+    
     return await this.subtle.importKey(
       'raw',
-      sharedSecretBuffer,
+      keyMaterial,
       'AES-GCM',
       false,
       ['encrypt', 'decrypt']
