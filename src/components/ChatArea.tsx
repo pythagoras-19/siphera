@@ -24,9 +24,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
   const { user } = useAuth();
 
   useEffect(() => {
-    // Connect to WebSocket when component mounts
+    // Connect to WebSocket when component mounts (only once)
     const connectToWebSocket = async () => {
-      if (user?.username) {
+      if (user?.username && !webSocketService.isConnected()) {
         try {
           await webSocketService.connect(user.username, user.username);
           setIsConnected(true);
@@ -34,6 +34,8 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
           console.error('Failed to connect to WebSocket:', error);
           setIsConnected(false);
         }
+      } else if (webSocketService.isConnected()) {
+        setIsConnected(true);
       }
     };
 
@@ -68,16 +70,27 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       unsubscribe();
       unsubscribeConnection();
     };
-  }, [selectedContact, user?.username]);
+  }, [selectedContact]); // Removed user?.username dependency
 
+  // Fetch messages from backend API
+  const fetchMessages = async (senderId: string, recipientId: string) => {
+    const response = await fetch(
+      `http://localhost:3007/api/messages/${senderId}/${recipientId}`
+    );
+    const data = await response.json();
+    return data.messages;
+  };
+
+  // Update loadChatHistory to use fetchMessages
   const loadChatHistory = async () => {
-    if (!selectedContact) return;
-    
+    if (!selectedContact || !user?.username) return;
     setIsLoading(true);
     try {
-      // For now, we'll start with empty history since we're using real-time messaging
-      // In a real app, you'd load from a database
-      setMessages([]);
+      console.log('Fetching messages for:', user?.username, selectedContact);
+      // Fetch messages between current user and selected contact
+      const msgs = await fetchMessages(user.username, selectedContact);
+      console.log('Fetched messages:', msgs);
+      setMessages(msgs || []);
     } catch (error) {
       console.error('Failed to load chat history:', error);
     } finally {
@@ -186,21 +199,34 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         )}
         
         <div className="messages">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`message ${msg.sender === user?.username ? 'sent' : 'received'}`}>
-              <div className="message-content">
-                <p>{msg.text}</p>
-                <div className="message-meta">
-                  <span className="message-time">{formatTime(msg.timestamp)}</span>
-                  {msg.isEncrypted && (
-                    <span className="encryption-indicator" title="End-to-End Encrypted">
-                      🔒
-                    </span>
-                  )}
+          {messages.length === 0 && !isLoading && (
+            <div className="no-messages">No messages</div>
+          )}
+          {messages.map((msg, idx) => {
+            // Debug log to see what we're comparing
+            console.log('Message comparison:', { 
+              msgSenderId: msg.senderId, 
+              msgSender: msg.sender,
+              userUsername: user?.username, 
+              userID: user?.id 
+            });
+            
+            return (
+              <div key={msg.messageId || msg.id || idx} className={`message ${msg.senderId === user?.username ? 'me' : 'them'}`}>
+                <div className="message-content">
+                  <p>{msg.text}</p>
+                  <div className="message-meta">
+                    <span className="message-time">{formatTime(msg.timestamp)}</span>
+                    {msg.isEncrypted && (
+                      <span className="encryption-indicator" title="End-to-End Encrypted">
+                        🔒
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

@@ -343,11 +343,11 @@
 }
 
 .message.them {
-  align-self: flex-start;
+  align-self: flex-end;
 }
 
 .message.me {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .message-content {

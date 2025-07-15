@@ -2,7 +2,10 @@ import { io, Socket } from 'socket.io-client';
 import { SecureChatService } from './SecureChatService';
 
 export interface ChatMessage {
-  id: string;
+  messageId?: string; // Add this line for backend compatibility
+  id?: string;
+  senderId?: string; // Add this for backend compatibility
+  recipientId?: string; // Add this for backend compatibility
   text: string;
   sender: string;
   recipient: string;
@@ -25,6 +28,7 @@ export class WebSocketService {
   private userStatusCallbacks: Map<string, (user: User) => void> = new Map();
   private connectionCallbacks: Array<(connected: boolean) => void> = [];
   private currentUser: User | null = null;
+  private isConnecting: boolean = false;
 
   private constructor() {
     this.secureChatService = SecureChatService.getInstance();
@@ -41,9 +45,20 @@ export class WebSocketService {
    * Connect to the WebSocket server
    */
   async connect(userId: string, userName: string): Promise<void> {
-    if (this.socket?.connected) {
+    console.log('🔌 Attempting to connect to WebSocket server...', { userId, userName });
+    
+    // Prevent multiple simultaneous connection attempts
+    if (this.isConnecting) {
+      console.log('⏳ Connection already in progress, waiting...');
       return;
     }
+    
+    if (this.socket?.connected) {
+      console.log('✅ Already connected to WebSocket server');
+      return;
+    }
+
+    this.isConnecting = true;
 
     try {
       // Connect to Socket.IO server
@@ -53,11 +68,15 @@ export class WebSocketService {
         forceNew: true
       });
 
+      console.log('🔌 Socket.IO instance created');
+
       this.currentUser = {
         id: userId,
         name: userName,
         status: 'online'
       };
+
+      console.log('👤 Current user set:', this.currentUser);
 
       // Set up event listeners
       this.setupEventListeners();
@@ -69,9 +88,16 @@ export class WebSocketService {
           return;
         }
 
+        let timeoutId: NodeJS.Timeout;
+
         this.socket.on('connect', () => {
-          console.log('🔌 Connected to WebSocket server');
+          console.log('✅ Connected to WebSocket server');
           this.notifyConnectionStatus(true);
+          
+          // Clear the timeout since connection succeeded
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
           
           // Send user info to server
           this.socket?.emit('user:join', {
@@ -83,19 +109,28 @@ export class WebSocketService {
         });
 
         this.socket.on('connect_error', (error: Error) => {
-          console.error('WebSocket connection error:', error);
+          console.error('❌ WebSocket connection error:', error);
+          // Clear the timeout since we got an error
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
           reject(error);
         });
 
         // Timeout after 10 seconds
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
+          console.error('⏰ WebSocket connection timeout');
+          this.isConnecting = false;
           reject(new Error('Connection timeout'));
         }, 10000);
       });
 
     } catch (error) {
-      console.error('Failed to connect to WebSocket server:', error);
+      console.error('❌ Failed to connect to WebSocket server:', error);
+      this.isConnecting = false;
       throw error;
+    } finally {
+      this.isConnecting = false;
     }
   }
 
@@ -115,7 +150,14 @@ export class WebSocketService {
    * Send a message to a specific user
    */
   async sendMessage(recipientId: string, messageText: string): Promise<ChatMessage> {
+    console.log('🔍 sendMessage called - Connection status:', {
+      socketExists: !!this.socket,
+      isConnected: this.socket?.connected,
+      currentUser: this.currentUser
+    });
+
     if (!this.socket?.connected) {
+      console.error('❌ WebSocket not connected. Socket:', this.socket);
       throw new Error('Not connected to server');
     }
 

@@ -26,20 +26,21 @@ const server = createServer(app);
 
 // Configuration
 const PORT = parseInt(process.env.PORT || '3007', 10);
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3005';
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
 // Create Socket.IO server
 const io = new Server(server, {
   cors: {
-    origin: CORS_ORIGIN,
+    origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005'], // Allow multiple common dev ports
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: CORS_ORIGIN,
+  origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005'],
   credentials: true,
 }));
 app.use(morgan('combined'));
