@@ -3,6 +3,7 @@ import './App.css';
 import './amplify-config'; // Import Amplify configuration
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import HomePage from './components/HomePage';
+import KeyDebugger from './components/KeyDebugger';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Header from './components/Header';

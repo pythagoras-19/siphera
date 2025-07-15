@@ -1,4 +1,5 @@
 import { E2EEncryption, EncryptedMessage, KeyPair } from '../utils/encryption';
+import { KeyManagementService } from './KeyManagementService';
 
 export interface SecureMessage {
   id: string;
@@ -19,11 +20,12 @@ export interface ChatSession {
 
 export class SecureChatService {
   private static instance: SecureChatService;
-  private userKeyPair: KeyPair | null = null;
+  private keyManagement: KeyManagementService;
   private chatSessions: Map<string, ChatSession> = new Map();
   private messageHistory: Map<string, SecureMessage[]> = new Map();
 
   private constructor() {
+    this.keyManagement = KeyManagementService.getInstance();
     this.initializeUserKeys();
   }
 
@@ -37,23 +39,39 @@ export class SecureChatService {
   /**
    * Initialize user's encryption keys
    */
-  private initializeUserKeys(): void {
-    if (!this.userKeyPair) {
-      this.userKeyPair = E2EEncryption.generateKeyPair();
-      console.log('🔐 User encryption keys generated');
-    }
+  private async initializeUserKeys(): Promise<void> {
+    await this.keyManagement.initializeUserKeys();
+    console.log('🔐 User encryption keys initialized');
   }
 
   /**
    * Get or create a chat session with a contact
    */
-  private getChatSession(contactId: string): ChatSession {
+  private async getChatSession(contactId: string): Promise<ChatSession> {
     if (!this.chatSessions.has(contactId)) {
-      // In a real app, this would exchange keys with the contact
-      const sharedSecret = E2EEncryption.generateSharedSecret(
-        this.userKeyPair!.privateKey,
-        E2EEncryption.generateSecureRandom(32) // Simulated contact key
-      );
+      // Check if we have the contact's public key
+      if (!this.keyManagement.hasContactKey(contactId)) {
+        // Request the contact's public key
+        this.keyManagement.requestContactKey(contactId);
+        
+        // For now, use a temporary shared secret until key exchange completes
+        const tempSecret = E2EEncryption.generateSecureRandom(32);
+        const session: ChatSession = {
+          contactId,
+          sharedSecret: tempSecret,
+          lastMessageTime: Date.now(),
+          messageCount: 0
+        };
+        this.chatSessions.set(contactId, session);
+        console.log(`🔐 Temporary session established with ${contactId} (waiting for key exchange)`);
+        return session;
+      }
+
+      // Generate shared secret using actual contact's public key
+      const sharedSecret = this.keyManagement.generateSharedSecret(contactId);
+      if (!sharedSecret) {
+        throw new Error(`Failed to generate shared secret with ${contactId}`);
+      }
 
       const session: ChatSession = {
         contactId,
@@ -73,7 +91,7 @@ export class SecureChatService {
    * Send an encrypted message
    */
   async sendEncryptedMessage(recipientId: string, messageText: string): Promise<SecureMessage> {
-    const session = this.getChatSession(recipientId);
+    const session = await this.getChatSession(recipientId);
     
     // Encrypt the message
     const encryptedData = E2EEncryption.encryptMessage(messageText, session.sharedSecret);
@@ -110,7 +128,7 @@ export class SecureChatService {
    * Receive and decrypt a message
    */
   async receiveEncryptedMessage(senderId: string, encryptedMessage: SecureMessage): Promise<string> {
-    const session = this.getChatSession(senderId);
+    const session = await this.getChatSession(senderId);
     
     try {
       // Decrypt the message
@@ -151,7 +169,7 @@ export class SecureChatService {
    */
   async getDecryptedChatHistory(contactId: string): Promise<Array<{ id: string; text: string; sender: string; timestamp: number; isEncrypted: boolean }>> {
     const messages = this.getChatHistory(contactId);
-    const session = this.getChatSession(contactId);
+    const session = await this.getChatSession(contactId);
     
     const decryptedMessages = await Promise.all(
       messages.map(async (message) => {
@@ -202,7 +220,7 @@ export class SecureChatService {
    * Get user's public key for key exchange
    */
   getUserPublicKey(): string | null {
-    return this.userKeyPair?.publicKey || null;
+    return this.keyManagement.getUserPublicKey();
   }
 
   /**

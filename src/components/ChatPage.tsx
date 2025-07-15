@@ -5,6 +5,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import ChatArea from './ChatArea';
 import ContactList from './ContactList';
+import KeyDebugger from './KeyDebugger';
 import './ChatPage.css';
 
 const ChatPage: React.FC = () => {
@@ -62,6 +63,7 @@ const ChatPage: React.FC = () => {
           )}
         </div>
       </div>
+      <KeyDebugger />
     </div>
   );
 };

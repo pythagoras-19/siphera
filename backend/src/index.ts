@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -9,24 +6,20 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { userService } from './services/UserService';
 import { dynamoDBService } from './services/DynamoDBService';
+import { securityConfig } from './config/security';
 
-// Load environment variables
-console.log('HEREEEEEEE!!!!!!!!!!!');
-console.log('Backend AWS credentials:', {
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-  AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
-  AWS_REGION: process.env.AWS_REGION,
-});
-
+// Load environment variables and validate configuration
+console.log('Backend starting...');
+console.log('Environment:', securityConfig.server.nodeEnv);
+console.log('AWS Region:', securityConfig.aws.region);
 
 // Create Express app
 const app = express();
 const server = createServer(app);
 
 // Configuration
-const PORT = parseInt(process.env.PORT || '3007', 10);
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const PORT = securityConfig.server.port;
+const CORS_ORIGIN = securityConfig.server.corsOrigin;
 
 // Create Socket.IO server
 const io = new Server(server, {
@@ -58,7 +51,7 @@ app.get('/health', (req, res) => {
 });
 
 // Store connected users
-const connectedUsers = new Map<string, { socketId: string; userId: string; userName: string }>();
+const connectedUsers = new Map<string, { socketId: string; userId: string; userName: string; publicKey?: string }>();
 
 // API Routes for user management
 app.get('/api/users', async (req, res) => {
@@ -272,7 +265,7 @@ io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   // Handle user joining
-  socket.on('user:join', async (data: { userId: string; userName: string }) => {
+  socket.on('user:join', async (data: { userId: string; userName: string; publicKey?: string }) => {
     console.log('User joined:', data);
     
     try {
@@ -283,7 +276,8 @@ io.on('connection', (socket) => {
       connectedUsers.set(data.userId, {
         socketId: socket.id,
         userId: data.userId,
-        userName: data.userName
+        userName: data.userName,
+        publicKey: data.publicKey
       });
 
       // Join user to their personal room
@@ -294,7 +288,8 @@ io.on('connection', (socket) => {
         id: data.userId,
         name: data.userName,
         status: 'online',
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
+        publicKey: data.publicKey
       });
 
       console.log(`👤 ${data.userName} (${data.userId}) joined the chat`);
@@ -383,6 +378,36 @@ io.on('connection', (socket) => {
         error: 'Failed to send message',
         originalMessage: data,
       });
+    }
+  });
+
+  // Handle key exchange
+  socket.on('key:request', (data: { recipient: string; requester: string }) => {
+    const recipientUser = connectedUsers.get(data.recipient);
+    const requesterUser = connectedUsers.get(data.requester);
+    
+    if (recipientUser && requesterUser) {
+      // Send key request to recipient
+      io.to(`user:${data.recipient}`).emit('key:request', {
+        requester: data.requester,
+        requesterName: requesterUser.userName,
+        requesterPublicKey: requesterUser.publicKey
+      });
+      console.log(`🔑 Key request sent from ${data.requester} to ${data.recipient}`);
+    }
+  });
+
+  socket.on('key:response', (data: { recipient: string; sender: string; publicKey: string }) => {
+    const recipientUser = connectedUsers.get(data.recipient);
+    
+    if (recipientUser) {
+      // Send public key response to requester
+      io.to(`user:${data.recipient}`).emit('key:response', {
+        sender: data.sender,
+        senderName: connectedUsers.get(data.sender)?.userName,
+        publicKey: data.publicKey
+      });
+      console.log(`🔑 Key response sent from ${data.sender} to ${data.recipient}`);
     }
   });
 

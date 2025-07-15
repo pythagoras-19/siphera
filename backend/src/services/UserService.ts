@@ -1,5 +1,6 @@
 import { CognitoIdentityProviderClient, AdminGetUserCommand, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { dynamoDBService, User } from './DynamoDBService';
+import { getAwsCredentials, securityConfig } from '../config/security';
 
 export interface CognitoUser {
   userId: string;
@@ -12,16 +13,11 @@ export interface CognitoUser {
 
 export class UserService {
   private cognitoClient: CognitoIdentityProviderClient;
-  private readonly USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || '';
+  private readonly USER_POOL_ID = securityConfig.cognito.userPoolId;
 
   constructor() {
-    this.cognitoClient = new CognitoIdentityProviderClient({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-      },
-    });
+    const awsConfig = getAwsCredentials();
+    this.cognitoClient = new CognitoIdentityProviderClient(awsConfig);
   }
 
   /**
@@ -45,7 +41,6 @@ export class UserService {
         status: 'offline',
         lastSeen: Date.now(),
         contacts: [],
-        discoverable: true, // <-- Set discoverable true by default
       };
 
       const user = await dynamoDBService.createUser(newUser);

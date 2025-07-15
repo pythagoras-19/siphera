@@ -1,7 +1,8 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-console.log('In DynamoDBService.ts');
+import { getAwsCredentials } from '../config/security';
+
 export interface User {
   userId: string;
   username: string;
@@ -10,11 +11,10 @@ export interface User {
   avatar?: string;
   status: 'online' | 'offline' | 'away';
   lastSeen: number;
-  createdAt: number;
-  updatedAt: number;
   contacts: string[];
   publicKey?: string;
-  discoverable?: boolean; // <-- Added discoverable flag
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface Message {
@@ -22,12 +22,12 @@ export interface Message {
   senderId: string;
   recipientId: string;
   content: string;
-  encryptedContent: string;
+  encryptedContent?: string;
   timestamp: number;
   isEncrypted: boolean;
   isRead: boolean;
   messageType: 'text' | 'file' | 'image' | 'voice';
-  metadata?: any;
+  metadata?: Record<string, any>;
 }
 
 export interface ChatSession {
@@ -47,21 +47,9 @@ export class DynamoDBService {
   private readonly SESSIONS_TABLE = process.env.SESSIONS_TABLE || 'siphera-sessions';
 
   constructor() {
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-
-    if (!accessKeyId || !secretAccessKey) {
-      throw new Error('Missing AWS credentials in environment variables');
-    }
-
-    this.client = new DynamoDBClient({
-      region: 'us-east-1',
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    });
-
+    const awsConfig = getAwsCredentials();
+    
+    this.client = new DynamoDBClient(awsConfig);
     this.docClient = DynamoDBDocumentClient.from(this.client);
   }
 
@@ -79,7 +67,6 @@ export class DynamoDBService {
       Item: userWithTimestamps,
     }));
 
-    console.log(`👤 User created: ${user.username} (${user.userId})`);
     return userWithTimestamps;
   }
 
@@ -131,7 +118,6 @@ export class DynamoDBService {
         },
       }));
 
-      console.log(`👤 User status updated: ${userId} -> ${status}`);
     } catch (error) {
       console.error('Error updating user status:', error);
     }
@@ -162,7 +148,6 @@ export class DynamoDBService {
         ExpressionAttributeValues: expressionAttributeValues,
       }));
 
-      console.log(`👤 User profile updated: ${userId}`);
     } catch (error) {
       console.error('Error updating user profile:', error);
     }
@@ -180,7 +165,6 @@ export class DynamoDBService {
         },
       }));
 
-      console.log(`👥 Contact added: ${userId} -> ${contactId}`);
     } catch (error) {
       console.error('Error adding contact:', error);
     }
@@ -198,7 +182,6 @@ export class DynamoDBService {
         },
       }));
 
-      console.log(`👥 Contact removed: ${userId} -> ${contactId}`);
     } catch (error) {
       console.error('Error removing contact:', error);
     }
@@ -247,7 +230,6 @@ export class DynamoDBService {
       Item: messageWithId,
     }));
 
-    console.log(`💬 Message saved: ${messageWithId.messageId}`);
     return messageWithId;
   }
 
@@ -305,7 +287,6 @@ export class DynamoDBService {
         },
       }));
 
-      console.log(`✅ Message marked as read: ${messageId}`);
     } catch (error) {
       console.error('Error marking message as read:', error);
     }
@@ -326,7 +307,6 @@ export class DynamoDBService {
       Item: session,
     }));
 
-    console.log(`💬 Chat session created: ${session.sessionId}`);
     return session;
   }
 
@@ -357,7 +337,6 @@ export class DynamoDBService {
         },
       }));
 
-      console.log(`💬 Chat session updated: ${sessionId}`);
     } catch (error) {
       console.error('Error updating chat session:', error);
     }

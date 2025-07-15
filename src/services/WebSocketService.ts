@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { SecureChatService } from './SecureChatService';
+import { KeyManagementService } from './KeyManagementService';
 
 export interface ChatMessage {
   messageId?: string; // Add this line for backend compatibility
@@ -26,6 +27,7 @@ export class WebSocketService {
   private static instance: WebSocketService;
   private socket: Socket | null = null;
   private secureChatService: SecureChatService;
+  private keyManagement: KeyManagementService;
   private messageCallbacks: Map<string, (message: ChatMessage) => void> = new Map();
   private userStatusCallbacks: Map<string, (user: User) => void> = new Map();
   private connectionCallbacks: Array<(connected: boolean) => void> = [];
@@ -34,6 +36,7 @@ export class WebSocketService {
 
   private constructor() {
     this.secureChatService = SecureChatService.getInstance();
+    this.keyManagement = KeyManagementService.getInstance();
   }
 
   static getInstance(): WebSocketService {
@@ -101,11 +104,12 @@ export class WebSocketService {
             clearTimeout(timeoutId);
           }
           
-          // Send user info to server
-          this.socket?.emit('user:join', {
-            userId: this.currentUser?.id,
-            userName: this.currentUser?.name
-          });
+                // Send user info to server
+      this.socket?.emit('user:join', {
+        userId: this.currentUser?.id,
+        userName: this.currentUser?.name,
+        publicKey: this.keyManagement.getUserPublicKey() // Include public key for key exchange
+      });
           
           resolve();
         });
@@ -239,6 +243,32 @@ export class WebSocketService {
       } catch (error) {
         console.error('Failed to process received message:', error);
       }
+    });
+
+    // Handle key exchange events
+    this.socket.on('key:request', (data: { requester: string; requesterName: string; requesterPublicKey: string }) => {
+      console.log('🔑 Key request received from:', data.requester);
+      
+      // Store the requester's public key
+      this.keyManagement.storeContactKey(data.requester, data.requesterPublicKey);
+      
+      // Send our public key back
+      const ourPublicKey = this.keyManagement.getUserPublicKey();
+      if (ourPublicKey) {
+        this.socket?.emit('key:response', {
+          recipient: data.requester,
+          sender: this.currentUser?.id,
+          publicKey: ourPublicKey
+        });
+        console.log('🔑 Key response sent to:', data.requester);
+      }
+    });
+
+    this.socket.on('key:response', (data: { sender: string; senderName: string; publicKey: string }) => {
+      console.log('🔑 Key response received from:', data.sender);
+      
+      // Store the sender's public key
+      this.keyManagement.storeContactKey(data.sender, data.publicKey);
     });
 
     // Handle user status updates
