@@ -1,15 +1,17 @@
 import { E2EEncryption, KeyPair } from '../utils/encryption';
-import { SecureKeyStorage, StoredKeys, ContactKey } from './SecureKeyStorage';
+import { SecureKeyStorageFactory, SecureKeyStorage } from './SecureKeyStorageFactory';
+import { ContactKey, StoredKeys } from './crypto/interfaces';
 
 export class KeyManagementService {
   private static instance: KeyManagementService;
-  private secureStorage: SecureKeyStorage;
+  private secureStorage!: SecureKeyStorage;
   private userKeyPair: KeyPair | null = null;
   private contactKeys: Map<string, ContactKey> = new Map();
+  private isInitialized = false;
+  private initializationPromise: Promise<void> | null = null;
 
   private constructor() {
-    this.secureStorage = SecureKeyStorage.getInstance();
-    this.loadKeysFromStorage();
+    this.initializationPromise = this.initializeSecureStorage();
   }
 
   static getInstance(): KeyManagementService {
@@ -20,38 +22,84 @@ export class KeyManagementService {
   }
 
   /**
-   * Initialize or load user's key pair
+   * Initialize secure storage
    */
-  async initializeUserKeys(): Promise<KeyPair> {
-    if (!this.userKeyPair) {
-      // Try to load from secure storage first
-      const stored = await this.secureStorage.getKeys();
-      if (stored?.userKeyPair) {
-        this.userKeyPair = stored.userKeyPair;
-        this.contactKeys.clear();
-        stored.contactKeys.forEach(contactKey => {
-          this.contactKeys.set(contactKey.userId, contactKey);
-        });
-        console.log('🔐 User keys loaded from secure storage');
-      } else {
-        // Generate new keys
-        this.userKeyPair = E2EEncryption.generateKeyPair();
-        console.log('🔐 New user keys generated');
-        await this.saveKeysToStorage();
-      }
+  private async initializeSecureStorage(): Promise<void> {
+    try {
+      const factory = SecureKeyStorageFactory.getInstance();
+      await factory.autoConfigure();
+      this.secureStorage = await factory.createSecureKeyStorage();
+      console.log('🔐 SecureKeyStorage initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize SecureKeyStorage:', error);
+      throw error;
     }
-    return this.userKeyPair;
   }
 
   /**
-   * Get user's public key for sharing
+   * Ensure secure storage is initialized
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.secureStorage && this.initializationPromise) {
+      await this.initializationPromise;
+    }
+    if (!this.secureStorage) {
+      throw new Error('SecureKeyStorage failed to initialize');
+    }
+  }
+
+  /**
+   * Initialize or load user's key pair
+   */
+  async initializeUserKeys(): Promise<KeyPair> {
+    if (this.userKeyPair) {
+      return this.userKeyPair;
+    }
+
+    // Ensure secure storage is ready
+    await this.ensureInitialized();
+
+    try {
+      // Try to load existing keys
+      const storedKeys = await this.secureStorage.getKeys();
+      if (storedKeys?.userKeyPair) {
+        this.userKeyPair = storedKeys.userKeyPair as KeyPair;
+        this.contactKeys = new Map(storedKeys.contactKeys.map((key: ContactKey) => [key.userId, key]));
+        this.isInitialized = true;
+        console.log('🔑 Loaded existing user keys');
+        return this.userKeyPair;
+      }
+    } catch (error) {
+      console.log('No existing keys found, generating new ones...');
+    }
+
+    // Generate new keys
+    const newKeyPair = E2EEncryption.generateKeyPair();
+    this.userKeyPair = newKeyPair;
+    this.isInitialized = true;
+
+    // Store the new keys
+    const keysToStore: StoredKeys = {
+      userKeyPair: newKeyPair as KeyPair,
+      contactKeys: [],
+      lastBackup: Date.now()
+    };
+
+    await this.secureStorage.storeKeys(keysToStore);
+    console.log('🔑 Generated and stored new user keys');
+
+    return newKeyPair;
+  }
+
+  /**
+   * Get user's public key
    */
   getUserPublicKey(): string | null {
     return this.userKeyPair?.publicKey || null;
   }
 
   /**
-   * Get user's private key for decryption
+   * Get user's private key
    */
   getUserPrivateKey(): string | null {
     return this.userKeyPair?.privateKey || null;
@@ -61,6 +109,8 @@ export class KeyManagementService {
    * Store a contact's public key
    */
   async storeContactKey(userId: string, publicKey: string): Promise<void> {
+    await this.ensureInitialized();
+    
     const contactKey: ContactKey = {
       userId,
       publicKey,
@@ -68,53 +118,44 @@ export class KeyManagementService {
     };
 
     this.contactKeys.set(userId, contactKey);
-    await this.saveKeysToStorage();
-    console.log(`🔑 Contact key stored for ${userId}`);
+
+    // Update stored keys
+    const storedKeys = await this.secureStorage.getKeys();
+    if (storedKeys) {
+      storedKeys.contactKeys = Array.from(this.contactKeys.values());
+      await this.secureStorage.storeKeys(storedKeys);
+    }
+
+    console.log(`🔑 Stored public key for contact: ${userId}`);
   }
 
   /**
    * Get a contact's public key
    */
-  getContactKey(userId: string): string | null {
-    const contactKey = this.contactKeys.get(userId);
-    return contactKey?.publicKey || null;
+  getContactPublicKey(userId: string): string | null {
+    return this.contactKeys.get(userId)?.publicKey || null;
   }
 
   /**
-   * Check if we have a contact's public key
+   * Generate shared secret with a contact
    */
-  hasContactKey(userId: string): boolean {
-    return this.contactKeys.has(userId);
-  }
+  async generateSharedSecret(contactUserId: string): Promise<string | null> {
+    const privateKey = this.getUserPrivateKey();
+    const publicKey = this.getContactPublicKey(contactUserId);
 
-  /**
-   * Request a contact's public key (for demo purposes)
-   */
-  requestContactKey(contactId: string): void {
-    // In a real implementation, this would send a request to the contact
-    // For now, we'll simulate key exchange
-    this.simulateKeyExchange(contactId);
-  }
-
-  /**
-   * Generate a shared secret with a contact using their public key
-   */
-  generateSharedSecret(contactId: string): string | null {
-    const contactPublicKey = this.getContactKey(contactId);
-    const userPrivateKey = this.getUserPrivateKey();
-
-    if (!contactPublicKey || !userPrivateKey) {
-      console.warn(`Missing keys for contact ${contactId}`);
+    if (!privateKey || !publicKey) {
+      console.warn(`Missing keys for contact: ${contactUserId}`);
       return null;
     }
 
-    const sharedSecret = E2EEncryption.generateSharedSecret(
-      userPrivateKey,
-      contactPublicKey
-    );
-
-    console.log(`🔐 Shared secret generated with ${contactId}`);
-    return sharedSecret;
+    try {
+      const sharedSecret = E2EEncryption.generateSharedSecret(privateKey, publicKey);
+      console.log(`🔐 Generated shared secret with: ${contactUserId}`);
+      return sharedSecret;
+    } catch (error) {
+      console.error(`Failed to generate shared secret with ${contactUserId}:`, error);
+      return null;
+    }
   }
 
   /**
@@ -125,86 +166,76 @@ export class KeyManagementService {
   }
 
   /**
-   * Simulate key exchange for demo purposes
+   * Remove a contact's key
    */
-  private async simulateKeyExchange(contactId: string): Promise<void> {
-    // Generate a simulated public key for the contact
-    const simulatedKeyPair = E2EEncryption.generateKeyPair();
-    await this.storeContactKey(contactId, simulatedKeyPair.publicKey);
-    console.log(`🔑 Simulated key exchange completed with ${contactId}`);
-  }
+  async removeContactKey(userId: string): Promise<void> {
+    await this.ensureInitialized();
+    
+    this.contactKeys.delete(userId);
 
-  /**
-   * Save keys to secure storage
-   */
-  private async saveKeysToStorage(): Promise<void> {
-    try {
-      const storedKeys: StoredKeys = {
-        userKeyPair: this.userKeyPair!,
-        contactKeys: Array.from(this.contactKeys.values()),
-        lastBackup: Date.now()
-      };
-
+    // Update stored keys
+    const storedKeys = await this.secureStorage.getKeys();
+    if (storedKeys) {
+      storedKeys.contactKeys = Array.from(this.contactKeys.values());
       await this.secureStorage.storeKeys(storedKeys);
-      console.log('💾 Keys saved to secure storage');
-    } catch (error) {
-      console.error('Failed to save keys to secure storage:', error);
     }
+
+    console.log(`🗑️ Removed key for contact: ${userId}`);
   }
 
   /**
-   * Load keys from secure storage
-   */
-  private async loadKeysFromStorage(): Promise<void> {
-    try {
-      const stored = await this.secureStorage.getKeys();
-      if (stored) {
-        this.userKeyPair = stored.userKeyPair;
-        this.contactKeys.clear();
-        stored.contactKeys.forEach(contactKey => {
-          this.contactKeys.set(contactKey.userId, contactKey);
-        });
-        console.log('📂 Keys loaded from secure storage');
-      }
-    } catch (error) {
-      console.error('Failed to load keys from secure storage:', error);
-    }
-  }
-
-  /**
-   * Clear all stored keys (for testing/reset)
+   * Clear all keys
    */
   async clearAllKeys(): Promise<void> {
+    await this.ensureInitialized();
+    
+    await this.secureStorage.clearKeys();
     this.userKeyPair = null;
     this.contactKeys.clear();
-    await this.secureStorage.clearKeys();
-    console.log('🗑️ All keys cleared');
+    this.isInitialized = false;
+    console.log('🗑️ Cleared all keys');
   }
 
   /**
-   * Get encryption statistics
+   * Get storage statistics
    */
-  getStats(): { 
-    hasUserKeys: boolean; 
-    contactCount: number; 
-    lastBackup: number | null;
-    securityLevel: string;
-    storageType: string;
-  } {
-    return this.secureStorage.getStats();
+  async getStats(): Promise<any> {
+    await this.ensureInitialized();
+    
+    const storageStats = await this.secureStorage.getStats();
+    return {
+      ...storageStats,
+      isInitialized: this.isInitialized,
+      hasUserKeys: !!this.userKeyPair,
+      contactCount: this.contactKeys.size,
+      userKeyPair: this.userKeyPair ? {
+        publicKey: this.userKeyPair.publicKey.substring(0, 16) + '...',
+        privateKey: this.userKeyPair.privateKey.substring(0, 16) + '...'
+      } : null
+    };
   }
 
   /**
    * Get security recommendations
    */
-  getSecurityRecommendations(): string[] {
-    return this.secureStorage.getSecurityRecommendations();
+  async getSecurityRecommendations(): Promise<string[]> {
+    await this.ensureInitialized();
+    return await this.secureStorage.getSecurityRecommendations();
   }
 
   /**
-   * Export keys for backup (encrypted)
+   * Get security assessment
+   */
+  async getSecurityAssessment(): Promise<any> {
+    await this.ensureInitialized();
+    return await this.secureStorage.getSecurityAssessment();
+  }
+
+  /**
+   * Export keys for backup
    */
   async exportKeys(password: string): Promise<string> {
+    await this.ensureInitialized();
     return await this.secureStorage.exportKeys(password);
   }
 
@@ -212,11 +243,25 @@ export class KeyManagementService {
    * Import keys from backup
    */
   async importKeys(encryptedBackup: string, password: string): Promise<boolean> {
+    await this.ensureInitialized();
+    
     const success = await this.secureStorage.importKeys(encryptedBackup, password);
     if (success) {
       // Reload keys after import
-      await this.loadKeysFromStorage();
+      const storedKeys = await this.secureStorage.getKeys();
+      if (storedKeys) {
+        this.userKeyPair = storedKeys.userKeyPair;
+        this.contactKeys = new Map(storedKeys.contactKeys.map((key: ContactKey) => [key.userId, key]));
+        this.isInitialized = true;
+      }
     }
     return success;
+  }
+
+  /**
+   * Check if service is initialized
+   */
+  isServiceInitialized(): boolean {
+    return this.isInitialized;
   }
 } 

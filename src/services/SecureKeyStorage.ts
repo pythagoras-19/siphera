@@ -29,7 +29,7 @@ export interface StoredKeys {
 export class SecureKeyStorage {
   private static instance: SecureKeyStorage;
   private readonly STORAGE_KEY = 'siphera_e2e_keys';
-  private readonly ENCRYPTION_KEY = 'siphera_master_key'; // In production, derive from user password
+  private readonly ENCRYPTION_KEY = 'siphera_master_key'; // TODO: In production, derive from user password
   
   // Memory storage (most secure, but lost on refresh)
   private memoryStorage: Map<string, any> = new Map();

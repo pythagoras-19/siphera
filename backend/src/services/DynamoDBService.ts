@@ -204,9 +204,8 @@ export class DynamoDBService {
     try {
       const result = await this.docClient.send(new ScanCommand({
         TableName: this.USERS_TABLE,
-        FilterExpression: 'discoverable = :d AND userId <> :me',
+        FilterExpression: 'userId <> :me',
         ExpressionAttributeValues: {
-          ':d': true,
           ':me': currentUserId,
         },
         ProjectionExpression: 'userId, username, displayName, avatar',

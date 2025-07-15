@@ -1,5 +1,5 @@
-import { E2EEncryption, EncryptedMessage, KeyPair } from '../utils/encryption';
 import { KeyManagementService } from './KeyManagementService';
+import { E2EEncryption, EncryptedMessage } from '../utils/encryption';
 
 export interface SecureMessage {
   id: string;
@@ -23,10 +23,11 @@ export class SecureChatService {
   private keyManagement: KeyManagementService;
   private chatSessions: Map<string, ChatSession> = new Map();
   private messageHistory: Map<string, SecureMessage[]> = new Map();
+  private initializationPromise: Promise<void> | null = null;
 
   private constructor() {
     this.keyManagement = KeyManagementService.getInstance();
-    this.initializeUserKeys();
+    this.initializationPromise = this.initializeUserKeys();
   }
 
   static getInstance(): SecureChatService {
@@ -45,15 +46,26 @@ export class SecureChatService {
   }
 
   /**
+   * Ensure the service is initialized
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (this.initializationPromise) {
+      await this.initializationPromise;
+      this.initializationPromise = null;
+    }
+  }
+
+  /**
    * Get or create a chat session with a contact
    */
   private async getChatSession(contactId: string): Promise<ChatSession> {
+    await this.ensureInitialized();
+    
     if (!this.chatSessions.has(contactId)) {
       // Check if we have the contact's public key
-      if (!this.keyManagement.hasContactKey(contactId)) {
-        // Request the contact's public key
-        this.keyManagement.requestContactKey(contactId);
-        
+      const contactPublicKey = this.keyManagement.getContactPublicKey(contactId);
+      
+      if (!contactPublicKey) {
         // For now, use a temporary shared secret until key exchange completes
         const tempSecret = E2EEncryption.generateSecureRandom(32);
         const session: ChatSession = {
@@ -68,7 +80,7 @@ export class SecureChatService {
       }
 
       // Generate shared secret using actual contact's public key
-      const sharedSecret = this.keyManagement.generateSharedSecret(contactId);
+      const sharedSecret = await this.keyManagement.generateSharedSecret(contactId);
       if (!sharedSecret) {
         throw new Error(`Failed to generate shared secret with ${contactId}`);
       }
@@ -245,5 +257,37 @@ export class SecureChatService {
       totalSessions: this.chatSessions.size,
       totalMessages
     };
+  }
+
+  /**
+   * Store a contact's public key (called during key exchange)
+   */
+  async storeContactKey(contactId: string, publicKey: string): Promise<void> {
+    await this.ensureInitialized();
+    await this.keyManagement.storeContactKey(contactId, publicKey);
+    
+    // If we have an existing session, update it with the real shared secret
+    if (this.chatSessions.has(contactId)) {
+      const sharedSecret = await this.keyManagement.generateSharedSecret(contactId);
+      if (sharedSecret) {
+        const session = this.chatSessions.get(contactId)!;
+        session.sharedSecret = sharedSecret;
+        console.log(`🔐 Updated session with real shared secret for ${contactId}`);
+      }
+    }
+  }
+
+  /**
+   * Get contact's public key
+   */
+  getContactPublicKey(contactId: string): string | null {
+    return this.keyManagement.getContactPublicKey(contactId);
+  }
+
+  /**
+   * Check if we have a contact's public key
+   */
+  hasContactKey(contactId: string): boolean {
+    return !!this.keyManagement.getContactPublicKey(contactId);
   }
 } 
