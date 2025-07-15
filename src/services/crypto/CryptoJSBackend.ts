@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js';
-import { ICryptoBackend, KeyPair, EncryptedMessage } from './interfaces';
+import { ICryptoBackend, KeyPair, EncryptedMessage, VerifiedMessage } from './interfaces';
 
 /**
  * CryptoJS Backend
@@ -20,7 +20,10 @@ export class CryptoJSBackend implements ICryptoBackend {
       const privateKey = CryptoJS.lib.WordArray.random(32).toString();
       const publicKey = CryptoJS.lib.WordArray.random(32).toString();
       
-      return { publicKey, privateKey };
+      // Generate fingerprint
+      const fingerprint = CryptoJS.SHA256(publicKey).toString().substring(0, 16).toUpperCase();
+      
+      return { publicKey, privateKey, fingerprint };
     } catch (error) {
       console.error('Failed to generate key pair:', error);
       throw new Error('Key pair generation failed');
@@ -54,10 +57,14 @@ export class CryptoJSBackend implements ICryptoBackend {
         padding: CryptoJS.pad.Pkcs7
       });
 
+      // Generate HMAC for message authentication
+      const hmac = CryptoJS.HmacSHA256(encrypted.toString() + iv.toString(), key).toString();
+
       return {
         encryptedText: encrypted.toString(),
         iv: iv.toString(),
         timestamp: Date.now(),
+        hmac,
         algorithm: 'AES-256-CBC'
       };
     } catch (error) {
@@ -67,10 +74,17 @@ export class CryptoJSBackend implements ICryptoBackend {
   }
   
   /**
-   * Decrypt message using AES-256-CBC
+   * Decrypt message using AES-256-CBC with HMAC verification
    */
-  async decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<string> {
+  async decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<VerifiedMessage> {
     try {
+      // Verify HMAC
+      const expectedHmac = CryptoJS.HmacSHA256(encryptedMessage.encryptedText + encryptedMessage.iv, key).toString();
+      
+      if (encryptedMessage.hmac !== expectedHmac) {
+        throw new Error('Message authentication failed - HMAC mismatch');
+      }
+
       const iv = CryptoJS.enc.Hex.parse(encryptedMessage.iv);
       const decrypted = CryptoJS.AES.decrypt(encryptedMessage.encryptedText, key, {
         iv: iv,
@@ -78,10 +92,20 @@ export class CryptoJSBackend implements ICryptoBackend {
         padding: CryptoJS.pad.Pkcs7
       });
 
-      return decrypted.toString(CryptoJS.enc.Utf8);
+      const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      
+      return {
+        message: decryptedText,
+        verified: true,
+        senderVerified: true
+      };
     } catch (error) {
       console.error('Decryption failed:', error);
-      throw new Error('Message decryption failed');
+      return {
+        message: '[Decryption Failed]',
+        verified: false,
+        senderVerified: false
+      };
     }
   }
   

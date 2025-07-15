@@ -105,8 +105,8 @@ export class SecureChatService {
   async sendEncryptedMessage(recipientId: string, messageText: string): Promise<SecureMessage> {
     const session = await this.getChatSession(recipientId);
     
-    // Encrypt the message
-    const encryptedData = E2EEncryption.encryptMessage(messageText, session.sharedSecret);
+    // Encrypt the message with HMAC authentication
+    const encryptedData = await E2EEncryption.encryptMessage(messageText, session.sharedSecret);
     
     // Generate message hash for integrity verification
     const messageHash = E2EEncryption.generateSecureRandom(32);
@@ -143,11 +143,16 @@ export class SecureChatService {
     const session = await this.getChatSession(senderId);
     
     try {
-      // Decrypt the message
-      const decryptedText = E2EEncryption.decryptMessage(
+      // Decrypt and verify the message
+      const verifiedMessage = await E2EEncryption.decryptMessage(
         encryptedMessage.encryptedData,
         session.sharedSecret
       );
+
+      if (!verifiedMessage.verified) {
+        console.warn(`Message from ${senderId} failed verification`);
+        throw new Error('Message verification failed');
+      }
 
       // Store in message history
       const chatId = this.getChatId(senderId);
@@ -160,8 +165,8 @@ export class SecureChatService {
       session.lastMessageTime = Date.now();
       session.messageCount++;
 
-      console.log(`🔓 Message decrypted from ${senderId}`);
-      return decryptedText;
+      console.log(`🔓 Message decrypted and verified from ${senderId}`);
+      return verifiedMessage.message;
     } catch (error) {
       console.error('Failed to decrypt message:', error);
       throw new Error('Message decryption failed');
@@ -186,14 +191,14 @@ export class SecureChatService {
     const decryptedMessages = await Promise.all(
       messages.map(async (message) => {
         try {
-          const decryptedText = E2EEncryption.decryptMessage(
+          const verifiedMessage = await E2EEncryption.decryptMessage(
             message.encryptedData,
             session.sharedSecret
           );
           
           return {
             id: message.id,
-            text: decryptedText,
+            text: verifiedMessage.verified ? verifiedMessage.message : '[Verification Failed]',
             sender: message.sender,
             timestamp: message.timestamp,
             isEncrypted: true

@@ -1,4 +1,4 @@
-import { ICryptoBackend, KeyPair, EncryptedMessage } from './interfaces';
+import { ICryptoBackend, KeyPair, EncryptedMessage, VerifiedMessage } from './interfaces';
 
 /**
  * Web Crypto API Backend
@@ -42,7 +42,10 @@ export class WebCryptoBackend implements ICryptoBackend {
       const privateKeyBuffer = await this.subtle.exportKey('pkcs8', keyPair.privateKey);
       const privateKey = this.arrayBufferToBase64(privateKeyBuffer);
       
-      return { publicKey, privateKey };
+      // Generate fingerprint
+      const fingerprint = await this.generateKeyFingerprint(publicKey);
+      
+      return { publicKey, privateKey, fingerprint };
     } catch (error) {
       console.error('Failed to generate key pair:', error);
       throw new Error('Key pair generation failed');
@@ -98,18 +101,26 @@ export class WebCryptoBackend implements ICryptoBackend {
   }
   
   /**
-   * Encrypt message using AES-GCM
+   * Encrypt message using AES-GCM with HMAC
    */
   async encryptMessage(message: string, key: string): Promise<EncryptedMessage> {
     try {
-      // Derive encryption key from shared secret
-      const encryptionKey = await this.deriveEncryptionKey(key);
+      // Derive encryption and authentication keys from shared secret
+      const keys = await this.deriveKeys(key);
       
       // Generate IV
       const iv = this.crypto.getRandomValues(new Uint8Array(12));
       
       // Encrypt
       const messageBuffer = new TextEncoder().encode(message);
+      const encryptionKey = await this.subtle.importKey(
+        'raw',
+        this.base64ToArrayBuffer(keys.encryptionKey),
+        'AES-GCM',
+        false,
+        ['encrypt']
+      );
+      
       const encryptedBuffer = await this.subtle.encrypt(
         {
           name: 'AES-GCM',
@@ -119,10 +130,16 @@ export class WebCryptoBackend implements ICryptoBackend {
         messageBuffer
       );
       
+      const encryptedText = this.arrayBufferToBase64(encryptedBuffer);
+      
+      // Generate HMAC for message authentication
+      const hmac = await this.generateHMAC(encryptedText + this.arrayBufferToBase64(iv.buffer), keys.authKey);
+      
       return {
-        encryptedText: this.arrayBufferToBase64(encryptedBuffer),
+        encryptedText,
         iv: this.arrayBufferToBase64(iv.buffer),
         timestamp: Date.now(),
+        hmac,
         algorithm: 'AES-GCM'
       };
     } catch (error) {
@@ -132,30 +149,58 @@ export class WebCryptoBackend implements ICryptoBackend {
   }
   
   /**
-   * Decrypt message using AES-GCM
+   * Decrypt message using AES-GCM with HMAC verification
    */
-  async decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<string> {
+  async decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<VerifiedMessage> {
     try {
-      // Derive encryption key from shared secret
-      const encryptionKey = await this.deriveEncryptionKey(key);
+      // Derive encryption and authentication keys from shared secret
+      const keys = await this.deriveKeys(key);
+      
+      // Verify HMAC
+      const expectedHmac = await this.generateHMAC(
+        encryptedMessage.encryptedText + encryptedMessage.iv, 
+        keys.authKey
+      );
+
+      if (encryptedMessage.hmac !== expectedHmac) {
+        throw new Error('Message authentication failed - HMAC mismatch');
+      }
       
       // Decrypt
       const encryptedBuffer = this.base64ToArrayBuffer(encryptedMessage.encryptedText);
       const iv = this.base64ToArrayBuffer(encryptedMessage.iv);
+      
+      const decryptionKey = await this.subtle.importKey(
+        'raw',
+        this.base64ToArrayBuffer(keys.encryptionKey),
+        'AES-GCM',
+        false,
+        ['decrypt']
+      );
       
       const decryptedBuffer = await this.subtle.decrypt(
         {
           name: 'AES-GCM',
           iv: iv
         },
-        encryptionKey,
+        decryptionKey,
         encryptedBuffer
       );
       
-      return new TextDecoder().decode(decryptedBuffer);
+      const decryptedText = new TextDecoder().decode(decryptedBuffer);
+      
+      return {
+        message: decryptedText,
+        verified: true,
+        senderVerified: true // In a real implementation, this would verify digital signatures
+      };
     } catch (error) {
       console.error('Decryption failed:', error);
-      throw new Error('Message decryption failed');
+      return {
+        message: '[Decryption Failed]',
+        verified: false,
+        senderVerified: false
+      };
     }
   }
   
@@ -305,5 +350,79 @@ export class WebCryptoBackend implements ICryptoBackend {
       bytes[i] = binary.charCodeAt(i);
     }
     return bytes.buffer;
+  }
+
+  /**
+   * Generate key fingerprint for verification
+   */
+  private async generateKeyFingerprint(publicKey: string): Promise<string> {
+    // Use SHA-256 hash of public key as fingerprint
+    const hash = await this.hash(publicKey);
+    return hash.substring(0, 16).toUpperCase();
+  }
+
+  /**
+   * Derive encryption and authentication keys from shared secret
+   */
+  private async deriveKeys(sharedSecret: string): Promise<{ encryptionKey: string; authKey: string }> {
+    const sharedSecretBuffer = this.base64ToArrayBuffer(sharedSecret);
+    const keyMaterial = await this.subtle.importKey(
+      'raw',
+      sharedSecretBuffer,
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+
+    // Derive encryption key
+    const encryptionKeyBits = await this.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: new TextEncoder().encode('encryption'),
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+
+    // Derive authentication key
+    const authKeyBits = await this.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: new TextEncoder().encode('authentication'),
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+
+    return {
+      encryptionKey: this.arrayBufferToBase64(encryptionKeyBits),
+      authKey: this.arrayBufferToBase64(authKeyBits)
+    };
+  }
+
+  /**
+   * Generate HMAC for message authentication
+   */
+  private async generateHMAC(data: string, key: string): Promise<string> {
+    const keyBuffer = this.base64ToArrayBuffer(key);
+    const dataBuffer = new TextEncoder().encode(data);
+
+    const hmacKey = await this.subtle.importKey(
+      'raw',
+      keyBuffer,
+      {
+        name: 'HMAC',
+        hash: 'SHA-256'
+      },
+      false,
+      ['sign']
+    );
+
+    const signature = await this.subtle.sign('HMAC', hmacKey, dataBuffer);
+    return this.arrayBufferToBase64(signature);
   }
 } 

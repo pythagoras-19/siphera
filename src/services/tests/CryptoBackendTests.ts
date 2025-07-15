@@ -96,21 +96,21 @@ export class CryptoBackendTests {
         });
       }
       
-      // Test encryption/decryption
+      // Test encryption/decryption with HMAC
       try {
         const keyPair1 = await backend.generateKeyPair();
         const keyPair2 = await backend.generateKeyPair();
         const sharedSecret = await backend.generateSharedSecret(keyPair1.privateKey, keyPair2.publicKey);
         const testMessage = 'Hello, World!';
         const encrypted = await backend.encryptMessage(testMessage, sharedSecret);
-        const decrypted = await backend.decryptMessage(encrypted, sharedSecret);
+        const verifiedMessage = await backend.decryptMessage(encrypted, sharedSecret);
         results.push({
-          test: 'WebCrypto: Encryption/Decryption',
-          passed: decrypted === testMessage
+          test: 'WebCrypto: Encryption/Decryption with HMAC',
+          passed: verifiedMessage.verified && verifiedMessage.message === testMessage
         });
       } catch (error) {
         results.push({
-          test: 'WebCrypto: Encryption/Decryption',
+          test: 'WebCrypto: Encryption/Decryption with HMAC',
           passed: false,
           error: error instanceof Error ? error.message : 'Unknown error'
         });
@@ -186,21 +186,21 @@ export class CryptoBackendTests {
         });
       }
       
-      // Test encryption/decryption
+      // Test encryption/decryption with HMAC
       try {
         const keyPair1 = await backend.generateKeyPair();
         const keyPair2 = await backend.generateKeyPair();
         const sharedSecret = await backend.generateSharedSecret(keyPair1.privateKey, keyPair2.publicKey);
         const testMessage = 'Hello, World!';
         const encrypted = await backend.encryptMessage(testMessage, sharedSecret);
-        const decrypted = await backend.decryptMessage(encrypted, sharedSecret);
+        const verifiedMessage = await backend.decryptMessage(encrypted, sharedSecret);
         results.push({
-          test: 'CryptoJS: Encryption/Decryption',
-          passed: decrypted === testMessage
+          test: 'CryptoJS: Encryption/Decryption with HMAC',
+          passed: verifiedMessage.verified && verifiedMessage.message === testMessage
         });
       } catch (error) {
         results.push({
-          test: 'CryptoJS: Encryption/Decryption',
+          test: 'CryptoJS: Encryption/Decryption with HMAC',
           passed: false,
           error: error instanceof Error ? error.message : 'Unknown error'
         });

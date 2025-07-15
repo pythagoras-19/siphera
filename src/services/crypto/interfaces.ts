@@ -1,6 +1,7 @@
 export interface KeyPair {
   publicKey: string;
   privateKey: string;
+  fingerprint: string;
 }
 
 export interface ContactKey {
@@ -19,8 +20,15 @@ export interface EncryptedMessage {
   encryptedText: string;
   iv: string;
   timestamp: number;
+  hmac: string; // Message authentication code
   algorithm?: string;
   keyId?: string;
+}
+
+export interface VerifiedMessage {
+  message: string;
+  verified: boolean;
+  senderVerified: boolean;
 }
 
 /**
@@ -37,7 +45,7 @@ export interface ICryptoBackend {
   
   // Encryption/Decryption
   encryptMessage(message: string, key: string): Promise<EncryptedMessage>;
-  decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<string>;
+  decryptMessage(encryptedMessage: EncryptedMessage, key: string): Promise<VerifiedMessage>;
   
   // Key derivation
   deriveKey(password: string, salt: string): Promise<string>;

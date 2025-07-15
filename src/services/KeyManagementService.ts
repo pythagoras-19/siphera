@@ -74,7 +74,7 @@ export class KeyManagementService {
     }
 
     // Generate new keys
-    const newKeyPair = E2EEncryption.generateKeyPair();
+    const newKeyPair = await E2EEncryption.generateKeyPair();
     this.userKeyPair = newKeyPair;
     this.isInitialized = true;
 
@@ -149,7 +149,7 @@ export class KeyManagementService {
     }
 
     try {
-      const sharedSecret = E2EEncryption.generateSharedSecret(privateKey, publicKey);
+      const sharedSecret = await E2EEncryption.generateSharedSecret(privateKey, publicKey);
       console.log(`🔐 Generated shared secret with: ${contactUserId}`);
       return sharedSecret;
     } catch (error) {
