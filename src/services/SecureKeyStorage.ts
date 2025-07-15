@@ -99,7 +99,7 @@ export class SecureKeyStorage {
 
       // Fallback to encrypted localStorage
       if (this.useLocalStorage) {
-        const localStorageKeys = this.getKeysFromLocalStorage();
+        const localStorageKeys = await this.getKeysFromLocalStorage();
         if (localStorageKeys) {
           // Restore to memory for future access
           this.memoryStorage.set('userKeyPair', localStorageKeys.userKeyPair);
@@ -138,13 +138,13 @@ export class SecureKeyStorage {
   /**
    * Get keys from encrypted localStorage
    */
-  private getKeysFromLocalStorage(): StoredKeys | null {
+  private async getKeysFromLocalStorage(): Promise<StoredKeys | null> {
     try {
       const encrypted = localStorage.getItem(this.STORAGE_KEY);
       if (!encrypted) return null;
 
       const encryptedData = JSON.parse(encrypted);
-      const decrypted = this.decryptKeys(encryptedData);
+      const decrypted = await this.decryptKeys(encryptedData);
       
       return decrypted;
     } catch (error) {
@@ -164,9 +164,9 @@ export class SecureKeyStorage {
   /**
    * Decrypt keys after retrieval
    */
-  private decryptKeys(encryptedData: any): StoredKeys {
-    const decrypted = E2EEncryption.decryptMessage(encryptedData, this.ENCRYPTION_KEY);
-    return JSON.parse(decrypted);
+  private async decryptKeys(encryptedData: any): Promise<StoredKeys> {
+    const decrypted = await E2EEncryption.decryptMessage(encryptedData, this.ENCRYPTION_KEY);
+    return JSON.parse(decrypted.message);
   }
 
   /**
@@ -217,8 +217,8 @@ export class SecureKeyStorage {
   async importKeys(encryptedBackup: string, userPassword: string): Promise<boolean> {
     try {
       const encrypted = JSON.parse(encryptedBackup);
-      const decrypted = E2EEncryption.decryptMessage(encrypted, userPassword);
-      const keys: StoredKeys = JSON.parse(decrypted);
+      const decrypted = await E2EEncryption.decryptMessage(encrypted, userPassword);
+      const keys: StoredKeys = JSON.parse(decrypted.message);
 
       await this.storeKeys(keys);
       console.log('📥 Keys imported successfully');
