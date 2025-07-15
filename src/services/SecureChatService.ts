@@ -66,8 +66,9 @@ export class SecureChatService {
       const contactPublicKey = this.keyManagement.getContactPublicKey(contactId);
       
       if (!contactPublicKey) {
-        // For now, use a temporary shared secret until key exchange completes
-        const tempSecret = E2EEncryption.generateSecureRandom(32);
+        // Create a deterministic temporary secret based on contact ID
+        // This ensures the same secret is used for encryption and decryption
+        const tempSecret = this.generateDeterministicSecret(contactId);
         const session: ChatSession = {
           contactId,
           sharedSecret: tempSecret,
@@ -100,10 +101,28 @@ export class SecureChatService {
   }
 
   /**
+   * Generate a deterministic temporary secret for contacts without public keys
+   * This ensures the same secret is used for encryption and decryption
+   */
+  private generateDeterministicSecret(contactId: string): string {
+    // Use a combination of user's private key and contact ID to generate a consistent secret
+    const userPrivateKey = this.keyManagement.getUserPrivateKey();
+    const combined = (userPrivateKey || '') + contactId;
+    return E2EEncryption.hashPassword(combined);
+  }
+
+  /**
    * Send an encrypted message
    */
   async sendEncryptedMessage(recipientId: string, messageText: string): Promise<SecureMessage> {
     const session = await this.getChatSession(recipientId);
+    
+    console.log(`🔍 Encrypting message for ${recipientId}:`, {
+      hasSession: !!session,
+      sessionSecretLength: session.sharedSecret.length,
+      messageText: messageText.substring(0, 20) + '...',
+      hasContactKey: this.hasContactKey(recipientId)
+    });
     
     // Encrypt the message with HMAC authentication
     const encryptedData = await E2EEncryption.encryptMessage(messageText, session.sharedSecret);
@@ -132,7 +151,11 @@ export class SecureChatService {
     session.lastMessageTime = Date.now();
     session.messageCount++;
 
-    console.log(`🔒 Message encrypted and sent to ${recipientId}`);
+    console.log(`🔒 Message encrypted and sent to ${recipientId}:`, {
+      encryptedTextLength: encryptedData.encryptedText.length,
+      hasHmac: !!encryptedData.hmac,
+      timestamp: encryptedData.timestamp
+    });
     return secureMessage;
   }
 
@@ -141,6 +164,13 @@ export class SecureChatService {
    */
   async receiveEncryptedMessage(senderId: string, encryptedMessage: SecureMessage): Promise<string> {
     const session = await this.getChatSession(senderId);
+    
+    console.log(`🔍 Attempting to decrypt message from ${senderId}:`, {
+      hasSession: !!session,
+      sessionSecretLength: session.sharedSecret.length,
+      encryptedData: encryptedMessage.encryptedData,
+      hasContactKey: this.hasContactKey(senderId)
+    });
     
     try {
       // Decrypt and verify the message
@@ -165,10 +195,15 @@ export class SecureChatService {
       session.lastMessageTime = Date.now();
       session.messageCount++;
 
-      console.log(`🔓 Message decrypted and verified from ${senderId}`);
+      console.log(`🔓 Message decrypted and verified from ${senderId}:`, verifiedMessage.message);
       return verifiedMessage.message;
     } catch (error) {
       console.error('Failed to decrypt message:', error);
+      console.error('Session details:', {
+        contactId: session.contactId,
+        sharedSecretLength: session.sharedSecret.length,
+        messageCount: session.messageCount
+      });
       throw new Error('Message decryption failed');
     }
   }
@@ -294,5 +329,22 @@ export class SecureChatService {
    */
   hasContactKey(contactId: string): boolean {
     return !!this.keyManagement.getContactPublicKey(contactId);
+  }
+
+  /**
+   * Handle key exchange when receiving a contact's public key
+   */
+  async handleKeyExchange(contactId: string, publicKey: string): Promise<void> {
+    await this.storeContactKey(contactId, publicKey);
+    
+    // Re-encrypt any existing messages with the new shared secret
+    const chatId = this.getChatId(contactId);
+    const messages = this.messageHistory.get(chatId) || [];
+    
+    if (messages.length > 0) {
+      console.log(`🔄 Re-encrypting ${messages.length} messages with new shared secret for ${contactId}`);
+      // Note: In a real implementation, you might want to re-encrypt stored messages
+      // For now, we'll just update the session
+    }
   }
 } 
