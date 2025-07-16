@@ -349,6 +349,7 @@ io.on('connection', (socket) => {
         messageType: data.messageType || 'text',
         metadata: {
           iv: data.encryptedData?.iv || '',
+          hmac: data.encryptedData?.hmac || '',
           ...data.metadata
         },
       });
