@@ -15,7 +15,9 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "aws-amplify": "^6.15.3",
+    "aws-sdk": "^2.1691.0",
     "crypto-js": "^4.2.0",
+    "dotenv": "^17.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.30.1",
@@ -29,7 +31,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "validate-db": "node scripts/validate-dynamo-encryption.js",
+    "validate-db:scan": "node scripts/validate-dynamo-encryption.js scan",
+    "validate-db:get": "node scripts/validate-dynamo-encryption.js get",
+    "validate-db:test": "node scripts/test-validation.js"
   },
   "eslintConfig": {
     "extends": [

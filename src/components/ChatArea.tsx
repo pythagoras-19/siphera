@@ -60,6 +60,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
                 encryptedData: {
                   encryptedText: chatMessage.content,
                   iv: chatMessage.metadata?.iv || '',
+                  salt: chatMessage.metadata?.salt || '',
                   timestamp: chatMessage.timestamp,
                   hmac: chatMessage.metadata?.hmac || ''
                 },
@@ -144,6 +145,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
                   encryptedData: {
                     encryptedText: msg.content,
                     iv: msg.metadata?.iv || '',
+                    salt: msg.metadata?.salt || '',
                     timestamp: msg.timestamp,
                     hmac: msg.metadata?.hmac || '' // HMAC might be missing for old messages
                   },

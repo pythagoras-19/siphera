@@ -508,8 +508,9 @@ export class SecureChatService {
    */
   private async tryDecryptWithoutHMAC(encryptedData: any, secret: string): Promise<string | null> {
     try {
-      // Import the encryption key
-      const keys = await E2EEncryption['deriveKeys'](secret);
+      // Import the encryption key using the stored salt (or fallback for old messages)
+      const salt = encryptedData.salt || 'encryption';
+      const keys = await E2EEncryption['deriveKeys'](secret, salt);
       const encryptionKey = keys.encryptionKey;
       
       // Decode the encrypted text and IV
@@ -554,7 +555,7 @@ export class SecureChatService {
         const decryptedBuffer = await window.crypto.subtle.decrypt(
           {
             name: 'AES-GCM',
-            iv: ivBuffer
+            iv: new Uint8Array(ivBuffer)
           },
           cryptoKey,
           encryptedBuffer

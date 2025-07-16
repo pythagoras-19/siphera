@@ -1,11 +1,23 @@
 import CryptoJS from 'crypto-js';
 
+/**
+ * EncryptedMessage Interface - Maps to DynamoDB Schema
+ * 
+ * DynamoDB Fields:
+ * - encryptedText (string, required): The AES-GCM encrypted message (base64)
+ * - iv (string, required): 12-byte IV used in AES-GCM (base64)  
+ * - salt (string, required): Used in PBKDF2 to derive the encryption key (base64)
+ * - hmac (string, required): HMAC for integrity/authentication check (base64)
+ * - timestamp (number): Unix timestamp
+ * - signature (string, optional): Digital signature for future use
+ */
 export interface EncryptedMessage {
-  encryptedText: string;
-  iv: string;
-  timestamp: number;
-  hmac: string; // Message authentication code
-  signature?: string; // Optional digital signature
+  encryptedText: string;    // The AES-GCM encrypted message (base64)
+  iv: string;               // 12-byte IV used in AES-GCM (base64)
+  salt: string;             // Used in PBKDF2 to derive the encryption key (base64)
+  hmac: string;             // HMAC for integrity/authentication check (base64)
+  timestamp: number;        // Unix timestamp
+  signature?: string;       // Optional digital signature (for future use)
 }
 
 export interface KeyPair {
@@ -132,23 +144,27 @@ export class E2EEncryption {
    */
   static async encryptMessage(message: string, sharedSecret: string, authKey?: string): Promise<EncryptedMessage> {
     try {
-      // Derive encryption and authentication keys from shared secret
-      const keys = await this.deriveKeys(sharedSecret);
+      // Generate a random salt for PBKDF2
+      const salt = this.generateSecureRandom(16); // 16 bytes = 128 bits
+      
+      // Derive encryption and authentication keys from shared secret using the salt
+      const keys = await this.deriveKeys(sharedSecret, salt);
       
       // Generate IV
       let iv: Uint8Array;
       if (window.crypto) {
-        iv = window.crypto.getRandomValues(new Uint8Array(16));
+        iv = window.crypto.getRandomValues(new Uint8Array(12)); // AES-GCM uses 12-byte IV
       } else {
-        const wordArray = CryptoJS.lib.WordArray.random(16);
+        const wordArray = CryptoJS.lib.WordArray.random(12); // AES-GCM uses 12-byte IV
         // Convert WordArray to Uint8Array properly
         const words = wordArray.words;
-        iv = new Uint8Array(words.length * 4);
-        for (let i = 0; i < words.length; i++) {
-          iv[i * 4] = (words[i] >>> 24) & 0xff;
-          iv[i * 4 + 1] = (words[i] >>> 16) & 0xff;
-          iv[i * 4 + 2] = (words[i] >>> 8) & 0xff;
-          iv[i * 4 + 3] = words[i] & 0xff;
+        iv = new Uint8Array(12);
+        for (let i = 0; i < Math.min(words.length, 3); i++) {
+          const word = words[i];
+          iv[i * 4] = (word >>> 24) & 0xff;
+          iv[i * 4 + 1] = (word >>> 16) & 0xff;
+          iv[i * 4 + 2] = (word >>> 8) & 0xff;
+          iv[i * 4 + 3] = word & 0xff;
         }
       }
 
@@ -186,11 +202,12 @@ export class E2EEncryption {
       }
 
       // Generate HMAC for message authentication
-      const hmac = await this.generateHMAC(encryptedText + this.arrayBufferToBase64(iv.buffer.slice(0)), keys.authKey);
+      const hmac = await this.generateHMAC(encryptedText + this.arrayBufferToBase64(this.toArrayBuffer(iv.buffer)), keys.authKey);
 
       return {
         encryptedText,
-        iv: this.arrayBufferToBase64(iv.buffer),
+        iv: this.arrayBufferToBase64(this.toArrayBuffer(iv.buffer)),
+        salt,
         timestamp: Date.now(),
         hmac
       };
@@ -205,8 +222,8 @@ export class E2EEncryption {
    */
   static async decryptMessage(encryptedMessage: EncryptedMessage, sharedSecret: string): Promise<VerifiedMessage> {
     try {
-      // Derive keys
-      const keys = await this.deriveKeys(sharedSecret);
+      // Use the salt from the encrypted message for key derivation
+      const keys = await this.deriveKeys(sharedSecret, encryptedMessage.salt);
 
       // Verify HMAC
       const expectedHmac = await this.generateHMAC(
@@ -284,32 +301,56 @@ export class E2EEncryption {
   /**
    * Derive encryption and authentication keys from shared secret
    */
-  private static async deriveKeys(sharedSecret: string): Promise<{ encryptionKey: string; authKey: string }> {
+  static async deriveKeys(sharedSecret: string, salt: string): Promise<{ encryptionKey: string; authKey: string }> {
     if (window.crypto && window.crypto.subtle) {
-      // Handle both Base64 and raw string inputs
+      // Handle Base64, hex, and raw string inputs
       let sharedSecretBuffer: Uint8Array;
       try {
         // Try to decode as Base64 first
         const buffer = this.base64ToArrayBuffer(sharedSecret);
         sharedSecretBuffer = new Uint8Array(buffer);
       } catch (error) {
-        // If Base64 decoding fails, treat as raw string
-        sharedSecretBuffer = new TextEncoder().encode(sharedSecret);
+        // If Base64 decoding fails, try hex decoding
+        try {
+          // Check if it looks like a hex string (even length, hex characters)
+          if (sharedSecret.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(sharedSecret)) {
+            const hexBytes = new Uint8Array(sharedSecret.length / 2);
+            for (let i = 0; i < sharedSecret.length; i += 2) {
+              hexBytes[i / 2] = parseInt(sharedSecret.substr(i, 2), 16);
+            }
+            sharedSecretBuffer = hexBytes;
+          } else {
+            // If not hex, treat as raw string
+            sharedSecretBuffer = new TextEncoder().encode(sharedSecret);
+          }
+        } catch (hexError) {
+          // If hex decoding fails, treat as raw string
+          sharedSecretBuffer = new TextEncoder().encode(sharedSecret);
+        }
       }
       
       const keyMaterial = await window.crypto.subtle.importKey(
         'raw',
-        sharedSecretBuffer,
+        this.toArrayBuffer(sharedSecretBuffer.buffer),
         'PBKDF2',
         false,
         ['deriveBits']
       );
 
+      // Convert salt to ArrayBuffer (handle both Base64 and raw strings)
+      let saltBuffer: ArrayBuffer;
+      try {
+        saltBuffer = this.base64ToArrayBuffer(salt);
+      } catch (error) {
+        // If Base64 decoding fails, treat as raw string
+        saltBuffer = this.toArrayBuffer(new TextEncoder().encode(salt).buffer);
+      }
+      
       // Derive encryption key
       const encryptionKeyBits = await window.crypto.subtle.deriveBits(
         {
           name: 'PBKDF2',
-          salt: new TextEncoder().encode('encryption'),
+          salt: saltBuffer,
           iterations: this.ITERATION_COUNT,
           hash: 'SHA-256'
         },
@@ -317,11 +358,15 @@ export class E2EEncryption {
         256
       );
 
-      // Derive authentication key
+      // Derive authentication key (use different salt by appending to original salt)
+      const authSaltBuffer = new Uint8Array(saltBuffer.byteLength + 4);
+      authSaltBuffer.set(new Uint8Array(saltBuffer));
+      authSaltBuffer.set(new TextEncoder().encode('auth'), saltBuffer.byteLength);
+      
       const authKeyBits = await window.crypto.subtle.deriveBits(
         {
           name: 'PBKDF2',
-          salt: new TextEncoder().encode('authentication'),
+          salt: authSaltBuffer,
           iterations: this.ITERATION_COUNT,
           hash: 'SHA-256'
         },
@@ -335,18 +380,67 @@ export class E2EEncryption {
       };
     } else {
       // Fallback to CryptoJS
-      const encryptionKey = CryptoJS.PBKDF2(sharedSecret, 'encryption', {
+      let saltString: string;
+      try {
+        const saltBuffer = this.base64ToArrayBuffer(salt);
+        saltString = this.arrayBufferToBase64(saltBuffer);
+      } catch (error) {
+        // If Base64 decoding fails, use salt as-is (for hardcoded salts)
+        saltString = salt;
+      }
+      
+      const encryptionKey = CryptoJS.PBKDF2(sharedSecret, saltString, {
         keySize: 256 / 32,
         iterations: this.ITERATION_COUNT
       }).toString();
 
-      const authKey = CryptoJS.PBKDF2(sharedSecret, 'authentication', {
+      const authKey = CryptoJS.PBKDF2(sharedSecret, saltString + 'auth', {
         keySize: 256 / 32,
         iterations: this.ITERATION_COUNT
       }).toString();
 
       return { encryptionKey, authKey };
     }
+  }
+
+  /**
+   * Generate secrets to try for decryption
+   * This method helps with backward compatibility and multiple key derivation strategies
+   */
+  static async generateSecretsToTry(contactId: string, salt?: string): Promise<string[]> {
+    const secrets: string[] = [];
+
+    // 1. Derive keys with sharedSecret + salt (for correct decryption path)
+    if (salt) {
+      // This would typically come from your key management service
+      // For now, we'll use a placeholder - you'll need to implement this based on your key management
+      const sharedSecret = this.generateDeterministicSecret(contactId);
+      
+      try {
+        const keys = await this.deriveKeys(sharedSecret, salt);
+        secrets.push(keys.encryptionKey);
+      } catch (error) {
+        console.warn('Failed to derive keys with salt:', error);
+      }
+    }
+
+    // 2. Fallbacks - try the shared secret directly
+    secrets.push(this.generateDeterministicSecret(contactId));
+    
+    // 3. Legacy secrets (if you have any)
+    // secrets.push(legacySecret1, legacySecret2, etc.);
+
+    return secrets;
+  }
+
+  /**
+   * Generate a deterministic secret for a contact
+   * This is a placeholder - implement based on your key management strategy
+   */
+  private static generateDeterministicSecret(contactId: string): string {
+    // This should be replaced with your actual key derivation logic
+    // For example, using ECDH shared secrets, or fetching from key management service
+    return CryptoJS.SHA256(contactId).toString();
   }
 
   /**
@@ -397,7 +491,21 @@ export class E2EEncryption {
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
-    return bytes.buffer.slice(0) as ArrayBuffer; // Create a new ArrayBuffer to avoid SharedArrayBuffer issues
+    return bytes.buffer.slice(0);
+  }
+
+  /**
+   * Safely convert ArrayBufferLike to ArrayBuffer
+   */
+  private static toArrayBuffer(buffer: ArrayBufferLike): ArrayBuffer {
+    if (buffer instanceof ArrayBuffer) {
+      return buffer;
+    }
+    // For SharedArrayBuffer, create a copy
+    const uint8Array = new Uint8Array(buffer);
+    const copy = new Uint8Array(uint8Array.length);
+    copy.set(uint8Array);
+    return copy.buffer;
   }
 
   /**
