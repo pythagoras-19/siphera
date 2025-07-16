@@ -347,11 +347,15 @@ io.on('connection', (socket) => {
         isEncrypted: true, // Always true for E2E encryption
         isRead: false,
         messageType: data.messageType || 'text',
+        // Store the complete encryptedData object for proper validation
+        encryptedData: data.encryptedData || {
+          encryptedText: data.encryptedContent || '',
+          iv: data.metadata?.iv || '',
+          salt: data.metadata?.salt || '',
+          hmac: data.metadata?.hmac || '',
+          timestamp: data.encryptedData?.timestamp || Date.now()
+        },
         metadata: {
-          iv: data.encryptedData?.iv || '',
-          salt: data.encryptedData?.salt || '', // Add missing salt field
-          hmac: data.encryptedData?.hmac || '',
-          timestamp: data.encryptedData?.timestamp || Date.now(), // Add timestamp from encrypted data
           ...data.metadata
         },
       });

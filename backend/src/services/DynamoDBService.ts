@@ -23,6 +23,13 @@ export interface Message {
   recipientId: string;
   content: string;
   encryptedContent?: string;
+  encryptedData?: {
+    encryptedText: string;
+    iv: string;
+    salt: string;
+    hmac: string;
+    timestamp: number;
+  };
   timestamp: number;
   isEncrypted: boolean;
   isRead: boolean;
