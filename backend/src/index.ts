@@ -337,7 +337,7 @@ io.on('connection', (socket) => {
     console.log('Message received:', data);
     
     try {
-      // Save message to DynamoDB - only store encrypted content
+      // Save message to DynamoDB - store complete encrypted data
       const message = await dynamoDBService.saveMessage({
         senderId: data.sender,
         recipientId: data.recipient,
@@ -349,7 +349,9 @@ io.on('connection', (socket) => {
         messageType: data.messageType || 'text',
         metadata: {
           iv: data.encryptedData?.iv || '',
+          salt: data.encryptedData?.salt || '', // Add missing salt field
           hmac: data.encryptedData?.hmac || '',
+          timestamp: data.encryptedData?.timestamp || Date.now(), // Add timestamp from encrypted data
           ...data.metadata
         },
       });
