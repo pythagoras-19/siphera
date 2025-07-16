@@ -312,7 +312,7 @@ export class SecureChatService {
       ];
       
       for (const legacySecret of legacySecrets) {
-        if (!secrets.includes(legacySecret)) {
+        if (!secrets.includes(legacySecret) && legacySecret && legacySecret.length > 0) {
           secrets.push(legacySecret);
         }
       }
