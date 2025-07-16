@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sender Encryption Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>Sender-Specific Encryption Test</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        // Import the services
+        import { SenderKeyService } from './src/services/SenderKeyService.js';
+        import { MessageRetrievalService } from './src/services/MessageRetrievalService.js';
+
+        const output = document.getElementById('output');
+
+        async function testSenderEncryption() {
+            try {
+                output.innerHTML = '<p>Testing sender-specific encryption...</p>';
+
+                // Test user ID
+                const testUserId = 'test-user-123';
+                const testMessage = "Hello, this is a test message for sender encryption!";
+
+                // Initialize services
+                const senderKeyService = new SenderKeyService();
+                const messageRetrievalService = MessageRetrievalService.getInstance();
+
+                // Step 1: Generate sender key
+                output.innerHTML += '<p>1. Generating sender key...</p>';
+                const senderKey = await senderKeyService.getSenderKey(testUserId);
+                console.log('Sender key generated:', senderKey);
+
+                // Step 2: Encrypt message for sender
+                output.innerHTML += '<p>2. Encrypting message for sender...</p>';
+                const senderEncrypted = await senderKeyService.encryptForSender(testMessage, senderKey);
+                console.log('Sender encrypted:', senderEncrypted);
+
+                // Step 3: Decrypt message for sender
+                output.innerHTML += '<p>3. Decrypting message for sender...</p>';
+                const senderDecrypted = await senderKeyService.decryptForSender(senderEncrypted, senderKey);
+                console.log('Sender decrypted:', senderDecrypted);
+
+                // Step 4: Test message retrieval service
+                output.innerHTML += '<p>4. Testing message retrieval service...</p>';
+                
+                const testMessageData = {
+                    messageId: 'test-msg-123',
+                    senderId: testUserId,
+                    recipientId: 'other-user-456',
+                    content: 'encrypted content',
+                    encryptedData: {
+                        encryptedText: 'encrypted for recipient',
+                        iv: 'test-iv',
+                        salt: 'test-salt',
+                        hmac: 'test-hmac',
+                        timestamp: Date.now()
+                    },
+                    senderReference: {
+                        content: senderEncrypted,
+                        keyId: senderKey.id,
+                        timestamp: Date.now()
+                    },
+                    timestamp: Date.now(),
+                    isEncrypted: true,
+                    isRead: false,
+                    messageType: 'text'
+                };
+
+                // Mock the WebSocketService getCurrentUser method
+                const originalGetCurrentUser = messageRetrievalService.webSocketService.getCurrentUser;
+                messageRetrievalService.webSocketService.getCurrentUser = () => ({
+                    id: testUserId,
+                    name: 'Test User',
+                    status: 'online'
+                });
+
+                const decryptedMessages = await messageRetrievalService.decryptMessages([testMessageData]);
+                console.log('Decrypted messages:', decryptedMessages);
+
+                // Restore original method
+                messageRetrievalService.webSocketService.getCurrentUser = originalGetCurrentUser;
+
+                // Step 5: Verify results
+                output.innerHTML += '<p>5. Verifying results...</p>';
+                
+                const success = decryptedMessages[0].content === testMessage;
+                const isSentByMe = decryptedMessages[0].isSentByMe;
+                const canRead = decryptedMessages[0].canRead;
+
+                output.innerHTML += `
+                    <h3>Test Results:</h3>
+                    <ul>
+                        <li>Original message: "${testMessage}"</li>
+                        <li>Decrypted message: "${decryptedMessages[0].content}"</li>
+                        <li>Encryption successful: ${success ? '✅ YES' : '❌ NO'}</li>
+                        <li>Is sent by me: ${isSentByMe ? '✅ YES' : '❌ NO'}</li>
+                        <li>Can read: ${canRead ? '✅ YES' : '❌ NO'}</li>
+                        <li>Sender key ID: ${senderKey.id}</li>
+                    </ul>
+                `;
+
+                if (success && isSentByMe && canRead) {
+                    output.innerHTML += '<h2 style="color: green;">🎉 Sender-specific encryption test PASSED!</h2>';
+                } else {
+                    output.innerHTML += '<h2 style="color: red;">❌ Sender-specific encryption test FAILED!</h2>';
+                }
+
+            } catch (error) {
+                console.error('Test failed:', error);
+                output.innerHTML += `<p style="color: red;">Test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Run the test
+        testSenderEncryption();
+    </script>
+</body>
+</html> 

@@ -355,6 +355,8 @@ io.on('connection', (socket) => {
           hmac: data.metadata?.hmac || '',
           timestamp: data.encryptedData?.timestamp || Date.now()
         },
+        // Store sender reference if provided
+        senderReference: data.senderReference,
         metadata: {
           ...data.metadata
         },

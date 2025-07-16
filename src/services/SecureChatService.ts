@@ -1,4 +1,6 @@
 import { KeyManagementService } from './KeyManagementService';
+import { SenderKeyService } from './SenderKeyService';
+import { WebSocketService } from './WebSocketService';
 import { E2EEncryption, EncryptedMessage } from '../utils/encryption';
 
 export interface SecureMessage {
@@ -21,12 +23,14 @@ export interface ChatSession {
 export class SecureChatService {
   private static instance: SecureChatService;
   private keyManagement: KeyManagementService;
+  private senderKeyService: SenderKeyService;
   private chatSessions: Map<string, ChatSession> = new Map();
   private messageHistory: Map<string, SecureMessage[]> = new Map();
   private initializationPromise: Promise<void> | null = null;
 
   private constructor() {
     this.keyManagement = KeyManagementService.getInstance();
+    this.senderKeyService = new SenderKeyService();
     this.initializationPromise = this.initializeUserKeys();
   }
 
@@ -124,8 +128,29 @@ export class SecureChatService {
       hasContactKey: this.hasContactKey(recipientId)
     });
     
-    // Encrypt the message with HMAC authentication
+    // Encrypt the message with HMAC authentication for recipient
     const encryptedData = await E2EEncryption.encryptMessage(messageText, session.sharedSecret);
+    
+    // NEW: Encrypt the message for sender's own reference
+    const currentUser = WebSocketService.getInstance().getCurrentUser();
+    let senderReference = null;
+    
+    if (currentUser?.id) {
+      try {
+        const senderKey = await this.senderKeyService.getSenderKey(currentUser.id);
+        const senderEncrypted = await this.senderKeyService.encryptForSender(messageText, senderKey);
+        
+        senderReference = {
+          content: senderEncrypted,
+          keyId: senderKey.id,
+          timestamp: Date.now()
+        };
+        
+        console.log(`🔐 Message encrypted for sender reference with key ${senderKey.id}`);
+      } catch (error) {
+        console.warn('Failed to encrypt message for sender reference:', error);
+      }
+    }
     
     // Generate message hash for integrity verification
     const messageHash = E2EEncryption.generateSecureRandom(32);
@@ -154,8 +179,13 @@ export class SecureChatService {
     console.log(`🔒 Message encrypted and sent to ${recipientId}:`, {
       encryptedTextLength: encryptedData.encryptedText.length,
       hasHmac: !!encryptedData.hmac,
-      timestamp: encryptedData.timestamp
+      timestamp: encryptedData.timestamp,
+      hasSenderReference: !!senderReference
     });
+    
+    // Add senderReference to the message for backend storage
+    (secureMessage as any).senderReference = senderReference;
+    
     return secureMessage;
   }
 

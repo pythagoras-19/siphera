@@ -182,11 +182,12 @@ export class WebSocketService {
         isEncrypted: true
       };
 
-      // Send to server with encrypted data
+      // Send to server with encrypted data and sender reference
       this.socket.emit('message:send', {
         ...chatMessage,
         encryptedContent: secureMessage.encryptedData.encryptedText,
-        encryptedData: secureMessage.encryptedData
+        encryptedData: secureMessage.encryptedData,
+        senderReference: (secureMessage as any).senderReference // Include sender reference if available
       });
 
       console.log(`📤 Message sent to ${recipientId}:`, messageText);

@@ -30,6 +30,11 @@ export interface Message {
     hmac: string;
     timestamp: number;
   };
+  senderReference?: {
+    content: string;
+    keyId: string;
+    timestamp: number;
+  };
   timestamp: number;
   isEncrypted: boolean;
   isRead: boolean;
