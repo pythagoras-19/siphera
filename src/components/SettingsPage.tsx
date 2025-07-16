@@ -14,7 +14,7 @@ const SettingsPage: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
 
   const handleBackToHome = () => {
-    navigate('/app');
+    navigate('/');
   };
 
   const handleSignOut = async () => {

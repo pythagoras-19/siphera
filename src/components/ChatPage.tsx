@@ -23,7 +23,7 @@ const ChatPage: React.FC = () => {
   }, [location.state]);
 
   const handleBackToHome = () => {
-    navigate('/app');
+    navigate('/');
   };
 
   const handleSignOut = async () => {

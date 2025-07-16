@@ -10,7 +10,7 @@ const CallsPage: React.FC = () => {
   const { signOut } = useAuth();
 
   const handleBackToHome = () => {
-    navigate('/app');
+    navigate('/');
   };
 
   const handleSignOut = async () => {

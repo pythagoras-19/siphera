@@ -19,13 +19,13 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/sign-in" replace />;
 }
 
-// Welcome Screen Component (for /app route)
+// Welcome Screen Component (for home route)
 function WelcomeScreen() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
 
   const handleLaunchApp = () => {
-    navigate('/dashboard');
+    navigate('/chat');
   };
 
   const handleSignOut = async () => {
@@ -41,17 +41,6 @@ function WelcomeScreen() {
   );
 }
 
-// Dashboard Component (for /dashboard route) - redirects to chat
-function Dashboard() {
-  const navigate = useNavigate();
-  
-  React.useEffect(() => {
-    navigate('/chat', { replace: true });
-  }, [navigate]);
-  
-  return null;
-}
-
 function App() {
   return (
     <AuthProvider>
@@ -59,8 +48,7 @@ function App() {
         <Routes>
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/app" element={<PrivateRoute><WelcomeScreen /></PrivateRoute>} />
-          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/" element={<PrivateRoute><WelcomeScreen /></PrivateRoute>} />
           <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
           <Route path="/contacts" element={<PrivateRoute><ContactsPage /></PrivateRoute>} />
           <Route path="/calls" element={<PrivateRoute><CallsPage /></PrivateRoute>} />

@@ -88,10 +88,10 @@ const Auth: React.FC = () => {
     }
   };
 
-  // Redirect to /app when authenticated
+  // Redirect to home when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate('/app');
+      navigate('/');
     }
   }, [isAuthenticated, user, navigate]);
 
