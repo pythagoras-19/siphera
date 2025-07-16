@@ -136,9 +136,20 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     setIsLoading(true);
     try {
       console.log('Fetching messages for:', user?.username, selectedContact);
-      // Fetch messages between current user and selected contact
-      const rawMessages = await fetchMessages(user.username, selectedContact);
-      console.log('Fetched raw messages:', rawMessages);
+      
+      // Fetch messages in both directions: sent by current user AND received by current user
+      const [sentMessages, receivedMessages] = await Promise.all([
+        fetchMessages(user.username, selectedContact), // Messages sent by current user
+        fetchMessages(selectedContact, user.username)  // Messages sent TO current user
+      ]);
+      
+      // Combine both sets of messages
+      const rawMessages = [...sentMessages, ...receivedMessages];
+      console.log('Fetched raw messages:', {
+        sent: sentMessages.length,
+        received: receivedMessages.length,
+        total: rawMessages.length
+      });
       
       // Use MessageRetrievalService to decrypt messages based on sender/recipient role
       const decryptedMessages = await messageRetrievalService.decryptMessages(rawMessages);
