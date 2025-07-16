@@ -1,5 +1,6 @@
 import { SenderKeyService } from './SenderKeyService';
 import { WebSocketService } from './WebSocketService';
+import { SecureChatService } from './SecureChatService';
 import { E2EEncryption } from '../utils/encryption';
 
 export interface DecryptedMessage {
@@ -44,10 +45,12 @@ export class MessageRetrievalService {
   private static instance: MessageRetrievalService;
   private senderKeyService: SenderKeyService;
   private webSocketService: WebSocketService;
+  private secureChatService: SecureChatService;
 
   private constructor() {
     this.senderKeyService = new SenderKeyService();
     this.webSocketService = WebSocketService.getInstance();
+    this.secureChatService = SecureChatService.getInstance();
   }
 
   static getInstance(): MessageRetrievalService {
@@ -71,10 +74,24 @@ export class MessageRetrievalService {
       }));
     }
 
+    console.log('🔍 Starting to decrypt messages:', {
+      totalMessages: messages.length,
+      currentUserId: currentUser.id
+    });
+
     const decryptedMessages: DecryptedMessage[] = [];
 
     for (const message of messages) {
       try {
+        console.log('🔍 Processing message:', {
+          messageId: message.messageId,
+          senderId: message.senderId,
+          recipientId: message.recipientId,
+          hasEncryptedData: !!message.encryptedData,
+          hasSenderReference: !!message.senderReference,
+          isSentByMe: message.senderId === currentUser.id
+        });
+
         const decryptedMessage = await this.decryptSingleMessage(message, currentUser.id);
         decryptedMessages.push(decryptedMessage);
       } catch (error) {
@@ -88,6 +105,11 @@ export class MessageRetrievalService {
         });
       }
     }
+
+    console.log('✅ Finished decrypting messages:', {
+      totalDecrypted: decryptedMessages.length,
+      readableMessages: decryptedMessages.filter(m => m.canRead).length
+    });
 
     return decryptedMessages;
   }
@@ -185,11 +207,30 @@ export class MessageRetrievalService {
     }
 
     try {
-      // This would need to be integrated with the existing E2E encryption system
-      // For now, we'll return the message as-is and let the existing system handle it
+      console.log('🔍 Attempting to decrypt recipient message from:', message.senderId);
+
+      // Convert RawMessage to SecureMessage format for decryption
+      const secureMessage = {
+        id: message.messageId,
+        sender: message.senderId,
+        recipient: message.recipientId,
+        encryptedData: message.encryptedData,
+        messageHash: '',
+        timestamp: message.timestamp,
+        isEncrypted: true
+      };
+
+      // Use SecureChatService to decrypt the message
+      const decryptedContent = await this.secureChatService.receiveEncryptedMessage(
+        message.senderId,
+        secureMessage
+      );
+
+      console.log('✅ Successfully decrypted recipient message:', decryptedContent);
+
       return {
         ...message,
-        content: message.content || '[Encrypted message]',
+        content: decryptedContent,
         isSentByMe: false,
         canRead: true
       };
