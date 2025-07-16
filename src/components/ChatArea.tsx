@@ -19,6 +19,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
   const [isLoading, setIsLoading] = useState(false);
   const [encryptionStatus, setEncryptionStatus] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   const secureChatService = SecureChatService.getInstance();
   const webSocketService = WebSocketService.getInstance();
@@ -113,6 +114,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     };
   }, [selectedContact]); // Removed user?.username dependency
 
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   // Fetch messages from backend API
   const fetchMessages = async (senderId: string, recipientId: string) => {
     const response = await fetch(
@@ -136,20 +142,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       const decryptedMessages = await messageRetrievalService.decryptMessages(rawMessages);
       console.log('Decrypted messages:', decryptedMessages);
       
-      // Convert to ChatMessage format for display
-      const chatMessages: ChatMessage[] = decryptedMessages.map(msg => ({
-        id: msg.messageId,
-        sender: msg.senderId,
-        recipient: msg.recipientId,
-        text: msg.content,
-        content: msg.content,
-        timestamp: msg.timestamp,
-        isEncrypted: msg.isEncrypted,
-        metadata: {
-          isSentByMe: msg.isSentByMe,
-          canRead: msg.canRead
-        }
-      }));
+      // Convert to ChatMessage format for display and sort by timestamp (oldest first)
+      const chatMessages: ChatMessage[] = decryptedMessages
+        .map(msg => ({
+          id: msg.messageId,
+          sender: msg.senderId,
+          recipient: msg.recipientId,
+          text: msg.content,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          isEncrypted: msg.isEncrypted,
+          metadata: {
+            isSentByMe: msg.isSentByMe,
+            canRead: msg.canRead
+          }
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp); // Sort by timestamp ascending (oldest first)
       
       setMessages(chatMessages);
     } catch (error) {
@@ -196,6 +204,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const formatTime = (timestamp: number) => {
@@ -291,6 +303,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
               </div>
             );
           })}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
