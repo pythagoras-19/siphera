@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './ChatArea.css';
 import { SecureChatService } from '../services/SecureChatService';
 import { WebSocketService, ChatMessage } from '../services/WebSocketService';
+import { MessageRetrievalService } from '../services/MessageRetrievalService';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ChatAreaProps {
@@ -21,6 +22,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
 
   const secureChatService = SecureChatService.getInstance();
   const webSocketService = WebSocketService.getInstance();
+  const messageRetrievalService = MessageRetrievalService.getInstance();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -120,66 +122,36 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     return data.messages;
   };
 
-  // Update loadChatHistory to use fetchMessages and decrypt them
+  // Update loadChatHistory to use MessageRetrievalService for proper sender/recipient decryption
   const loadChatHistory = async () => {
     if (!selectedContact || !user?.username) return;
     setIsLoading(true);
     try {
       console.log('Fetching messages for:', user?.username, selectedContact);
       // Fetch messages between current user and selected contact
-      const encryptedMsgs = await fetchMessages(user.username, selectedContact);
-      console.log('Fetched encrypted messages:', encryptedMsgs);
+      const rawMessages = await fetchMessages(user.username, selectedContact);
+      console.log('Fetched raw messages:', rawMessages);
       
-      // Decrypt messages using SecureChatService
-      const decryptedMsgs = await Promise.all(
-        encryptedMsgs.map(async (msg: any) => {
-          try {
-            if (msg.isEncrypted && msg.content) {
-              // Decrypt the message content
-              const decryptedText = await secureChatService.receiveEncryptedMessage(
-                msg.sender || msg.senderId || '',
-                {
-                  id: msg.messageId || msg.id || '',
-                  sender: msg.sender || msg.senderId || '',
-                  recipient: msg.recipient || msg.recipientId || '',
-                  encryptedData: {
-                    encryptedText: msg.content,
-                    iv: msg.metadata?.iv || '',
-                    salt: msg.metadata?.salt || '',
-                    timestamp: msg.timestamp,
-                    hmac: msg.metadata?.hmac || '' // HMAC might be missing for old messages
-                  },
-                  messageHash: '',
-                  timestamp: msg.timestamp,
-                  isEncrypted: true
-                }
-              );
-              
-              return {
-                ...msg,
-                text: decryptedText,
-                content: decryptedText
-              };
-            } else {
-              // Message is not encrypted, use content as-is
-              return {
-                ...msg,
-                text: msg.content || msg.text || '',
-                content: msg.content || msg.text || ''
-              };
-            }
-          } catch (error) {
-            console.error('Failed to decrypt message:', error);
-            return {
-              ...msg,
-              text: '[Encrypted Message - Decryption Failed]',
-              content: '[Encrypted Message - Decryption Failed]'
-            };
-          }
-        })
-      );
+      // Use MessageRetrievalService to decrypt messages based on sender/recipient role
+      const decryptedMessages = await messageRetrievalService.decryptMessages(rawMessages);
+      console.log('Decrypted messages:', decryptedMessages);
       
-      setMessages(decryptedMsgs || []);
+      // Convert to ChatMessage format for display
+      const chatMessages: ChatMessage[] = decryptedMessages.map(msg => ({
+        id: msg.messageId,
+        sender: msg.senderId,
+        recipient: msg.recipientId,
+        text: msg.content,
+        content: msg.content,
+        timestamp: msg.timestamp,
+        isEncrypted: msg.isEncrypted,
+        metadata: {
+          isSentByMe: msg.isSentByMe,
+          canRead: msg.canRead
+        }
+      }));
+      
+      setMessages(chatMessages);
     } catch (error) {
       console.error('Failed to load chat history:', error);
     } finally {
@@ -292,27 +264,26 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
             <div className="no-messages">No messages</div>
           )}
           {messages.map((msg, idx) => {
-            // Debug log to see what we're comparing
-            console.log('Message comparison:', { 
-              msgSenderId: msg.senderId, 
-              msgSender: msg.sender,
-              userUsername: user?.username, 
-              userID: user?.id 
-            });
-            
-            // Handle both backend (senderId) and frontend (sender) field names
-            const messageSender = msg.sender || msg.senderId;
-            const isOwnMessage = messageSender === user?.username;
+            // Use the metadata from MessageRetrievalService to determine if it's our message
+            const isOwnMessage = msg.metadata?.isSentByMe || msg.sender === user?.username;
+            const canRead = msg.metadata?.canRead !== false; // Default to true if not specified
             
             return (
               <div key={msg.messageId || msg.id || idx} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
                 <div className="message-content">
-                  <p>{msg.text || msg.content}</p>
+                  <p className={!canRead ? 'message-unreadable' : ''}>
+                    {msg.text || msg.content}
+                  </p>
                   <div className="message-meta">
                     <span className="message-time">{formatTime(msg.timestamp)}</span>
                     {msg.isEncrypted && (
                       <span className="encryption-indicator" title="End-to-End Encrypted">
                         🔒
+                      </span>
+                    )}
+                    {isOwnMessage && (
+                      <span className="sent-indicator" title="Sent by you">
+                        ✓
                       </span>
                     )}
                   </div>

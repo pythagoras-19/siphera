@@ -122,11 +122,36 @@ export class MessageRetrievalService {
     }
 
     try {
-      const senderKey = await this.senderKeyService.getSenderKey(currentUserId);
+      console.log('🔍 Attempting to decrypt sender message:', {
+        keyId: message.senderReference.keyId,
+        contentLength: message.senderReference.content.length,
+        timestamp: message.senderReference.timestamp
+      });
+
+      // Use the specific keyId from the senderReference to get the correct key
+      const senderKey = await this.senderKeyService.getSenderKeyById(message.senderReference.keyId);
+      if (!senderKey) {
+        console.error('Could not retrieve sender key for keyId:', message.senderReference.keyId);
+        return {
+          ...message,
+          content: '[Sent message - key not found]',
+          isSentByMe: true,
+          canRead: false
+        };
+      }
+
+      console.log('🔑 Retrieved sender key:', {
+        keyId: senderKey.id,
+        userId: senderKey.userId,
+        createdAt: senderKey.createdAt
+      });
+
       const decryptedContent = await this.senderKeyService.decryptForSender(
         message.senderReference.content,
         senderKey
       );
+
+      console.log('✅ Successfully decrypted sender message:', decryptedContent);
 
       return {
         ...message,
