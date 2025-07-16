@@ -143,12 +143,25 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         fetchMessages(selectedContact, user.username)  // Messages sent TO current user
       ]);
       
-      // Combine both sets of messages
-      const rawMessages = [...sentMessages, ...receivedMessages];
+      // Combine both sets of messages and deduplicate by messageId
+      const messageMap = new Map<string, any>();
+      
+      // Add sent messages
+      sentMessages.forEach((msg: any) => {
+        messageMap.set(msg.messageId, msg);
+      });
+      
+      // Add received messages (will overwrite if duplicate)
+      receivedMessages.forEach((msg: any) => {
+        messageMap.set(msg.messageId, msg);
+      });
+      
+      const rawMessages = Array.from(messageMap.values());
       console.log('Fetched raw messages:', {
         sent: sentMessages.length,
         received: receivedMessages.length,
-        total: rawMessages.length
+        total: rawMessages.length,
+        unique: messageMap.size
       });
       
       // Use MessageRetrievalService to decrypt messages based on sender/recipient role
@@ -296,7 +309,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
             const canRead = msg.metadata?.canRead !== false; // Default to true if not specified
             
             return (
-              <div key={msg.messageId || msg.id || idx} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
+              <div key={`${msg.messageId || msg.id || 'msg'}-${idx}`} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
                 <div className="message-content">
                   <p className={!canRead ? 'message-unreadable' : ''}>
                     {msg.text || msg.content}
