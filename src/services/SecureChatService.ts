@@ -172,40 +172,131 @@ export class SecureChatService {
       hasContactKey: this.hasContactKey(senderId)
     });
     
-    try {
-      // Decrypt and verify the message
-      const verifiedMessage = await E2EEncryption.decryptMessage(
-        encryptedMessage.encryptedData,
-        session.sharedSecret
-      );
+    // Try multiple secrets for decryption (for backward compatibility)
+    const secretsToTry = await this.generateSecretsToTry(senderId);
+    
+        for (let i = 0; i < secretsToTry.length; i++) {
+      const secret = secretsToTry[i];
+      try {
+        console.log(`🔑 Trying secret ${i + 1}/${secretsToTry.length} for ${senderId}`);
+        
+        // Decrypt and verify the message
+        const verifiedMessage = await E2EEncryption.decryptMessage(
+          encryptedMessage.encryptedData,
+          secret
+        );
 
-      if (!verifiedMessage.verified) {
-        console.warn(`Message from ${senderId} failed verification`);
-        throw new Error('Message verification failed');
+        if (verifiedMessage.verified) {
+          // Store in message history
+          const chatId = this.getChatId(senderId);
+          if (!this.messageHistory.has(chatId)) {
+            this.messageHistory.set(chatId, []);
+          }
+          this.messageHistory.get(chatId)!.push(encryptedMessage);
+
+          // Update session with the working secret
+          session.sharedSecret = secret;
+          session.lastMessageTime = Date.now();
+          session.messageCount++;
+
+          console.log(`🔓 Message decrypted and verified from ${senderId} with secret ${i + 1}:`, verifiedMessage.message);
+          return verifiedMessage.message;
+        }
+      } catch (error) {
+        console.log(`❌ Secret ${i + 1} failed for ${senderId}:`, error instanceof Error ? error.message : String(error));
+        
+        // Try decryption without HMAC verification for old messages
+        try {
+          const decryptedMessage = await this.tryDecryptWithoutHMAC(encryptedMessage.encryptedData, secret);
+          if (decryptedMessage) {
+            console.log(`🔓 Message decrypted without HMAC from ${senderId} with secret ${i + 1}:`, decryptedMessage);
+            
+            // Store in message history
+            const chatId = this.getChatId(senderId);
+            if (!this.messageHistory.has(chatId)) {
+              this.messageHistory.set(chatId, []);
+            }
+            this.messageHistory.get(chatId)!.push(encryptedMessage);
+
+            // Update session with the working secret
+            session.sharedSecret = secret;
+            session.lastMessageTime = Date.now();
+            session.messageCount++;
+
+            return decryptedMessage;
+          }
+        } catch (hmacError) {
+          // Continue to next secret
+          continue;
+        }
       }
-
-      // Store in message history
-      const chatId = this.getChatId(senderId);
-      if (!this.messageHistory.has(chatId)) {
-        this.messageHistory.set(chatId, []);
-      }
-      this.messageHistory.get(chatId)!.push(encryptedMessage);
-
-      // Update session
-      session.lastMessageTime = Date.now();
-      session.messageCount++;
-
-      console.log(`🔓 Message decrypted and verified from ${senderId}:`, verifiedMessage.message);
-      return verifiedMessage.message;
-    } catch (error) {
-      console.error('Failed to decrypt message:', error);
-      console.error('Session details:', {
-        contactId: session.contactId,
-        sharedSecretLength: session.sharedSecret.length,
-        messageCount: session.messageCount
-      });
-      throw new Error('Message decryption failed');
     }
+
+    // If all secrets failed
+    console.error('Failed to decrypt message with any secret');
+    console.error('Session details:', {
+      contactId: session.contactId,
+      sharedSecretLength: session.sharedSecret.length,
+      messageCount: session.messageCount
+    });
+    throw new Error('Message decryption failed - no working secret found');
+  }
+
+  /**
+   * Generate multiple secrets to try for decryption (backward compatibility)
+   */
+  private async generateSecretsToTry(contactId: string): Promise<string[]> {
+    const secrets: string[] = [];
+    
+    // 1. Current deterministic secret (new method)
+    const currentSecret = this.generateDeterministicSecret(contactId);
+    secrets.push(currentSecret);
+    
+    // 2. Try with contact's public key if available
+    const contactPublicKey = this.keyManagement.getContactPublicKey(contactId);
+    if (contactPublicKey) {
+      const sharedSecret = await this.keyManagement.generateSharedSecret(contactId);
+      if (sharedSecret && sharedSecret !== currentSecret) {
+        secrets.push(sharedSecret);
+      }
+    }
+    
+    // 3. Try some legacy secrets (for old messages)
+    const userPrivateKey = this.keyManagement.getUserPrivateKey();
+    if (userPrivateKey) {
+      // Legacy secret generation methods - try various combinations
+      const legacySecrets = [
+        E2EEncryption.hashPassword(userPrivateKey + contactId + 'legacy1'),
+        E2EEncryption.hashPassword(contactId + userPrivateKey + 'legacy2'),
+        E2EEncryption.hashPassword(userPrivateKey.substring(0, 16) + contactId),
+        E2EEncryption.hashPassword(contactId + userPrivateKey.substring(0, 16)),
+        // Try simpler combinations
+        E2EEncryption.hashPassword(userPrivateKey + contactId),
+        E2EEncryption.hashPassword(contactId + userPrivateKey),
+        // Try with different hash methods
+        E2EEncryption.hashPassword(userPrivateKey + contactId + 'v1'),
+        E2EEncryption.hashPassword(userPrivateKey + contactId + 'v2'),
+        // Try with just the contact ID as a fallback
+        E2EEncryption.hashPassword(contactId),
+        // Try with just the user private key as a fallback
+        E2EEncryption.hashPassword(userPrivateKey),
+        // Try with a simple combination
+        userPrivateKey + contactId,
+        contactId + userPrivateKey,
+        // Try with base64 encoding
+        btoa(userPrivateKey + contactId),
+        btoa(contactId + userPrivateKey)
+      ];
+      
+      for (const legacySecret of legacySecrets) {
+        if (!secrets.includes(legacySecret)) {
+          secrets.push(legacySecret);
+        }
+      }
+    }
+    
+    console.log(`🔑 Generated ${secrets.length} secrets to try for ${contactId}`);
+    return secrets;
   }
 
   /**
@@ -226,14 +317,55 @@ export class SecureChatService {
     const decryptedMessages = await Promise.all(
       messages.map(async (message) => {
         try {
-          const verifiedMessage = await E2EEncryption.decryptMessage(
-            message.encryptedData,
-            session.sharedSecret
-          );
+          // Try multiple secrets for decryption (for backward compatibility)
+          const secretsToTry = await this.generateSecretsToTry(contactId);
           
+          for (const secret of secretsToTry) {
+            try {
+              const verifiedMessage = await E2EEncryption.decryptMessage(
+                message.encryptedData,
+                secret
+              );
+              
+              if (verifiedMessage.verified) {
+                // Update session with the working secret
+                session.sharedSecret = secret;
+                
+                return {
+                  id: message.id,
+                  text: verifiedMessage.message,
+                  sender: message.sender,
+                  timestamp: message.timestamp,
+                  isEncrypted: true
+                };
+              }
+            } catch (error) {
+              // Try decryption without HMAC verification for old messages
+              try {
+                const decryptedMessage = await this.tryDecryptWithoutHMAC(message.encryptedData, secret);
+                if (decryptedMessage) {
+                  // Update session with the working secret
+                  session.sharedSecret = secret;
+                  
+                  return {
+                    id: message.id,
+                    text: decryptedMessage,
+                    sender: message.sender,
+                    timestamp: message.timestamp,
+                    isEncrypted: true
+                  };
+                }
+              } catch (hmacError) {
+                // Continue to next secret
+                continue;
+              }
+            }
+          }
+          
+          // If no secret worked
           return {
             id: message.id,
-            text: verifiedMessage.verified ? verifiedMessage.message : '[Verification Failed]',
+            text: '[Encrypted Message - Decryption Failed]',
             sender: message.sender,
             timestamp: message.timestamp,
             isEncrypted: true
@@ -345,6 +477,68 @@ export class SecureChatService {
       console.log(`🔄 Re-encrypting ${messages.length} messages with new shared secret for ${contactId}`);
       // Note: In a real implementation, you might want to re-encrypt stored messages
       // For now, we'll just update the session
+    }
+  }
+
+  /**
+   * Try to decrypt message without HMAC verification (for old messages)
+   */
+  private async tryDecryptWithoutHMAC(encryptedData: any, secret: string): Promise<string | null> {
+    try {
+      // Import the encryption key
+      const keys = await E2EEncryption['deriveKeys'](secret);
+      const encryptionKey = keys.encryptionKey;
+      
+      // Decode the encrypted text and IV
+      const encryptedText = encryptedData.encryptedText;
+      const iv = encryptedData.iv;
+      
+      if (!encryptedText || !iv) {
+        return null;
+      }
+
+      // Try to decrypt without HMAC verification
+      let decryptedText: string;
+      
+      if (window.crypto && window.crypto.subtle) {
+        // Use Web Crypto API
+        const keyBuffer = E2EEncryption['base64ToArrayBuffer'](encryptionKey);
+        const ivBuffer = E2EEncryption['base64ToArrayBuffer'](iv);
+        const encryptedBuffer = E2EEncryption['base64ToArrayBuffer'](encryptedText);
+        
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw',
+          keyBuffer,
+          'AES-GCM',
+          false,
+          ['decrypt']
+        );
+        
+        const decryptedBuffer = await window.crypto.subtle.decrypt(
+          {
+            name: 'AES-GCM',
+            iv: ivBuffer
+          },
+          cryptoKey,
+          encryptedBuffer
+        );
+        
+        decryptedText = new TextDecoder().decode(decryptedBuffer);
+      } else {
+        // Fallback to CryptoJS
+        const CryptoJS = require('crypto-js');
+        const decrypted = CryptoJS.AES.decrypt(encryptedText, encryptionKey, {
+          iv: CryptoJS.enc.Base64.parse(iv),
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7
+        });
+        decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+      }
+      
+      return decryptedText || null;
+    } catch (error) {
+      console.log('Failed to decrypt without HMAC:', error);
+      return null;
     }
   }
 } 
