@@ -175,32 +175,58 @@ export class SecureChatService {
     // Try multiple secrets for decryption (for backward compatibility)
     const secretsToTry = await this.generateSecretsToTry(senderId);
     
-        for (let i = 0; i < secretsToTry.length; i++) {
+    for (let i = 0; i < secretsToTry.length; i++) {
       const secret = secretsToTry[i];
       try {
         console.log(`🔑 Trying secret ${i + 1}/${secretsToTry.length} for ${senderId}`);
         
-        // Decrypt and verify the message
-        const verifiedMessage = await E2EEncryption.decryptMessage(
-          encryptedMessage.encryptedData,
-          secret
-        );
+        // Check if HMAC is missing (old messages)
+        const hasHmac = !!encryptedMessage.encryptedData.hmac;
+        
+        if (!hasHmac) {
+          // Try decryption without HMAC verification for old messages
+          console.log(`🔑 Trying decryption without HMAC for ${senderId} with secret ${i + 1}`);
+          const decryptedMessage = await this.tryDecryptWithoutHMAC(encryptedMessage.encryptedData, secret);
+          if (decryptedMessage) {
+            console.log(`🔓 Message decrypted without HMAC from ${senderId} with secret ${i + 1}:`, decryptedMessage);
+            
+            // Store in message history
+            const chatId = this.getChatId(senderId);
+            if (!this.messageHistory.has(chatId)) {
+              this.messageHistory.set(chatId, []);
+            }
+            this.messageHistory.get(chatId)!.push(encryptedMessage);
 
-        if (verifiedMessage.verified) {
-          // Store in message history
-          const chatId = this.getChatId(senderId);
-          if (!this.messageHistory.has(chatId)) {
-            this.messageHistory.set(chatId, []);
+            // Update session with the working secret
+            session.sharedSecret = secret;
+            session.lastMessageTime = Date.now();
+            session.messageCount++;
+
+            return decryptedMessage;
           }
-          this.messageHistory.get(chatId)!.push(encryptedMessage);
+        } else {
+          // Decrypt and verify the message with HMAC
+          const verifiedMessage = await E2EEncryption.decryptMessage(
+            encryptedMessage.encryptedData,
+            secret
+          );
 
-          // Update session with the working secret
-          session.sharedSecret = secret;
-          session.lastMessageTime = Date.now();
-          session.messageCount++;
+          if (verifiedMessage.verified) {
+            // Store in message history
+            const chatId = this.getChatId(senderId);
+            if (!this.messageHistory.has(chatId)) {
+              this.messageHistory.set(chatId, []);
+            }
+            this.messageHistory.get(chatId)!.push(encryptedMessage);
 
-          console.log(`🔓 Message decrypted and verified from ${senderId} with secret ${i + 1}:`, verifiedMessage.message);
-          return verifiedMessage.message;
+            // Update session with the working secret
+            session.sharedSecret = secret;
+            session.lastMessageTime = Date.now();
+            session.messageCount++;
+
+            console.log(`🔓 Message decrypted and verified from ${senderId} with secret ${i + 1}:`, verifiedMessage.message);
+            return verifiedMessage.message;
+          }
         }
       } catch (error) {
         console.log(`❌ Secret ${i + 1} failed for ${senderId}:`, error instanceof Error ? error.message : String(error));

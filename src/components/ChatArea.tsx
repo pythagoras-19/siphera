@@ -145,7 +145,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
                     encryptedText: msg.content,
                     iv: msg.metadata?.iv || '',
                     timestamp: msg.timestamp,
-                    hmac: msg.metadata?.hmac || ''
+                    hmac: msg.metadata?.hmac || '' // HMAC might be missing for old messages
                   },
                   messageHash: '',
                   timestamp: msg.timestamp,
