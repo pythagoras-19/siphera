@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ChatArea.css';
 import { SecureChatService } from '../services/SecureChatService';
 import { WebSocketService, ChatMessage } from '../services/WebSocketService';
@@ -25,6 +26,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
   const webSocketService = WebSocketService.getInstance();
   const messageRetrievalService = MessageRetrievalService.getInstance();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Connect to WebSocket when component mounts (only once)
@@ -217,6 +219,10 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     });
   };
 
+  const handleBrowseContacts = () => {
+    navigate('/contacts');
+  };
+
   if (!selectedContact) {
     return (
       <div className="chat-area">
@@ -224,11 +230,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
           <div className="no-chat-icon">💬</div>
           <h2>Welcome to Siphera</h2>
           <p>Select a contact to start chatting</p>
-          {onShowContacts && (
-            <button className="show-contacts-btn" onClick={onShowContacts}>
-              Browse Contacts
-            </button>
-          )}
+          <button className="show-contacts-btn" onClick={handleBrowseContacts}>
+            Browse Contacts
+          </button>
           <div className="security-info">
             <p>🔐 All messages are end-to-end encrypted</p>
           </div>
