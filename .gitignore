@@ -181,3 +181,8 @@ coverage/
 !public/favicon-48x48.png
 !public/favicon.svg
 !public/favicon.ico
+
+# Debug and test files
+debug-*.js
+test-*.html
+test-*-*.html
