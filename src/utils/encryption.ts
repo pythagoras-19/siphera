@@ -286,7 +286,17 @@ export class E2EEncryption {
    */
   private static async deriveKeys(sharedSecret: string): Promise<{ encryptionKey: string; authKey: string }> {
     if (window.crypto && window.crypto.subtle) {
-      const sharedSecretBuffer = this.base64ToArrayBuffer(sharedSecret);
+      // Handle both Base64 and raw string inputs
+      let sharedSecretBuffer: Uint8Array;
+      try {
+        // Try to decode as Base64 first
+        const buffer = this.base64ToArrayBuffer(sharedSecret);
+        sharedSecretBuffer = new Uint8Array(buffer);
+      } catch (error) {
+        // If Base64 decoding fails, treat as raw string
+        sharedSecretBuffer = new TextEncoder().encode(sharedSecret);
+      }
+      
       const keyMaterial = await window.crypto.subtle.importKey(
         'raw',
         sharedSecretBuffer,
@@ -387,7 +397,7 @@ export class E2EEncryption {
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
-    return bytes.buffer.slice(0); // Create a new ArrayBuffer to avoid SharedArrayBuffer issues
+    return bytes.buffer.slice(0) as ArrayBuffer; // Create a new ArrayBuffer to avoid SharedArrayBuffer issues
   }
 
   /**
