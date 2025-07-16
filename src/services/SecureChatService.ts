@@ -308,10 +308,7 @@ export class SecureChatService {
         E2EEncryption.hashPassword(userPrivateKey),
         // Try with a simple combination
         userPrivateKey + contactId,
-        contactId + userPrivateKey,
-        // Try with base64 encoding
-        btoa(userPrivateKey + contactId),
-        btoa(contactId + userPrivateKey)
+        contactId + userPrivateKey
       ];
       
       for (const legacySecret of legacySecrets) {
@@ -520,6 +517,20 @@ export class SecureChatService {
       const iv = encryptedData.iv;
       
       if (!encryptedText || !iv) {
+        return null;
+      }
+
+      // Validate Base64 strings before attempting to decode
+      const isValidBase64 = (str: string) => {
+        try {
+          return btoa(atob(str)) === str;
+        } catch {
+          return false;
+        }
+      };
+
+      if (!isValidBase64(iv) || !isValidBase64(encryptedText)) {
+        console.log('Invalid Base64 data for decryption');
         return null;
       }
 
