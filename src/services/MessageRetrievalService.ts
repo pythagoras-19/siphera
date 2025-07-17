@@ -76,7 +76,9 @@ export class MessageRetrievalService {
 
     console.log('🔍 Starting to decrypt messages:', {
       totalMessages: messages.length,
-      currentUserId: currentUser.id
+      currentUserId: currentUser.id,
+      currentUserName: currentUser.name,
+      currentUserIdentifier: currentUser.name || currentUser.id
     });
 
     const decryptedMessages: DecryptedMessage[] = [];

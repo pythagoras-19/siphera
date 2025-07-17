@@ -164,6 +164,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         unique: messageMap.size
       });
       
+      // Debug: Check if our test message is in the fetched messages
+      const testMessage = rawMessages.find(msg => 
+        msg.senderId === 'mattchristiansenresearch@gmail.com' && 
+        msg.recipientId === 'siphera.us@gmail.com'
+      );
+      if (testMessage) {
+        console.log('✅ Found test message:', {
+          messageId: testMessage.messageId,
+          content: testMessage.content,
+          senderId: testMessage.senderId,
+          recipientId: testMessage.recipientId
+        });
+      } else {
+        console.log('❌ Test message not found in fetched messages');
+      }
+      
       // Use MessageRetrievalService to decrypt messages based on sender/recipient role
       const decryptedMessages = await messageRetrievalService.decryptMessages(rawMessages);
       console.log('Decrypted messages:', decryptedMessages);
