@@ -83,24 +83,32 @@ export class MessageRetrievalService {
 
     for (const message of messages) {
       try {
+        // Use username (email) for comparison since that's what's stored in the database
+        const currentUserIdentifier = currentUser.name || currentUser.id;
+        const isSentByMe = message.senderId === currentUserIdentifier;
+        
         console.log('🔍 Processing message:', {
           messageId: message.messageId,
           senderId: message.senderId,
           recipientId: message.recipientId,
           hasEncryptedData: !!message.encryptedData,
           hasSenderReference: !!message.senderReference,
-          isSentByMe: message.senderId === currentUser.id
+          isSentByMe,
+          currentUserIdentifier,
+          currentUserId: currentUser.id,
+          currentUserName: currentUser.name
         });
 
-        const decryptedMessage = await this.decryptSingleMessage(message, currentUser.id);
+        const decryptedMessage = await this.decryptSingleMessage(message, currentUserIdentifier);
         decryptedMessages.push(decryptedMessage);
       } catch (error) {
         console.error(`Failed to decrypt message ${message.messageId}:`, error);
         // Add message with error state
+        const currentUserIdentifier = currentUser.name || currentUser.id;
         decryptedMessages.push({
           ...message,
           content: '[Message could not be decrypted]',
-          isSentByMe: message.senderId === currentUser.id,
+          isSentByMe: message.senderId === currentUserIdentifier,
           canRead: false
         });
       }
@@ -117,15 +125,15 @@ export class MessageRetrievalService {
   /**
    * Decrypt a single message
    */
-  private async decryptSingleMessage(message: RawMessage, currentUserId: string): Promise<DecryptedMessage> {
-    const isSentByMe = message.senderId === currentUserId;
+  private async decryptSingleMessage(message: RawMessage, currentUserIdentifier: string): Promise<DecryptedMessage> {
+    const isSentByMe = message.senderId === currentUserIdentifier;
 
     if (isSentByMe) {
       // This is a message I sent - decrypt sender reference
-      return await this.decryptSenderMessage(message, currentUserId);
+      return await this.decryptSenderMessage(message, currentUserIdentifier);
     } else {
       // This is a message I received - decrypt encrypted data
-      return await this.decryptRecipientMessage(message, currentUserId);
+      return await this.decryptRecipientMessage(message, currentUserIdentifier);
     }
   }
 
