@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Message Fetching</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #0c5460;
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .message-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .sent-message {
+            border-left-color: #28a745;
+        }
+        .received-message {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Message Fetching</h1>
+    
+    <div class="container">
+        <h2>Test Configuration</h2>
+        <div class="test-section">
+            <label for="currentUser">Current User (senderId):</label>
+            <input type="text" id="currentUser" value="siphera.us@gmail.com" style="width: 300px; padding: 5px;">
+            <br><br>
+            <label for="selectedContact">Selected Contact (recipientId):</label>
+            <input type="text" id="selectedContact" value="mattchristiansenresearch@gmail.com" style="width: 300px; padding: 5px;">
+            <br><br>
+            <button onclick="testMessageFetching()">🔍 Test Message Fetching</button>
+            <button onclick="testBothDirections()">🔄 Test Both Directions</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <div class="container">
+        <h2>Message Analysis</h2>
+        <div class="test-section">
+            <button onclick="analyzeMessages()">📊 Analyze Fetched Messages</button>
+            <button onclick="testBackendAPI()">🔗 Test Backend API Directly</button>
+        </div>
+        
+        <div id="analysis" class="results"></div>
+    </div>
+
+    <script>
+        function logToElement(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('analysis').innerHTML = '';
+        }
+
+        async function testMessageFetching() {
+            const currentUser = document.getElementById('currentUser').value;
+            const selectedContact = document.getElementById('selectedContact').value;
+            
+            logToElement('results', `Testing message fetching for: ${currentUser} ↔ ${selectedContact}`, 'info');
+            
+            try {
+                // Test the same API call that the frontend makes
+                const response = await fetch(`http://localhost:3007/api/messages/${currentUser}/${selectedContact}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    logToElement('results', `✅ Successfully fetched ${data.messages.length} messages`, 'success');
+                    
+                    // Analyze the messages
+                    const sentMessages = data.messages.filter(msg => msg.senderId === currentUser);
+                    const receivedMessages = data.messages.filter(msg => msg.recipientId === currentUser);
+                    
+                    logToElement('results', `📤 Sent messages: ${sentMessages.length}`, 'info');
+                    logToElement('results', `📥 Received messages: ${receivedMessages.length}`, 'info');
+                    
+                    // Show detailed message info
+                    data.messages.forEach((msg, index) => {
+                        const isSentByMe = msg.senderId === currentUser;
+                        const messageClass = isSentByMe ? 'sent-message' : 'received-message';
+                        const direction = isSentByMe ? '📤 SENT' : '📥 RECEIVED';
+                        
+                        logToElement('results', `
+${direction} Message ${index + 1}:
+  ID: ${msg.messageId}
+  From: ${msg.senderId}
+  To: ${msg.recipientId}
+  Content: ${msg.content}
+  Has EncryptedData: ${!!msg.encryptedData}
+  Has SenderReference: ${!!msg.senderReference}
+  Timestamp: ${new Date(msg.timestamp).toLocaleString()}
+`, 'info');
+                    });
+                } else {
+                    logToElement('results', `❌ Failed to fetch messages: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                logToElement('results', `❌ Error fetching messages: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBothDirections() {
+            const currentUser = document.getElementById('currentUser').value;
+            const selectedContact = document.getElementById('selectedContact').value;
+            
+            logToElement('results', `Testing both directions for: ${currentUser} ↔ ${selectedContact}`, 'info');
+            
+            try {
+                // Test both API calls to see what each returns
+                const [response1, response2] = await Promise.all([
+                    fetch(`http://localhost:3007/api/messages/${currentUser}/${selectedContact}`),
+                    fetch(`http://localhost:3007/api/messages/${selectedContact}/${currentUser}`)
+                ]);
+                
+                const data1 = await response1.json();
+                const data2 = await response2.json();
+                
+                logToElement('results', `Direction 1 (${currentUser} → ${selectedContact}): ${data1.success ? data1.messages.length : 'failed'} messages`, 'info');
+                logToElement('results', `Direction 2 (${selectedContact} → ${currentUser}): ${data2.success ? data2.messages.length : 'failed'} messages`, 'info');
+                
+                // Show all messages from both directions
+                const allMessages = [...(data1.success ? data1.messages : []), ...(data2.success ? data2.messages : [])];
+                
+                logToElement('results', `Total unique messages: ${allMessages.length}`, 'success');
+                
+                allMessages.forEach((msg, index) => {
+                    const isSentByMe = msg.senderId === currentUser;
+                    const direction = isSentByMe ? '📤 SENT' : '📥 RECEIVED';
+                    
+                    logToElement('results', `
+${direction} Message ${index + 1}:
+  ID: ${msg.messageId}
+  From: ${msg.senderId}
+  To: ${msg.recipientId}
+  Content: ${msg.content}
+  Has EncryptedData: ${!!msg.encryptedData}
+  Has SenderReference: ${!!msg.senderReference}
+  Timestamp: ${new Date(msg.timestamp).toLocaleString()}
+`, 'info');
+                });
+            } catch (error) {
+                logToElement('results', `❌ Error testing both directions: ${error.message}`, 'error');
+            }
+        }
+
+        async function analyzeMessages() {
+            const currentUser = document.getElementById('currentUser').value;
+            const selectedContact = document.getElementById('selectedContact').value;
+            
+            logToElement('analysis', `Analyzing messages for: ${currentUser} ↔ ${selectedContact}`, 'info');
+            
+            try {
+                const response = await fetch(`http://localhost:3007/api/messages/${currentUser}/${selectedContact}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    logToElement('analysis', `❌ Failed to fetch messages: ${data.error}`, 'error');
+                    return;
+                }
+                
+                const messages = data.messages;
+                logToElement('analysis', `📊 Analysis of ${messages.length} messages:`, 'info');
+                
+                // Count by direction
+                const sentMessages = messages.filter(msg => msg.senderId === currentUser);
+                const receivedMessages = messages.filter(msg => msg.recipientId === currentUser);
+                
+                logToElement('analysis', `📤 Sent by current user: ${sentMessages.length}`, 'info');
+                logToElement('analysis', `📥 Received by current user: ${receivedMessages.length}`, 'info');
+                
+                // Count by encryption type
+                const withEncryptedData = messages.filter(msg => msg.encryptedData);
+                const withSenderReference = messages.filter(msg => msg.senderReference);
+                const withBoth = messages.filter(msg => msg.encryptedData && msg.senderReference);
+                
+                logToElement('analysis', `🔐 With encryptedData: ${withEncryptedData.length}`, 'info');
+                logToElement('analysis', `🔑 With senderReference: ${withSenderReference.length}`, 'info');
+                logToElement('analysis', `🔐🔑 With both: ${withBoth.length}`, 'info');
+                
+                // Show sent messages that should be readable
+                const readableSentMessages = sentMessages.filter(msg => msg.senderReference);
+                logToElement('analysis', `✅ Sent messages with senderReference (should be readable): ${readableSentMessages.length}`, 'success');
+                
+                readableSentMessages.forEach((msg, index) => {
+                    logToElement('analysis', `
+📤 Readable Sent Message ${index + 1}:
+  ID: ${msg.messageId}
+  KeyId: ${msg.senderReference.keyId}
+  Content Length: ${msg.senderReference.content.length}
+  Timestamp: ${new Date(msg.timestamp).toLocaleString()}
+`, 'success');
+                });
+                
+                // Show received messages that should be readable
+                const readableReceivedMessages = receivedMessages.filter(msg => msg.encryptedData);
+                logToElement('analysis', `✅ Received messages with encryptedData (should be readable): ${readableReceivedMessages.length}`, 'success');
+                
+                readableReceivedMessages.forEach((msg, index) => {
+                    logToElement('analysis', `
+📥 Readable Received Message ${index + 1}:
+  ID: ${msg.messageId}
+  Has HMAC: ${!!msg.encryptedData.hmac}
+  HMAC starts with 'test_': ${msg.encryptedData.hmac?.startsWith('test_') || false}
+  Timestamp: ${new Date(msg.timestamp).toLocaleString()}
+`, 'success');
+                });
+                
+            } catch (error) {
+                logToElement('analysis', `❌ Error analyzing messages: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBackendAPI() {
+            const currentUser = document.getElementById('currentUser').value;
+            const selectedContact = document.getElementById('selectedContact').value;
+            
+            logToElement('analysis', `Testing backend API directly for: ${currentUser} ↔ ${selectedContact}`, 'info');
+            
+            try {
+                // Test the exact same API call that the frontend makes
+                const url = `http://localhost:3007/api/messages/${currentUser}/${selectedContact}`;
+                logToElement('analysis', `🔗 Calling: ${url}`, 'info');
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                logToElement('analysis', `📡 Response status: ${response.status}`, 'info');
+                logToElement('analysis', `📡 Response success: ${data.success}`, 'info');
+                logToElement('analysis', `📡 Messages count: ${data.messages?.length || 0}`, 'info');
+                
+                if (data.messages && data.messages.length > 0) {
+                    logToElement('analysis', `📋 Raw message data:`, 'info');
+                    data.messages.forEach((msg, index) => {
+                        logToElement('analysis', `
+Message ${index + 1}:
+${JSON.stringify(msg, null, 2)}
+`, 'info');
+                    });
+                }
+                
+            } catch (error) {
+                logToElement('analysis', `❌ Error testing backend API: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 

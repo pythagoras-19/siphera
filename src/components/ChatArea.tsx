@@ -156,8 +156,8 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         selectedContact
       });
       
-      // The backend getMessages function already fetches messages in both directions
-      // So we only need to call it once with the current user as senderId
+      // The backend getMessages function fetches messages in both directions when called with senderId and recipientId
+      // But we need to ensure we get all messages by calling it with the current user as the first parameter
       const rawMessages = await fetchMessages(userIdentifier, selectedContact);
       
       console.log('Fetched raw messages:', {
