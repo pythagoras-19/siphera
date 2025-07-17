@@ -199,6 +199,46 @@ app.get('/api/messages/:senderId/:recipientId', async (req, res) => {
   }
 });
 
+// Test endpoint to create a message sent TO the current user
+app.post('/api/messages/test-received', async (req, res) => {
+  try {
+    const { recipientId, messageText, senderId = 'test-sender' } = req.body;
+    
+    if (!recipientId || !messageText) {
+      return res.status(400).json({ success: false, error: 'recipientId and messageText are required' });
+    }
+
+    // Create a test message sent TO the current user
+    // For now, use a simple base64 encoding that the frontend can handle
+    const simpleEncrypted = Buffer.from(messageText).toString('base64');
+    
+    const testMessage = await dynamoDBService.saveMessage({
+      senderId: senderId,
+      recipientId: recipientId,
+      content: messageText,
+      encryptedContent: simpleEncrypted,
+      timestamp: Date.now(),
+      isEncrypted: true,
+      isRead: false,
+      messageType: 'text',
+      encryptedData: {
+        encryptedText: simpleEncrypted,
+        iv: 'dGVzdF9pdl8xMjM0NTY3ODkw', // base64 encoded "test_iv_1234567890"
+        salt: 'dGVzdF9zYWx0XzEyMzQ1Njc4OTA=', // base64 encoded "test_salt_1234567890"
+        hmac: 'test_hmac_' + Date.now(),
+        timestamp: Date.now()
+      },
+      metadata: {}
+    });
+
+    console.log(`📝 Test message created: ${testMessage.senderId} → ${testMessage.recipientId}`);
+    return res.json({ success: true, message: testMessage });
+  } catch (error) {
+    console.error('Error creating test message:', error);
+    return res.status(500).json({ success: false, error: 'Failed to create test message' });
+  }
+});
+
 app.put('/api/messages/:messageId/read', async (req, res) => {
   try {
     await dynamoDBService.markMessageAsRead(req.params.messageId);

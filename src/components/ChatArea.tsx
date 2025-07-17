@@ -156,35 +156,23 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         selectedContact
       });
       
-      // Fetch messages in both directions: sent by current user AND received by current user
-      const [sentMessages, receivedMessages] = await Promise.all([
-        fetchMessages(userIdentifier, selectedContact), // Messages sent by current user
-        fetchMessages(selectedContact, userIdentifier)  // Messages sent TO current user
-      ]);
+      // The backend getMessages function already fetches messages in both directions
+      // So we only need to call it once with the current user as senderId
+      const rawMessages = await fetchMessages(userIdentifier, selectedContact);
       
-      // Combine both sets of messages and deduplicate by messageId
-      const messageMap = new Map<string, any>();
-      
-      // Add sent messages
-      sentMessages.forEach((msg: any) => {
-        messageMap.set(msg.messageId, msg);
-      });
-      
-      // Add received messages (will overwrite if duplicate)
-      receivedMessages.forEach((msg: any) => {
-        messageMap.set(msg.messageId, msg);
-      });
-      
-      const rawMessages = Array.from(messageMap.values());
       console.log('Fetched raw messages:', {
-        sent: sentMessages.length,
-        received: receivedMessages.length,
         total: rawMessages.length,
-        unique: messageMap.size
+        messages: rawMessages.map((msg: any) => ({
+          messageId: msg.messageId,
+          senderId: msg.senderId,
+          recipientId: msg.recipientId,
+          hasEncryptedData: !!msg.encryptedData,
+          hasSenderReference: !!msg.senderReference
+        }))
       });
       
       // Debug: Check if our test message is in the fetched messages
-      const testMessage = rawMessages.find(msg => 
+      const testMessage = rawMessages.find((msg: any) => 
         msg.senderId === 'mattchristiansenresearch@gmail.com' && 
         msg.recipientId === 'siphera.us@gmail.com'
       );

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Message Decryption</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #fff; }
+        .debug-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        .info { color: #2196f3; }
+        pre { background: #1e1e1e; padding: 15px; overflow-x: auto; border-radius: 4px; }
+        button { background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #357abd; }
+        .message-item { margin: 10px 0; padding: 10px; border: 1px solid #444; border-radius: 4px; background: #333; }
+        .message-sent { border-left: 4px solid #4caf50; }
+        .message-received { border-left: 4px solid #2196f3; }
+        .message-error { border-left: 4px solid #f44336; }
+        .log-entry { margin: 5px 0; padding: 5px; background: #1e1e1e; border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Message Decryption</h1>
+    
+    <div class="debug-section">
+        <h2>1. Test Message Retrieval Service</h2>
+        <button onclick="testMessageRetrieval()">Test Message Decryption</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <div id="retrieval-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. Test Sender Key Service</h2>
+        <button onclick="testSenderKeyService()">Test Sender Key Generation</button>
+        <button onclick="testSenderKeyRetrieval()">Test Sender Key Retrieval</button>
+        <div id="sender-key-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Test Secure Chat Service</h2>
+        <button onclick="testSecureChatService()">Test Secure Chat Decryption</button>
+        <div id="secure-chat-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Debug Console Logs</h2>
+        <button onclick="captureConsoleLogs()">Capture Console Logs</button>
+        <button onclick="clearConsoleLogs()">Clear Console Logs</button>
+        <div id="console-logs"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Message Analysis</h2>
+        <button onclick="analyzeMessages()">Analyze Current Messages</button>
+        <div id="message-analysis"></div>
+    </div>
+
+    <script>
+        // Mock services for testing
+        class MockWebSocketService {
+            static getInstance() {
+                return {
+                    getCurrentUser() {
+                        return { 
+                            id: 'test-user-123',
+                            username: 'testuser@example.com'
+                        };
+                    }
+                };
+            }
+        }
+
+        class MockSenderKeyService {
+            constructor() {
+                this.memoryStorage = new Map();
+                this.keyIdStorage = new Map();
+            }
+
+            async generateSenderKey(userId) {
+                const keyId = this.generateKeyId();
+                const timestamp = Date.now();
+                
+                const senderKey = await this.generateDeterministicKey(userId, timestamp, keyId);
+                await this.storeSenderKey(senderKey);
+                return senderKey;
+            }
+
+            async generateDeterministicKey(userId, timestamp, keyId) {
+                const seed = `${userId}_${timestamp}`;
+                const encoder = new TextEncoder();
+                const seedData = encoder.encode(seed);
+                
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw',
+                    seedData,
+                    { name: 'PBKDF2' },
+                    false,
+                    ['deriveBits', 'deriveKey']
+                );
+
+                const key = await crypto.subtle.deriveKey(
+                    {
+                        name: 'PBKDF2',
+                        salt: encoder.encode('siphera_sender_salt'),
+                        iterations: 100000,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    { name: 'AES-GCM', length: 256 },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+
+                return {
+                    id: keyId,
+                    key,
+                    userId,
+                    createdAt: timestamp
+                };
+            }
+
+            async storeSenderKey(senderKey) {
+                this.memoryStorage.set(senderKey.userId, senderKey);
+                this.keyIdStorage.set(senderKey.id, senderKey);
+            }
+
+            async getSenderKeyById(keyId) {
+                console.log('🔍 Getting sender key by ID:', keyId);
+                
+                const memoryKey = this.keyIdStorage.get(keyId);
+                if (memoryKey) {
+                    console.log('✅ Found sender key in memory:', {
+                        id: memoryKey.id,
+                        userId: memoryKey.userId,
+                        createdAt: memoryKey.createdAt
+                    });
+                    return memoryKey;
+                }
+                
+                const parts = keyId.split('_');
+                if (parts.length >= 3) {
+                    const timestamp = parseInt(parts[2]);
+                    const currentUser = MockWebSocketService.getInstance().getCurrentUser();
+                    const userId = currentUser?.id || 'default';
+                    
+                    console.log('🔑 Generating deterministic key with:', {
+                        userId,
+                        timestamp,
+                        keyId,
+                        seed: `${userId}_${timestamp}`
+                    });
+                    
+                    const key = await this.generateDeterministicKey(userId, timestamp, keyId);
+                    console.log('✅ Generated sender key:', {
+                        id: key.id,
+                        userId: key.userId,
+                        createdAt: key.createdAt
+                    });
+                    
+                    this.keyIdStorage.set(keyId, key);
+                    return key;
+                }
+                return null;
+            }
+
+            async encryptForSender(content, senderKey) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(content);
+                
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                
+                const encryptedData = await crypto.subtle.encrypt(
+                    {
+                        name: 'AES-GCM',
+                        iv: iv
+                    },
+                    senderKey.key,
+                    data
+                );
+
+                const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+                combined.set(iv);
+                combined.set(new Uint8Array(encryptedData), iv.length);
+
+                return btoa(String.fromCharCode(...Array.from(combined)));
+            }
+
+            async decryptForSender(encryptedContent, senderKey) {
+                const combined = new Uint8Array(
+                    atob(encryptedContent).split('').map(char => char.charCodeAt(0))
+                );
+
+                const iv = combined.slice(0, 12);
+                const encryptedData = combined.slice(12);
+
+                const decryptedData = await crypto.subtle.decrypt(
+                    {
+                        name: 'AES-GCM',
+                        iv: iv
+                    },
+                    senderKey.key,
+                    encryptedData
+                );
+
+                const decoder = new TextDecoder();
+                return decoder.decode(decryptedData);
+            }
+
+            generateKeyId() {
+                return 'sender_key_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+
+        // Console log capture
+        let consoleLogs = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) {
+            consoleLogs.push({ type: 'log', args, timestamp: new Date().toISOString() });
+            originalLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            consoleLogs.push({ type: 'error', args, timestamp: new Date().toISOString() });
+            originalError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            consoleLogs.push({ type: 'warn', args, timestamp: new Date().toISOString() });
+            originalWarn.apply(console, args);
+        };
+
+        function logToElement(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            element.appendChild(logEntry);
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('retrieval-results').innerHTML = '';
+            document.getElementById('sender-key-results').innerHTML = '';
+            document.getElementById('secure-chat-results').innerHTML = '';
+            document.getElementById('message-analysis').innerHTML = '';
+        }
+
+        function clearConsoleLogs() {
+            consoleLogs = [];
+            document.getElementById('console-logs').innerHTML = '';
+        }
+
+        async function testMessageRetrieval() {
+            const resultsDiv = document.getElementById('retrieval-results');
+            resultsDiv.innerHTML = '<div class="info">Testing message retrieval...</div>';
+
+            try {
+                // Simulate some test messages
+                const testMessages = [
+                    {
+                        messageId: 'msg1',
+                        senderId: 'test-user-123',
+                        recipientId: 'other-user',
+                        content: 'Test sent message',
+                        encryptedData: null,
+                        senderReference: {
+                            content: 'encrypted_sent_content',
+                            keyId: 'sender_key_1752690218581_8w14urh8r',
+                            timestamp: 1752690218581
+                        },
+                        timestamp: Date.now(),
+                        isEncrypted: true,
+                        isRead: false,
+                        messageType: 'text'
+                    },
+                    {
+                        messageId: 'msg2',
+                        senderId: 'other-user',
+                        recipientId: 'test-user-123',
+                        content: 'Test received message',
+                        encryptedData: {
+                            encryptedText: 'encrypted_received_content',
+                            iv: 'test_iv',
+                            salt: 'test_salt',
+                            hmac: 'test_hmac',
+                            timestamp: Date.now()
+                        },
+                        senderReference: null,
+                        timestamp: Date.now(),
+                        isEncrypted: true,
+                        isRead: false,
+                        messageType: 'text'
+                    }
+                ];
+
+                logToElement('retrieval-results', `Testing ${testMessages.length} messages...`, 'info');
+
+                for (const message of testMessages) {
+                    const isSentByMe = message.senderId === 'test-user-123';
+                    logToElement('retrieval-results', 
+                        `Processing ${isSentByMe ? 'SENT' : 'RECEIVED'} message: ${message.messageId}`, 
+                        isSentByMe ? 'success' : 'info'
+                    );
+
+                    if (isSentByMe && message.senderReference) {
+                        logToElement('retrieval-results', 
+                            `Has senderReference: ${message.senderReference.keyId}`, 'info'
+                        );
+                    } else if (!isSentByMe && message.encryptedData) {
+                        logToElement('retrieval-results', 
+                            `Has encryptedData: ${message.encryptedData.encryptedText}`, 'info'
+                        );
+                    } else {
+                        logToElement('retrieval-results', 
+                            `Missing encryption data!`, 'error'
+                        );
+                    }
+                }
+
+                logToElement('retrieval-results', 'Message retrieval test completed!', 'success');
+
+            } catch (error) {
+                logToElement('retrieval-results', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSenderKeyService() {
+            const resultsDiv = document.getElementById('sender-key-results');
+            resultsDiv.innerHTML = '<div class="info">Testing sender key service...</div>';
+
+            try {
+                const service = new MockSenderKeyService();
+                const userId = 'test-user-123';
+                const testMessage = 'Hello, this is a test message!';
+
+                logToElement('sender-key-results', 'Generating sender key...', 'info');
+                const senderKey = await service.generateSenderKey(userId);
+                
+                logToElement('sender-key-results', 
+                    `Generated key: ${senderKey.id}`, 'success'
+                );
+
+                logToElement('sender-key-results', 'Encrypting test message...', 'info');
+                const encrypted = await service.encryptForSender(testMessage, senderKey);
+                
+                logToElement('sender-key-results', 
+                    `Encrypted length: ${encrypted.length}`, 'info'
+                );
+
+                logToElement('sender-key-results', 'Retrieving key by ID...', 'info');
+                const retrievedKey = await service.getSenderKeyById(senderKey.id);
+                
+                if (retrievedKey) {
+                    logToElement('sender-key-results', 
+                        `Retrieved key: ${retrievedKey.id}`, 'success'
+                    );
+
+                    logToElement('sender-key-results', 'Decrypting message...', 'info');
+                    const decrypted = await service.decryptForSender(encrypted, retrievedKey);
+                    
+                    if (decrypted === testMessage) {
+                        logToElement('sender-key-results', 
+                            `✅ Successfully decrypted: "${decrypted}"`, 'success'
+                        );
+                    } else {
+                        logToElement('sender-key-results', 
+                            `❌ Decryption failed. Expected: "${testMessage}", Got: "${decrypted}"`, 'error'
+                        );
+                    }
+                } else {
+                    logToElement('sender-key-results', '❌ Failed to retrieve key', 'error');
+                }
+
+            } catch (error) {
+                logToElement('sender-key-results', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSenderKeyRetrieval() {
+            const resultsDiv = document.getElementById('sender-key-results');
+            resultsDiv.innerHTML = '<div class="info">Testing sender key retrieval...</div>';
+
+            try {
+                const service = new MockSenderKeyService();
+                const keyId = 'sender_key_1752690218581_8w14urh8r';
+
+                logToElement('sender-key-results', `Testing key retrieval for: ${keyId}`, 'info');
+                
+                const key = await service.getSenderKeyById(keyId);
+                
+                if (key) {
+                    logToElement('sender-key-results', 
+                        `✅ Successfully retrieved key: ${key.id}`, 'success'
+                    );
+                    logToElement('sender-key-results', 
+                        `Key details: userId=${key.userId}, createdAt=${key.createdAt}`, 'info'
+                    );
+                } else {
+                    logToElement('sender-key-results', '❌ Failed to retrieve key', 'error');
+                }
+
+            } catch (error) {
+                logToElement('sender-key-results', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSecureChatService() {
+            const resultsDiv = document.getElementById('secure-chat-results');
+            resultsDiv.innerHTML = '<div class="info">Testing secure chat service...</div>';
+
+            logToElement('secure-chat-results', 'This would test the actual SecureChatService integration', 'info');
+            logToElement('secure-chat-results', 'Check the browser console for real service logs', 'info');
+        }
+
+        function captureConsoleLogs() {
+            const logsDiv = document.getElementById('console-logs');
+            logsDiv.innerHTML = '<div class="info">Capturing console logs...</div>';
+
+            consoleLogs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${log.type}`;
+                logEntry.innerHTML = `
+                    <strong>[${new Date(log.timestamp).toLocaleTimeString()}] ${log.type.toUpperCase()}:</strong> 
+                    ${log.args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')}
+                `;
+                logsDiv.appendChild(logEntry);
+            });
+
+            logToElement('console-logs', `Captured ${consoleLogs.length} log entries`, 'info');
+        }
+
+        async function analyzeMessages() {
+            const resultsDiv = document.getElementById('message-analysis');
+            resultsDiv.innerHTML = '<div class="info">Analyzing current messages...</div>';
+
+            try {
+                // This would analyze the actual messages from your app
+                logToElement('message-analysis', 'Message analysis would check:', 'info');
+                logToElement('message-analysis', '1. Messages in localStorage', 'info');
+                logToElement('message-analysis', '2. Messages in memory', 'info');
+                logToElement('message-analysis', '3. Messages from API', 'info');
+                logToElement('message-analysis', '4. Decryption status', 'info');
+
+                // Check localStorage for any stored messages
+                const storedKeys = Object.keys(localStorage).filter(key => 
+                    key.includes('message') || key.includes('chat') || key.includes('siphera')
+                );
+
+                logToElement('message-analysis', 
+                    `Found ${storedKeys.length} relevant localStorage keys`, 'info'
+                );
+
+                storedKeys.forEach(key => {
+                    logToElement('message-analysis', `Storage key: ${key}`, 'info');
+                });
+
+            } catch (error) {
+                logToElement('message-analysis', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-capture logs every 5 seconds
+        setInterval(() => {
+            if (consoleLogs.length > 0) {
+                const logsDiv = document.getElementById('console-logs');
+                if (logsDiv.children.length === 0) {
+                    logsDiv.innerHTML = '<div class="info">Auto-capturing console logs...</div>';
+                }
+                
+                const newLogs = consoleLogs.slice(-10); // Last 10 logs
+                newLogs.forEach(log => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry ${log.type}`;
+                    logEntry.innerHTML = `
+                        <strong>[${new Date(log.timestamp).toLocaleTimeString()}] ${log.type.toUpperCase()}:</strong> 
+                        ${log.args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')}
+                    `;
+                    logsDiv.appendChild(logEntry);
+                });
+                
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+        }, 5000);
+    </script>
+</body>
+</html> 
