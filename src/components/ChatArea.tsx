@@ -31,6 +31,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
   useEffect(() => {
     // Connect to WebSocket when component mounts (only once)
     const connectToWebSocket = async () => {
+      console.log('🔍 User object for WebSocket connection:', {
+        userId: user?.id,
+        username: user?.username,
+        email: user?.email,
+        attributes: user?.attributes
+      });
+      
       if (user?.username && !webSocketService.isConnected()) {
         try {
           await webSocketService.connect(user.username, user.username);
@@ -135,7 +142,12 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
     if (!selectedContact || !user?.username) return;
     setIsLoading(true);
     try {
-      console.log('Fetching messages for:', user?.username, selectedContact);
+      console.log('🔍 Fetching messages for:', {
+        username: user?.username,
+        userId: user?.id,
+        email: user?.email,
+        selectedContact
+      });
       
       // Fetch messages in both directions: sent by current user AND received by current user
       const [sentMessages, receivedMessages] = await Promise.all([
