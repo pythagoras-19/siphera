@@ -68,8 +68,9 @@ export class SenderKeyService {
         
         // For deterministic key generation, we need the userId
         // Since the keyId doesn't contain userId, we need to get it from the current user
+        // Use the same logic as MessageRetrievalService: currentUser.name || currentUser.id
         const currentUser = WebSocketService.getInstance().getCurrentUser();
-        const userId = currentUser?.id || 'default';
+        const userId = currentUser?.name || currentUser?.id || 'default';
         
         console.log('🔑 Generating deterministic key with:', {
           userId,

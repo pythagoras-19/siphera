@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Sender Key</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #0c5460;
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        input {
+            width: 300px;
+            padding: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔑 Debug Sender Key</h1>
+    
+    <div class="container">
+        <h2>Test Configuration</h2>
+        <div class="test-section">
+            <label for="keyId">Key ID:</label>
+            <input type="text" id="keyId" value="sender_key_1752759537923_1fute8rh1">
+            <br><br>
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" value="siphera.us@gmail.com">
+            <br><br>
+            <label for="encryptedContent">Encrypted Content:</label>
+            <input type="text" id="encryptedContent" value="xb7ry5N4Jtu1cosNMZS5pUBRBZMvbM2ETlD+GSCzPcHM">
+            <br><br>
+            <button onclick="testSenderKeyRetrieval()">🔍 Test Sender Key Retrieval</button>
+            <button onclick="testDeterministicKeyGeneration()">🔑 Test Deterministic Key Generation</button>
+            <button onclick="testDecryption()">🔓 Test Decryption</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        function logToElement(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // Mock SenderKeyService for testing
+        class MockSenderKeyService {
+            constructor() {
+                this.keyIdStorage = new Map();
+            }
+
+            async getSenderKeyById(keyId) {
+                try {
+                    logToElement('results', `🔍 Getting sender key by ID: ${keyId}`, 'info');
+                    
+                    // First, try to get the key from memory storage
+                    const memoryKey = this.keyIdStorage.get(keyId);
+                    if (memoryKey) {
+                        logToElement('results', `✅ Found sender key in memory: ${memoryKey.id}`, 'success');
+                        return memoryKey;
+                    }
+                    
+                    // If not in memory, try to regenerate deterministically
+                    const parts = keyId.split('_');
+                    if (parts.length >= 3) {
+                        const timestamp = parseInt(parts[2]);
+                        const userId = document.getElementById('userId').value;
+                        
+                        logToElement('results', `🔑 Generating deterministic key with:`, 'info');
+                        logToElement('results', `  userId: ${userId}`, 'info');
+                        logToElement('results', `  timestamp: ${timestamp}`, 'info');
+                        logToElement('results', `  keyId: ${keyId}`, 'info');
+                        
+                        // Generate deterministic key based on timestamp and userId
+                        const key = await this.generateDeterministicKey(userId, timestamp, keyId);
+                        logToElement('results', `✅ Generated sender key: ${key.id}`, 'success');
+                        
+                        // Store the regenerated key for future use
+                        this.keyIdStorage.set(keyId, key);
+                        return key;
+                    }
+                } catch (error) {
+                    logToElement('results', `❌ Error getting sender key by ID: ${error.message}`, 'error');
+                }
+                return null;
+            }
+
+            async generateDeterministicKey(userId, timestamp, keyId) {
+                // Create a deterministic seed from userId and timestamp
+                const seed = `${userId}_${timestamp}`;
+                const encoder = new TextEncoder();
+                const seedData = encoder.encode(seed);
+                
+                logToElement('results', `🔑 Creating seed: "${seed}"`, 'info');
+                
+                // Use PBKDF2 to derive a key from the seed
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw',
+                    seedData,
+                    { name: 'PBKDF2' },
+                    false,
+                    ['deriveBits', 'deriveKey']
+                );
+
+                const key = await crypto.subtle.deriveKey(
+                    {
+                        name: 'PBKDF2',
+                        salt: encoder.encode('siphera_sender_salt'),
+                        iterations: 100000,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    { name: 'AES-GCM', length: 256 },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+
+                return {
+                    id: keyId,
+                    key,
+                    userId,
+                    createdAt: timestamp
+                };
+            }
+
+            async decryptForSender(encryptedContent, senderKey) {
+                try {
+                    logToElement('results', `🔓 Attempting to decrypt content with sender key: ${senderKey.id}`, 'info');
+
+                    const combined = new Uint8Array(
+                        atob(encryptedContent).split('').map(char => char.charCodeAt(0))
+                    );
+
+                    const iv = combined.slice(0, 12);
+                    const encryptedData = combined.slice(12);
+
+                    logToElement('results', `🔓 Decryption parameters:`, 'info');
+                    logToElement('results', `  ivLength: ${iv.length}`, 'info');
+                    logToElement('results', `  encryptedDataLength: ${encryptedData.length}`, 'info');
+                    logToElement('results', `  totalLength: ${combined.length}`, 'info');
+
+                    const decryptedData = await crypto.subtle.decrypt(
+                        {
+                            name: 'AES-GCM',
+                            iv: iv
+                        },
+                        senderKey.key,
+                        encryptedData
+                    );
+
+                    const decoder = new TextDecoder();
+                    const result = decoder.decode(decryptedData);
+                    
+                    logToElement('results', `✅ Successfully decrypted content: "${result}"`, 'success');
+                    return result;
+                } catch (error) {
+                    logToElement('results', `❌ Decryption failed: ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+        }
+
+        const mockService = new MockSenderKeyService();
+
+        async function testSenderKeyRetrieval() {
+            const keyId = document.getElementById('keyId').value;
+            
+            logToElement('results', `🧪 Testing sender key retrieval for: ${keyId}`, 'info');
+            
+            try {
+                const senderKey = await mockService.getSenderKeyById(keyId);
+                if (senderKey) {
+                    logToElement('results', `✅ Successfully retrieved sender key:`, 'success');
+                    logToElement('results', `  ID: ${senderKey.id}`, 'success');
+                    logToElement('results', `  User ID: ${senderKey.userId}`, 'success');
+                    logToElement('results', `  Created At: ${new Date(senderKey.createdAt).toLocaleString()}`, 'success');
+                } else {
+                    logToElement('results', `❌ Failed to retrieve sender key`, 'error');
+                }
+            } catch (error) {
+                logToElement('results', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDeterministicKeyGeneration() {
+            const keyId = document.getElementById('keyId').value;
+            const userId = document.getElementById('userId').value;
+            
+            logToElement('results', `🧪 Testing deterministic key generation`, 'info');
+            
+            try {
+                const parts = keyId.split('_');
+                if (parts.length >= 3) {
+                    const timestamp = parseInt(parts[2]);
+                    
+                    logToElement('results', `🔑 Extracted timestamp: ${timestamp}`, 'info');
+                    logToElement('results', `🔑 Using userId: ${userId}`, 'info');
+                    
+                    const key = await mockService.generateDeterministicKey(userId, timestamp, keyId);
+                    logToElement('results', `✅ Generated key successfully:`, 'success');
+                    logToElement('results', `  ID: ${key.id}`, 'success');
+                    logToElement('results', `  User ID: ${key.userId}`, 'success');
+                    logToElement('results', `  Created At: ${new Date(key.createdAt).toLocaleString()}`, 'success');
+                } else {
+                    logToElement('results', `❌ Invalid keyId format: ${keyId}`, 'error');
+                }
+            } catch (error) {
+                logToElement('results', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDecryption() {
+            const keyId = document.getElementById('keyId').value;
+            const encryptedContent = document.getElementById('encryptedContent').value;
+            
+            logToElement('results', `🧪 Testing decryption`, 'info');
+            
+            try {
+                // First get the sender key
+                const senderKey = await mockService.getSenderKeyById(keyId);
+                if (!senderKey) {
+                    logToElement('results', `❌ Could not retrieve sender key`, 'error');
+                    return;
+                }
+                
+                // Then try to decrypt
+                const decryptedContent = await mockService.decryptForSender(encryptedContent, senderKey);
+                logToElement('results', `✅ Decryption successful: "${decryptedContent}"`, 'success');
+                
+            } catch (error) {
+                logToElement('results', `❌ Decryption failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 
