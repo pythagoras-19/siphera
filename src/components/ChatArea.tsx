@@ -38,9 +38,12 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         attributes: user?.attributes
       });
       
-      if (user?.username && !webSocketService.isConnected()) {
+      // Use email as the primary identifier for WebSocket connection
+      const userIdentifier = user?.email || user?.username;
+      
+      if (userIdentifier && !webSocketService.isConnected()) {
         try {
-          await webSocketService.connect(user.username, user.username);
+          await webSocketService.connect(userIdentifier, userIdentifier);
           setIsConnected(true);
         } catch (error) {
           console.error('Failed to connect to WebSocket:', error);
@@ -139,20 +142,24 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
 
   // Update loadChatHistory to use MessageRetrievalService for proper sender/recipient decryption
   const loadChatHistory = async () => {
-    if (!selectedContact || !user?.username) return;
+    // Use email as the primary identifier for message fetching
+    const userIdentifier = user?.email || user?.username;
+    
+    if (!selectedContact || !userIdentifier) return;
     setIsLoading(true);
     try {
       console.log('🔍 Fetching messages for:', {
         username: user?.username,
         userId: user?.id,
         email: user?.email,
+        userIdentifier,
         selectedContact
       });
       
       // Fetch messages in both directions: sent by current user AND received by current user
       const [sentMessages, receivedMessages] = await Promise.all([
-        fetchMessages(user.username, selectedContact), // Messages sent by current user
-        fetchMessages(selectedContact, user.username)  // Messages sent TO current user
+        fetchMessages(userIdentifier, selectedContact), // Messages sent by current user
+        fetchMessages(selectedContact, userIdentifier)  // Messages sent TO current user
       ]);
       
       // Combine both sets of messages and deduplicate by messageId
