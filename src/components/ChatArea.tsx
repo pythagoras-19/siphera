@@ -245,47 +245,20 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       // Send message via WebSocket
       const chatMessage = await webSocketService.sendMessage(selectedContact, message.trim());
       
-      // Decrypt the message before adding to local state
-      let decryptedMessage = chatMessage;
-      if (chatMessage.isEncrypted && chatMessage.content) {
-        try {
-          const decryptedText = await secureChatService.receiveEncryptedMessage(
-            chatMessage.sender,
-            {
-              id: chatMessage.id || '',
-              sender: chatMessage.sender,
-              recipient: chatMessage.recipient,
-              encryptedData: {
-                encryptedText: chatMessage.content,
-                iv: chatMessage.metadata?.iv || '',
-                salt: chatMessage.metadata?.salt || '',
-                timestamp: chatMessage.timestamp,
-                hmac: chatMessage.metadata?.hmac || ''
-              },
-              messageHash: '',
-              timestamp: chatMessage.timestamp,
-              isEncrypted: true
-            }
-          );
-          
-          decryptedMessage = {
-            ...chatMessage,
-            text: decryptedText,
-            content: decryptedText
-          };
-          console.log('✅ Message decrypted successfully:', decryptedText);
-        } catch (error) {
-          console.error('❌ Failed to decrypt sent message:', error);
-          decryptedMessage = {
-            ...chatMessage,
-            text: '[Encrypted Message - Decryption Failed]',
-            content: '[Encrypted Message - Decryption Failed]'
-          };
-        }
-      }
+      // For sent messages, use the plain text that's already available
+      // The WebSocketService.sendMessage() returns a ChatMessage with:
+      // - text: plain text for local display
+      // - content: encrypted content for transmission
+      const displayMessage = {
+        ...chatMessage,
+        text: chatMessage.text || message.trim(), // Use plain text for display
+        content: chatMessage.text || message.trim() // Also set content to plain text for consistency
+      };
       
-      // Add decrypted message to local state
-      setMessages(prev => [...prev, decryptedMessage]);
+      console.log('✅ Message sent successfully:', displayMessage.text);
+      
+      // Add message to local state with plain text
+      setMessages(prev => [...prev, displayMessage]);
       setMessage('');
       
       // Update encryption status if needed
@@ -380,7 +353,9 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
           )}
           {messages.map((msg, idx) => {
             // Use the metadata from MessageRetrievalService to determine if it's our message
-            const isOwnMessage = msg.metadata?.isSentByMe || msg.sender === user?.username;
+            const isOwnMessage = msg.metadata?.isSentByMe || 
+              msg.sender === user?.username || 
+              msg.sender === user?.email;
             const canRead = msg.metadata?.canRead !== false; // Default to true if not specified
             
             return (
