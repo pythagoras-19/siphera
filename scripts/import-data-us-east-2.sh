@@ -13,7 +13,7 @@ import_table_data() {
     local json_file=$2
     local region="us-east-2"
     
-    echo "Importing data to $table_name..."
+    echo "Importing data to $table_name from $json_file..."
     
     # Check if JSON file exists and has data
     if [ ! -f "$json_file" ]; then
@@ -21,22 +21,46 @@ import_table_data() {
         return
     fi
     
-    # Import data using AWS CLI
-    # Note: This is a simplified import - for large datasets, consider using AWS Data Pipeline
-    echo "Processing $json_file for $table_name..."
+    # Count items in the JSON file
+    local item_count=$(jq '.Items | length' "$json_file")
+    echo "Found $item_count items to import..."
     
-    # For now, we'll just verify the data exists
-    echo "✅ Data file $json_file ready for import"
+    if [ "$item_count" -eq 0 ]; then
+        echo "No items to import for $table_name"
+        return
+    fi
+    
+    # Import each item using AWS CLI
+    echo "Importing items to $table_name..."
+    
+    # Use jq to process each item and convert to DynamoDB format
+    jq -c '.Items[]' "$json_file" | while read -r item; do
+        # Write item to DynamoDB
+        aws dynamodb put-item \
+            --table-name "$table_name" \
+            --region "$region" \
+            --item "$item" \
+            --output json > /dev/null 2>&1
+        
+        if [ $? -eq 0 ]; then
+            echo "✅ Imported item to $table_name"
+        else
+            echo "❌ Failed to import item to $table_name"
+        fi
+    done
+    
+    echo "✅ Completed import for $table_name"
 }
 
 # Import each table
+echo "Starting data import process..."
 import_table_data "siphera-users-dev" "siphera-users-dev.json"
 import_table_data "siphera-sessions-dev" "siphera-sessions-dev.json"
 import_table_data "siphera-messages-dev" "siphera-messages-dev.json"
 
-echo "✅ Data import preparation complete!"
+echo "✅ Data import complete!"
 echo ""
 echo "🎯 Next steps:"
-echo "1. Update backend environment variables to use us-east-2"
-echo "2. Redeploy backend to use new region"
-echo "3. Test the connection" 
+echo "1. Redeploy backend to use us-east-2"
+echo "2. Test the connection on deployed app"
+echo "3. Verify users appear in the app" 
