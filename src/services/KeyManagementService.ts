@@ -12,14 +12,16 @@ export class KeyManagementService {
 
   private constructor() {
     this.initializationPromise = this.initializeSecureStorage();
-    
-    // Set up global utilities for browser console access
-    KeyManagementService.setupGlobalUtilities();
   }
 
   static getInstance(): KeyManagementService {
     if (!KeyManagementService.instance) {
       KeyManagementService.instance = new KeyManagementService();
+      
+      // Set up global utilities after instance is created (to avoid recursion)
+      if (typeof window !== 'undefined') {
+        KeyManagementService.setupGlobalUtilities();
+      }
     }
     return KeyManagementService.instance;
   }
@@ -177,6 +179,10 @@ export class KeyManagementService {
    */
   static setupGlobalUtilities(): void {
     if (typeof window !== 'undefined') {
+      // Expose the service instance globally
+      (window as any).KeyManagementService = KeyManagementService;
+      (window as any).keyManagement = KeyManagementService.getInstance();
+      
       (window as any).updateContactKey = async (userId: string, publicKey: string) => {
         const service = KeyManagementService.getInstance();
         await service.updateContactKey(userId, publicKey);
@@ -194,10 +200,20 @@ export class KeyManagementService {
         return sharedSecret;
       };
       
+      (window as any).regenerateUserKeys = async () => {
+        const service = KeyManagementService.getInstance();
+        const newKeys = await service.regenerateUserKeys();
+        console.log('✅ User keys regenerated:', newKeys);
+        return newKeys;
+      };
+      
       console.log('🔧 Global utilities available:');
+      console.log('  KeyManagementService - The service class');
+      console.log('  keyManagement - Service instance');
       console.log('  updateContactKey(userId, publicKey) - Update contact key');
       console.log('  getContactKey(userId) - Get contact key');
       console.log('  testECDH(userId) - Test ECDH with contact');
+      console.log('  regenerateUserKeys() - Regenerate user keys');
     }
   }
 
