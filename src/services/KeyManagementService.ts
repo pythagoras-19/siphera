@@ -12,6 +12,9 @@ export class KeyManagementService {
 
   private constructor() {
     this.initializationPromise = this.initializeSecureStorage();
+    
+    // Set up global utilities for browser console access
+    KeyManagementService.setupGlobalUtilities();
   }
 
   static getInstance(): KeyManagementService {
@@ -134,6 +137,68 @@ export class KeyManagementService {
    */
   getContactPublicKey(userId: string): string | null {
     return this.contactKeys.get(userId)?.publicKey || null;
+  }
+
+  /**
+   * Hot swap a contact's public key in memory (without persistence)
+   * Useful for testing and immediate key updates
+   */
+  setContactKey(userId: string, publicKey: string): void {
+    const contactKey: ContactKey = {
+      userId,
+      publicKey,
+      lastUpdated: Date.now()
+    };
+
+    this.contactKeys.set(userId, contactKey);
+    console.log(`🔑 Hot-swapped contact key for ${userId}:`, {
+      keyLength: publicKey.length,
+      keyPreview: publicKey.substring(0, 20) + '...'
+    });
+  }
+
+  /**
+   * Update contact key with both persistence and hot swap
+   * This is the recommended method for updating contact keys
+   */
+  async updateContactKey(userId: string, publicKey: string): Promise<void> {
+    // Hot swap in memory immediately
+    this.setContactKey(userId, publicKey);
+    
+    // Also persist to localStorage for future sessions
+    await this.storeContactKey(userId, publicKey);
+    
+    console.log(`✅ Contact key updated for ${userId} (memory + persistence)`);
+  }
+
+  /**
+   * Global utility function for browser console access
+   * Usage: window.updateContactKey('user@email.com', 'publicKeyString')
+   */
+  static setupGlobalUtilities(): void {
+    if (typeof window !== 'undefined') {
+      (window as any).updateContactKey = async (userId: string, publicKey: string) => {
+        const service = KeyManagementService.getInstance();
+        await service.updateContactKey(userId, publicKey);
+      };
+      
+      (window as any).getContactKey = (userId: string) => {
+        const service = KeyManagementService.getInstance();
+        return service.getContactPublicKey(userId);
+      };
+      
+      (window as any).testECDH = async (userId: string) => {
+        const service = KeyManagementService.getInstance();
+        const sharedSecret = await service.generateSharedSecret(userId);
+        console.log(`ECDH test for ${userId}:`, sharedSecret ? 'SUCCESS' : 'FAILED');
+        return sharedSecret;
+      };
+      
+      console.log('🔧 Global utilities available:');
+      console.log('  updateContactKey(userId, publicKey) - Update contact key');
+      console.log('  getContactKey(userId) - Get contact key');
+      console.log('  testECDH(userId) - Test ECDH with contact');
+    }
   }
 
   /**
