@@ -105,10 +105,17 @@ export class WebSocketService {
           }
           
                 // Send user info to server
+      const userPublicKey = this.keyManagement.getUserPublicKey();
+      console.log('🔑 Sending public key to server:', {
+        keyLength: userPublicKey?.length || 0,
+        keyStart: userPublicKey?.substring(0, 20) + '...',
+        keyEnd: userPublicKey?.substring(userPublicKey?.length - 20)
+      });
+      
       this.socket?.emit('user:join', {
         userId: this.currentUser?.id,
         userName: this.currentUser?.name,
-        publicKey: this.keyManagement.getUserPublicKey() // Include public key for key exchange
+        publicKey: userPublicKey // Include public key for key exchange
       });
           
           resolve();
@@ -191,6 +198,9 @@ export class WebSocketService {
       });
 
       console.log(`📤 Message sent to ${recipientId}:`, messageText);
+      
+      // Return the message immediately for UI responsiveness
+      // The server will send confirmation via 'message:sent' event
       return chatMessage;
 
     } catch (error) {
@@ -244,6 +254,15 @@ export class WebSocketService {
       } catch (error) {
         console.error('Failed to process received message:', error);
       }
+    });
+
+    // Handle message confirmation events
+    this.socket.on('message:sent', (data: { messageId: string; timestamp: number }) => {
+      console.log('✅ Message sent confirmation received:', data);
+    });
+
+    this.socket.on('message:error', (data: { error: string; originalMessage: any }) => {
+      console.error('❌ Message send error from server:', data.error, data.originalMessage);
     });
 
     // Handle key exchange events
@@ -362,5 +381,27 @@ export class WebSocketService {
    */
   getCurrentUser(): User | null {
     return this.currentUser;
+  }
+
+  /**
+   * Send a key request to another user
+   */
+  sendKeyRequest(recipientId: string): void {
+    if (!this.socket?.connected) {
+      console.error('WebSocket not connected, cannot send key request');
+      return;
+    }
+
+    if (!this.currentUser?.id) {
+      console.error('No current user, cannot send key request');
+      return;
+    }
+
+    this.socket.emit('key:request', {
+      recipient: recipientId,
+      requester: this.currentUser.id
+    });
+    
+    console.log(`🔑 Key request sent to ${recipientId}`);
   }
 } 

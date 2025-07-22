@@ -70,6 +70,10 @@ export class SecureChatService {
       const contactPublicKey = this.keyManagement.getContactPublicKey(contactId);
       
       if (!contactPublicKey) {
+        // Try to request the contact's public key
+        console.log(`🔑 No public key for ${contactId}, requesting key exchange...`);
+        await this.requestKeyExchange(contactId);
+        
         // Create a deterministic temporary secret based on contact ID
         // This ensures the same secret is used for encryption and decryption
         const tempSecret = this.generateDeterministicSecret(contactId);
@@ -87,7 +91,18 @@ export class SecureChatService {
       // Generate shared secret using actual contact's public key
       const sharedSecret = await this.keyManagement.generateSharedSecret(contactId);
       if (!sharedSecret) {
-        throw new Error(`Failed to generate shared secret with ${contactId}`);
+        console.warn(`⚠️ Failed to generate ECDH shared secret with ${contactId}, using deterministic fallback`);
+        // Fall back to deterministic secret if ECDH fails
+        const tempSecret = this.generateDeterministicSecret(contactId);
+        const session: ChatSession = {
+          contactId,
+          sharedSecret: tempSecret,
+          lastMessageTime: Date.now(),
+          messageCount: 0
+        };
+        this.chatSessions.set(contactId, session);
+        console.log(`🔐 Fallback session established with ${contactId} (ECDH failed)`);
+        return session;
       }
 
       const session: ChatSession = {
@@ -102,6 +117,35 @@ export class SecureChatService {
     }
 
     return this.chatSessions.get(contactId)!;
+  }
+
+  /**
+   * Request key exchange with a contact
+   */
+  private async requestKeyExchange(contactId: string): Promise<void> {
+    try {
+      const currentUser = WebSocketService.getInstance().getCurrentUser();
+      if (!currentUser?.id) {
+        console.warn('No current user, cannot request key exchange');
+        return;
+      }
+
+      const ourPublicKey = this.keyManagement.getUserPublicKey();
+      if (!ourPublicKey) {
+        console.warn('No public key available, cannot request key exchange');
+        return;
+      }
+
+      // Send key request via WebSocket
+      const webSocketService = WebSocketService.getInstance();
+      if (webSocketService.isConnected()) {
+        // Use the WebSocketService's method to send key requests
+        webSocketService.sendKeyRequest(contactId);
+        console.log(`🔑 Key request sent to ${contactId}`);
+      }
+    } catch (error) {
+      console.error('Failed to request key exchange:', error);
+    }
   }
 
   /**
@@ -149,6 +193,8 @@ export class SecureChatService {
         console.log(`🔐 Message encrypted for sender reference with key ${senderKey.id}`);
       } catch (error) {
         console.warn('Failed to encrypt message for sender reference:', error);
+        // Don't fail the entire message send if sender reference fails
+        // This is optional functionality
       }
     }
     
@@ -199,19 +245,27 @@ export class SecureChatService {
       hasSession: !!session,
       sessionSecretLength: session.sharedSecret.length,
       encryptedData: encryptedMessage.encryptedData,
-      hasContactKey: this.hasContactKey(senderId)
+      hasContactKey: this.hasContactKey(senderId),
+      messageId: encryptedMessage.id,
+      timestamp: encryptedMessage.timestamp
     });
     
     // Try multiple secrets for decryption (for backward compatibility)
     const secretsToTry = await this.generateSecretsToTry(senderId);
     
+    console.log(`🔑 Generated ${secretsToTry.length} secrets to try for ${senderId}`);
+    secretsToTry.forEach((secret, index) => {
+      console.log(`  Secret ${index + 1}: ${secret.substring(0, 20)}... (length: ${secret.length})`);
+    });
+    
     for (let i = 0; i < secretsToTry.length; i++) {
       const secret = secretsToTry[i];
       try {
-        console.log(`🔑 Trying secret ${i + 1}/${secretsToTry.length} for ${senderId}`);
+        console.log(`🔑 Trying secret ${i + 1}/${secretsToTry.length} for ${senderId} (${secret.substring(0, 20)}...)`);
         
         // Check if HMAC is missing (old messages)
         const hasHmac = !!encryptedMessage.encryptedData.hmac;
+        console.log(`  Message has HMAC: ${hasHmac}`);
         
         if (!hasHmac) {
           // Try decryption without HMAC verification for old messages
@@ -236,6 +290,7 @@ export class SecureChatService {
           }
         } else {
           // Decrypt and verify the message with HMAC
+          console.log(`  Attempting HMAC verification with secret ${i + 1}`);
           const verifiedMessage = await E2EEncryption.decryptMessage(
             encryptedMessage.encryptedData,
             secret
@@ -256,6 +311,8 @@ export class SecureChatService {
 
             console.log(`🔓 Message decrypted and verified from ${senderId} with secret ${i + 1}:`, verifiedMessage.message);
             return verifiedMessage.message;
+          } else {
+            console.log(`  HMAC verification failed with secret ${i + 1}`);
           }
         }
       } catch (error) {
@@ -263,6 +320,7 @@ export class SecureChatService {
         
         // Try decryption without HMAC verification for old messages
         try {
+          console.log(`  Attempting fallback decryption without HMAC for secret ${i + 1}`);
           const decryptedMessage = await this.tryDecryptWithoutHMAC(encryptedMessage.encryptedData, secret);
           if (decryptedMessage) {
             console.log(`🔓 Message decrypted without HMAC from ${senderId} with secret ${i + 1}:`, decryptedMessage);
@@ -282,6 +340,7 @@ export class SecureChatService {
             return decryptedMessage;
           }
         } catch (hmacError) {
+          console.log(`  Fallback decryption also failed for secret ${i + 1}:`, hmacError instanceof Error ? hmacError.message : String(hmacError));
           // Continue to next secret
           continue;
         }
@@ -289,11 +348,19 @@ export class SecureChatService {
     }
 
     // If all secrets failed
-    console.error('Failed to decrypt message with any secret');
+    console.error('❌ Failed to decrypt message with any secret');
     console.error('Session details:', {
       contactId: session.contactId,
       sharedSecretLength: session.sharedSecret.length,
       messageCount: session.messageCount
+    });
+    console.error('Encrypted message details:', {
+      id: encryptedMessage.id,
+      sender: encryptedMessage.sender,
+      recipient: encryptedMessage.recipient,
+      hasEncryptedData: !!encryptedMessage.encryptedData,
+      encryptedDataKeys: encryptedMessage.encryptedData ? Object.keys(encryptedMessage.encryptedData) : [],
+      timestamp: encryptedMessage.timestamp
     });
     throw new Error('Message decryption failed - no working secret found');
   }
@@ -304,23 +371,30 @@ export class SecureChatService {
   private async generateSecretsToTry(contactId: string): Promise<string[]> {
     const secrets: string[] = [];
     
-    // 1. Current deterministic secret (new method)
-    const currentSecret = this.generateDeterministicSecret(contactId);
-    secrets.push(currentSecret);
-    
-    // 2. Try with contact's public key if available
+    // 1. PRIORITY: Proper ECDH shared secret from key exchange
     const contactPublicKey = this.keyManagement.getContactPublicKey(contactId);
     if (contactPublicKey) {
+      console.log(`🔑 Found public key for ${contactId}, generating ECDH shared secret...`);
       const sharedSecret = await this.keyManagement.generateSharedSecret(contactId);
-      if (sharedSecret && sharedSecret !== currentSecret) {
+      if (sharedSecret) {
         secrets.push(sharedSecret);
+        console.log(`✅ Generated ECDH shared secret for ${contactId}: ${sharedSecret.substring(0, 20)}...`);
+      } else {
+        console.warn(`❌ Failed to generate ECDH shared secret for ${contactId}`);
       }
+    } else {
+      console.warn(`⚠️ No public key found for ${contactId}, cannot use ECDH`);
     }
     
-    // 3. Try some legacy secrets (for old messages)
+    // 2. FALLBACK: Deterministic secret (for contacts without public keys)
+    const currentSecret = this.generateDeterministicSecret(contactId);
+    secrets.push(currentSecret);
+    console.log(`🔑 Using deterministic secret as fallback for ${contactId}: ${currentSecret.substring(0, 20)}...`);
+    
+    // 3. LEGACY: Various legacy combinations (for old messages)
     const userPrivateKey = this.keyManagement.getUserPrivateKey();
     if (userPrivateKey) {
-      // Legacy secret generation methods - try various combinations
+      console.log(`🔑 Adding legacy secrets for ${contactId}...`);
       const legacySecrets = [
         E2EEncryption.hashPassword(userPrivateKey + contactId + 'legacy1'),
         E2EEncryption.hashPassword(contactId + userPrivateKey + 'legacy2'),
@@ -346,9 +420,10 @@ export class SecureChatService {
           secrets.push(legacySecret);
         }
       }
+      console.log(`🔑 Added ${legacySecrets.length} legacy secrets for ${contactId}`);
     }
     
-    console.log(`🔑 Generated ${secrets.length} secrets to try for ${contactId}`);
+    console.log(`🔑 Generated ${secrets.length} total secrets to try for ${contactId}`);
     return secrets;
   }
 

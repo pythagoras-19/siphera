@@ -24,8 +24,8 @@ const CORS_ORIGIN = securityConfig.server.corsOrigin;
 // Create Socket.IO server
 const io = new Server(server, {
   cors: {
-    origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005'], // Allow multiple common dev ports
-    methods: ['GET', 'POST'],
+    origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005', 'http://localhost:3000', 'null'], // Allow multiple common dev ports
+    methods: ['GET', 'POST', 'OPTIONS'],
     credentials: true,
   },
 });
@@ -33,8 +33,10 @@ const io = new Server(server, {
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005'],
+  origin: [CORS_ORIGIN, 'http://localhost:3001', 'http://localhost:3005', 'http://localhost:3000', 'null'],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('combined'));
 app.use(express.json());

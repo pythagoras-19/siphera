@@ -144,16 +144,31 @@ export class KeyManagementService {
     const publicKey = this.getContactPublicKey(contactUserId);
 
     if (!privateKey || !publicKey) {
-      console.warn(`Missing keys for contact: ${contactUserId}`);
+      console.warn(`Missing keys for contact: ${contactUserId}`, {
+        hasPrivateKey: !!privateKey,
+        hasPublicKey: !!publicKey,
+        privateKeyLength: privateKey?.length || 0,
+        publicKeyLength: publicKey?.length || 0
+      });
       return null;
     }
 
     try {
+      console.log(`🔐 Generating ECDH shared secret for ${contactUserId}:`, {
+        privateKeyLength: privateKey.length,
+        publicKeyLength: publicKey.length,
+        privateKeyStart: privateKey.substring(0, 20) + '...',
+        publicKeyStart: publicKey.substring(0, 20) + '...'
+      });
+      
       const sharedSecret = await E2EEncryption.generateSharedSecret(privateKey, publicKey);
-      console.log(`🔐 Generated shared secret with: ${contactUserId}`);
+      console.log(`✅ Generated ECDH shared secret for ${contactUserId}:`, {
+        sharedSecretLength: sharedSecret.length,
+        sharedSecretStart: sharedSecret.substring(0, 20) + '...'
+      });
       return sharedSecret;
     } catch (error) {
-      console.error(`Failed to generate shared secret with ${contactUserId}:`, error);
+      console.error(`❌ Failed to generate ECDH shared secret with ${contactUserId}:`, error);
       return null;
     }
   }
@@ -194,6 +209,25 @@ export class KeyManagementService {
     this.contactKeys.clear();
     this.isInitialized = false;
     console.log('🗑️ Cleared all keys');
+  }
+
+  /**
+   * Regenerate user keys (useful for fixing corrupted keys)
+   */
+  async regenerateUserKeys(): Promise<KeyPair> {
+    await this.ensureInitialized();
+    
+    console.log('🔄 Regenerating user keys...');
+    
+    // Clear existing keys
+    this.userKeyPair = null;
+    this.contactKeys.clear();
+    
+    // Generate new keys
+    const newKeyPair = await this.initializeUserKeys();
+    
+    console.log('✅ User keys regenerated successfully');
+    return newKeyPair;
   }
 
   /**

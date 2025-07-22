@@ -35,22 +35,35 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
         userId: user?.id,
         username: user?.username,
         email: user?.email,
-        attributes: user?.attributes
+        attributes: user?.attributes,
+        isAuthenticated: !!user,
+        userObject: user
       });
       
       // Use email as the primary identifier for WebSocket connection
-      const userIdentifier = user?.email || user?.username;
+      const userIdentifier = user?.email || user?.username || user?.id;
       
-      if (userIdentifier && !webSocketService.isConnected()) {
+      if (!userIdentifier) {
+        console.error('❌ No user identifier available for WebSocket connection');
+        console.error('User object:', user);
+        setIsConnected(false);
+        return;
+      }
+      
+      console.log('🔌 Attempting WebSocket connection with identifier:', userIdentifier);
+      
+      if (!webSocketService.isConnected()) {
         try {
           await webSocketService.connect(userIdentifier, userIdentifier);
           setIsConnected(true);
+          console.log('✅ WebSocket connected successfully');
         } catch (error) {
-          console.error('Failed to connect to WebSocket:', error);
+          console.error('❌ Failed to connect to WebSocket:', error);
           setIsConnected(false);
         }
-      } else if (webSocketService.isConnected()) {
+      } else {
         setIsConnected(true);
+        console.log('✅ WebSocket already connected');
       }
     };
 
@@ -124,7 +137,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       unsubscribe();
       unsubscribeConnection();
     };
-  }, [selectedContact]); // Removed user?.username dependency
+  }, [selectedContact, user]); // Re-run when user changes
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -232,8 +245,47 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
       // Send message via WebSocket
       const chatMessage = await webSocketService.sendMessage(selectedContact, message.trim());
       
-      // Add message to local state
-      setMessages(prev => [...prev, chatMessage]);
+      // Decrypt the message before adding to local state
+      let decryptedMessage = chatMessage;
+      if (chatMessage.isEncrypted && chatMessage.content) {
+        try {
+          const decryptedText = await secureChatService.receiveEncryptedMessage(
+            chatMessage.sender,
+            {
+              id: chatMessage.id || '',
+              sender: chatMessage.sender,
+              recipient: chatMessage.recipient,
+              encryptedData: {
+                encryptedText: chatMessage.content,
+                iv: chatMessage.metadata?.iv || '',
+                salt: chatMessage.metadata?.salt || '',
+                timestamp: chatMessage.timestamp,
+                hmac: chatMessage.metadata?.hmac || ''
+              },
+              messageHash: '',
+              timestamp: chatMessage.timestamp,
+              isEncrypted: true
+            }
+          );
+          
+          decryptedMessage = {
+            ...chatMessage,
+            text: decryptedText,
+            content: decryptedText
+          };
+          console.log('✅ Message decrypted successfully:', decryptedText);
+        } catch (error) {
+          console.error('❌ Failed to decrypt sent message:', error);
+          decryptedMessage = {
+            ...chatMessage,
+            text: '[Encrypted Message - Decryption Failed]',
+            content: '[Encrypted Message - Decryption Failed]'
+          };
+        }
+      }
+      
+      // Add decrypted message to local state
+      setMessages(prev => [...prev, decryptedMessage]);
       setMessage('');
       
       // Update encryption status if needed

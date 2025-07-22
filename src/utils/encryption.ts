@@ -71,16 +71,8 @@ export class E2EEncryption {
           fingerprint
         };
       } else {
-        // Fallback to CryptoJS for older browsers
-        const privateKey = CryptoJS.lib.WordArray.random(32).toString();
-        const publicKey = CryptoJS.lib.WordArray.random(32).toString();
-        const fingerprint = this.generateKeyFingerprint(publicKey);
-        
-        return {
-          publicKey,
-          privateKey,
-          fingerprint
-        };
+        // No fallback - ECDH requires Web Crypto API
+        throw new Error('Web Crypto API is required for ECDH key generation. Please use a modern browser.');
       }
     } catch (error) {
       console.error('Key generation failed:', error);
@@ -93,11 +85,35 @@ export class E2EEncryption {
    */
   static async generateSharedSecret(privateKey: string, publicKey: string): Promise<string> {
     try {
+      console.log('🔐 Starting ECDH shared secret generation...', {
+        privateKeyLength: privateKey.length,
+        publicKeyLength: publicKey.length,
+        hasWebCrypto: !!(window.crypto && window.crypto.subtle)
+      });
+
       if (window.crypto && window.crypto.subtle) {
+        // Use Web Crypto API for ECDH
+        console.log('🔐 Using Web Crypto API for ECDH...');
+        
         // Import keys
+        console.log('🔑 Attempting to import private key...', {
+          privateKeyLength: privateKey.length,
+          privateKeyStart: privateKey.substring(0, 20) + '...',
+          privateKeyEnd: privateKey.substring(privateKey.length - 20)
+        });
+        
+        let privateKeyBuffer: ArrayBuffer;
+        try {
+          privateKeyBuffer = this.base64ToArrayBuffer(privateKey);
+          console.log('✅ Private key base64 decoded successfully, buffer length:', privateKeyBuffer.byteLength);
+        } catch (error) {
+          console.error('❌ Failed to decode private key from base64:', error);
+          throw new Error('Invalid private key format');
+        }
+        
         const privateKeyObj = await window.crypto.subtle.importKey(
           'pkcs8',
-          this.base64ToArrayBuffer(privateKey),
+          privateKeyBuffer,
           {
             name: 'ECDH',
             namedCurve: 'P-256'
@@ -105,10 +121,26 @@ export class E2EEncryption {
           false,
           ['deriveBits']
         );
+        console.log('✅ Private key imported successfully');
 
+        console.log('🔑 Attempting to import public key...', {
+          publicKeyLength: publicKey.length,
+          publicKeyStart: publicKey.substring(0, 20) + '...',
+          publicKeyEnd: publicKey.substring(publicKey.length - 20)
+        });
+        
+        let publicKeyBuffer: ArrayBuffer;
+        try {
+          publicKeyBuffer = this.base64ToArrayBuffer(publicKey);
+          console.log('✅ Public key base64 decoded successfully, buffer length:', publicKeyBuffer.byteLength);
+        } catch (error) {
+          console.error('❌ Failed to decode public key from base64:', error);
+          throw new Error('Invalid public key format');
+        }
+        
         const publicKeyObj = await window.crypto.subtle.importKey(
           'spki',
-          this.base64ToArrayBuffer(publicKey),
+          publicKeyBuffer,
           {
             name: 'ECDH',
             namedCurve: 'P-256'
@@ -116,25 +148,47 @@ export class E2EEncryption {
           false,
           []
         );
+        console.log('✅ Public key imported successfully');
 
         // Derive shared secret
-        const sharedSecretBuffer = await window.crypto.subtle.deriveBits(
-          {
-            name: 'ECDH',
-            public: publicKeyObj
-          },
-          privateKeyObj,
-          256 // 256 bits
-        );
+        console.log('🔐 Deriving shared secret using ECDH...');
+        let sharedSecretBuffer: ArrayBuffer;
+        try {
+          sharedSecretBuffer = await window.crypto.subtle.deriveBits(
+            {
+              name: 'ECDH',
+              public: publicKeyObj
+            },
+            privateKeyObj,
+            256 // 256 bits
+          );
+          console.log('✅ ECDH shared secret derived successfully, buffer length:', sharedSecretBuffer.byteLength);
+        } catch (error) {
+          console.error('❌ Failed to derive shared secret:', error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          throw new Error(`ECDH derivation failed: ${errorMessage}`);
+        }
 
-        return this.arrayBufferToBase64(sharedSecretBuffer);
+        const sharedSecret = this.arrayBufferToBase64(sharedSecretBuffer);
+        console.log('✅ ECDH shared secret generated:', {
+          length: sharedSecret.length,
+          start: sharedSecret.substring(0, 20) + '...'
+        });
+        
+        return sharedSecret;
       } else {
         // Fallback to CryptoJS (less secure but functional)
+        console.warn('⚠️ Web Crypto API not available, using CryptoJS fallback');
         const combined = privateKey + publicKey;
-        return CryptoJS.SHA256(combined).toString();
+        const fallbackSecret = CryptoJS.SHA256(combined).toString();
+        console.log('⚠️ Generated fallback shared secret:', {
+          length: fallbackSecret.length,
+          start: fallbackSecret.substring(0, 20) + '...'
+        });
+        return fallbackSecret;
       }
     } catch (error) {
-      console.error('Shared secret generation failed:', error);
+      console.error('❌ Shared secret generation failed:', error);
       throw new Error('Failed to generate shared secret');
     }
   }
