@@ -207,12 +207,57 @@ export class KeyManagementService {
         return newKeys;
       };
       
+      (window as any).testEncryption = async (userId: string, testMessage?: string) => {
+        const service = KeyManagementService.getInstance();
+        const message = testMessage || `Test message ${Date.now()}`;
+        
+        console.log('🧪 Testing full encryption/decryption flow...');
+        console.log(`📝 Test message: "${message}"`);
+        
+        try {
+          // Step 1: Generate shared secret
+          const sharedSecret = await service.generateSharedSecret(userId);
+          if (!sharedSecret) {
+            console.error('❌ Failed to generate shared secret');
+            return false;
+          }
+          console.log('✅ Shared secret generated:', sharedSecret.substring(0, 20) + '...');
+          
+          // Step 2: Encrypt message
+          const { E2EEncryption } = await import('../utils/encryption');
+          const encrypted = await E2EEncryption.encryptMessage(message, sharedSecret);
+          console.log('✅ Message encrypted:', {
+            encryptedText: encrypted.encryptedText.substring(0, 50) + '...',
+            iv: encrypted.iv.substring(0, 20) + '...',
+            salt: encrypted.salt.substring(0, 20) + '...',
+            hmac: encrypted.hmac.substring(0, 20) + '...'
+          });
+          
+          // Step 3: Decrypt message
+          const decrypted = await E2EEncryption.decryptMessage(encrypted, sharedSecret);
+          console.log('✅ Message decrypted:', decrypted);
+          
+          // Step 4: Verify
+          const success = decrypted.verified && decrypted.message === message;
+          console.log(success ? '🎉 ENCRYPTION/DECRYPTION TEST PASSED!' : '❌ TEST FAILED');
+          console.log(`Original: "${message}"`);
+          console.log(`Decrypted: "${decrypted.message}"`);
+          console.log(`Verified: ${decrypted.verified}`);
+          
+          return success;
+        } catch (error) {
+          console.error('❌ Encryption test failed:', error);
+          return false;
+        }
+      };
+      
       console.log('🔧 Global utilities available:');
       console.log('  KeyManagementService - The service class');
       console.log('  keyManagement - Service instance');
       console.log('  updateContactKey(userId, publicKey) - Update contact key');
       console.log('  getContactKey(userId) - Get contact key');
       console.log('  testECDH(userId) - Test ECDH with contact');
+      console.log('  testEncryption(userId, message?) - Test full encryption/decryption');
       console.log('  regenerateUserKeys() - Regenerate user keys');
     }
   }
