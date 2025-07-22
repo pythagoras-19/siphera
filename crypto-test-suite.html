@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siphera Crypto Test Suite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .test-section h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        .warning { color: #f39c12; }
+        .info { color: #3498db; }
+        .test-result {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .test-pass { background: #d5f4e6; color: #27ae60; border: 1px solid #27ae60; }
+        .test-fail { background: #fadbd8; color: #e74c3c; border: 1px solid #e74c3c; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Siphera Crypto Test Suite</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="passedTests">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="failedTests">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Test Controls</h3>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+            <button onclick="runKeyTests()">🔑 Key Generation Tests</button>
+            <button onclick="runECDHTests()">🔐 ECDH Tests</button>
+            <button onclick="runEncryptionTests()">🔒 Encryption/Decryption Tests</button>
+            <button onclick="runIntegrationTests()">🔄 Integration Tests</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Results</h3>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Console Log</h3>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        let currentTestIndex = 0;
+        let totalTests = 0;
+
+        // Test result tracking
+        function addTestResult(testName, passed, details = '') {
+            const result = {
+                name: testName,
+                passed: passed,
+                details: details,
+                timestamp: new Date().toISOString()
+            };
+            testResults.push(result);
+            updateStats();
+            updateProgress();
+            displayTestResult(result);
+        }
+
+        function updateStats() {
+            const total = testResults.length;
+            const passed = testResults.filter(r => r.passed).length;
+            const failed = total - passed;
+            const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function updateProgress() {
+            const progress = totalTests > 0 ? (testResults.length / totalTests) * 100 : 0;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function displayTestResult(result) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+            resultDiv.innerHTML = `
+                <strong>${result.passed ? '✅' : '❌'} ${result.name}</strong>
+                ${result.details ? `<br><small>${result.details}</small>` : ''}
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        // Logging
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            logDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('testResults').innerHTML = '';
+            testResults = [];
+            updateStats();
+            updateProgress();
+        }
+
+        // Wait for app to load
+        async function waitForApp() {
+            let attempts = 0;
+            while (attempts < 50) {
+                if (window.crypto && window.crypto.subtle) {
+                    log('✅ Web Crypto API available', 'success');
+                    return true;
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            log('❌ Web Crypto API not available', 'error');
+            return false;
+        }
+
+        // Standalone E2EEncryption class for testing
+        class StandaloneE2EEncryption {
+            static ITERATION_COUNT = 100000;
+
+            static async generateKeyPair(): Promise<{ publicKey: string; privateKey: string }> {
+                const keyPair = await window.crypto.subtle.generateKey(
+                    {
+                        name: 'ECDH',
+                        namedCurve: 'P-256'
+                    },
+                    true,
+                    ['deriveBits']
+                );
+
+                const publicKeyBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+                const privateKeyBuffer = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+
+                return {
+                    publicKey: this.arrayBufferToBase64(publicKeyBuffer),
+                    privateKey: this.arrayBufferToBase64(privateKeyBuffer)
+                };
+            }
+
+            static async generateSharedSecret(privateKey: string, publicKey: string): Promise<string> {
+                const privateKeyBuffer = this.base64ToArrayBuffer(privateKey);
+                const publicKeyBuffer = this.base64ToArrayBuffer(publicKey);
+
+                const privateKeyObj = await window.crypto.subtle.importKey(
+                    'pkcs8',
+                    privateKeyBuffer,
+                    { name: 'ECDH', namedCurve: 'P-256' },
+                    false,
+                    ['deriveBits']
+                );
+
+                const publicKeyObj = await window.crypto.subtle.importKey(
+                    'spki',
+                    publicKeyBuffer,
+                    { name: 'ECDH', namedCurve: 'P-256' },
+                    false,
+                    []
+                );
+
+                const sharedSecretBuffer = await window.crypto.subtle.deriveBits(
+                    { name: 'ECDH', public: publicKeyObj },
+                    privateKeyObj,
+                    256
+                );
+
+                return this.arrayBufferToBase64(sharedSecretBuffer);
+            }
+
+            static async encryptMessage(message: string, sharedSecret: string): Promise<any> {
+                const salt = this.generateSecureRandom(16);
+                const keys = await this.deriveKeys(sharedSecret, salt);
+                const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+                const messageBuffer = new TextEncoder().encode(message);
+                const encryptionKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    this.base64ToArrayBuffer(keys.encryptionKey),
+                    'AES-GCM',
+                    false,
+                    ['encrypt']
+                );
+
+                const encryptedBuffer = await window.crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    encryptionKey,
+                    messageBuffer
+                );
+
+                const encryptedText = this.arrayBufferToBase64(encryptedBuffer);
+                const hmac = await this.generateHMAC(encryptedText + this.arrayBufferToBase64(iv.buffer), keys.authKey);
+
+                return {
+                    encryptedText,
+                    iv: this.arrayBufferToBase64(iv.buffer),
+                    salt,
+                    timestamp: Date.now(),
+                    hmac
+                };
+            }
+
+            static async decryptMessage(encryptedMessage: any, sharedSecret: string): Promise<any> {
+                const keys = await this.deriveKeys(sharedSecret, encryptedMessage.salt);
+                
+                const expectedHmac = await this.generateHMAC(
+                    encryptedMessage.encryptedText + encryptedMessage.iv, 
+                    keys.authKey
+                );
+
+                if (encryptedMessage.hmac !== expectedHmac) {
+                    throw new Error('Message authentication failed - HMAC mismatch');
+                }
+
+                const decryptionKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    this.base64ToArrayBuffer(keys.encryptionKey),
+                    'AES-GCM',
+                    false,
+                    ['decrypt']
+                );
+
+                const decryptedBuffer = await window.crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: this.base64ToArrayBuffer(encryptedMessage.iv) },
+                    decryptionKey,
+                    this.base64ToArrayBuffer(encryptedMessage.encryptedText)
+                );
+
+                const decryptedText = new TextDecoder().decode(decryptedBuffer);
+
+                return {
+                    message: decryptedText,
+                    verified: true,
+                    senderVerified: true
+                };
+            }
+
+            static async deriveKeys(sharedSecret: string, salt: string): Promise<{ encryptionKey: string; authKey: string }> {
+                let sharedSecretBuffer: Uint8Array;
+                try {
+                    const buffer = this.base64ToArrayBuffer(sharedSecret);
+                    sharedSecretBuffer = new Uint8Array(buffer);
+                } catch (error) {
+                    sharedSecretBuffer = new TextEncoder().encode(sharedSecret);
+                }
+                
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    'raw',
+                    this.toArrayBuffer(sharedSecretBuffer.buffer),
+                    'PBKDF2',
+                    false,
+                    ['deriveBits']
+                );
+
+                let saltBuffer: ArrayBuffer;
+                try {
+                    saltBuffer = this.base64ToArrayBuffer(salt);
+                } catch (error) {
+                    saltBuffer = this.toArrayBuffer(new TextEncoder().encode(salt).buffer);
+                }
+                
+                const encryptionKeyBits = await window.crypto.subtle.deriveBits(
+                    {
+                        name: 'PBKDF2',
+                        salt: saltBuffer,
+                        iterations: this.ITERATION_COUNT,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    256
+                );
+
+                const authSaltBuffer = new Uint8Array(saltBuffer.byteLength + 4);
+                authSaltBuffer.set(new Uint8Array(saltBuffer));
+                authSaltBuffer.set(new TextEncoder().encode('auth'), saltBuffer.byteLength);
+                
+                const authKeyBits = await window.crypto.subtle.deriveBits(
+                    {
+                        name: 'PBKDF2',
+                        salt: authSaltBuffer,
+                        iterations: this.ITERATION_COUNT,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    256
+                );
+
+                return {
+                    encryptionKey: this.arrayBufferToBase64(encryptionKeyBits),
+                    authKey: this.arrayBufferToBase64(authKeyBits)
+                };
+            }
+
+            static async generateHMAC(data: string, key: string): Promise<string> {
+                const keyBuffer = this.base64ToArrayBuffer(key);
+                const dataBuffer = new TextEncoder().encode(data);
+
+                const cryptoKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    keyBuffer,
+                    { name: 'HMAC', hash: 'SHA-256' },
+                    false,
+                    ['sign']
+                );
+
+                const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, dataBuffer);
+                return this.arrayBufferToBase64(signature);
+            }
+
+            static generateSecureRandom(length: number): string {
+                const array = window.crypto.getRandomValues(new Uint8Array(length));
+                return this.arrayBufferToBase64(array.buffer);
+            }
+
+            static base64ToArrayBuffer(base64: string): ArrayBuffer {
+                const binaryString = atob(base64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+            static arrayBufferToBase64(buffer: ArrayBuffer): string {
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            }
+
+            static toArrayBuffer(buffer: ArrayBuffer): ArrayBuffer {
+                return buffer;
+            }
+        }
+
+        // Standalone key management for testing
+        class StandaloneKeyManagement {
+            constructor() {
+                this.userKeyPair = null;
+                this.contactKeys = new Map();
+            }
+
+            async regenerateUserKeys() {
+                log('🔑 Generating new ECDH key pair...', 'info');
+                const newKeyPair = await StandaloneE2EEncryption.generateKeyPair();
+                this.userKeyPair = newKeyPair;
+                log('✅ User keys generated:', newKeyPair);
+                return newKeyPair;
+            }
+
+            getUserPublicKey() {
+                return this.userKeyPair?.publicKey || null;
+            }
+
+            getUserPrivateKey() {
+                return this.userKeyPair?.privateKey || null;
+            }
+
+            async updateContactKey(userId, publicKey) {
+                this.contactKeys.set(userId, { userId, publicKey });
+                log(`✅ Contact key updated for ${userId}`, 'success');
+            }
+
+            getContactPublicKey(userId) {
+                const contact = this.contactKeys.get(userId);
+                return contact?.publicKey || null;
+            }
+
+            async generateSharedSecret(contactUserId) {
+                const privateKey = this.getUserPrivateKey();
+                const publicKey = this.getContactPublicKey(contactUserId);
+
+                if (!privateKey || !publicKey) {
+                    log(`Missing keys for contact: ${contactUserId}`, 'warning');
+                    return null;
+                }
+
+                try {
+                    const sharedSecret = await StandaloneE2EEncryption.generateSharedSecret(privateKey, publicKey);
+                    log(`✅ Generated ECDH shared secret for ${contactUserId}`, 'success');
+                    return sharedSecret;
+                } catch (error) {
+                    log(`❌ Failed to generate ECDH shared secret: ${error.message}`, 'error');
+                    return null;
+                }
+            }
+        }
+
+        // Initialize standalone services
+        let standaloneKeyManagement = null;
+
+        // Key Generation Tests
+        async function runKeyTests() {
+            log('🔑 Starting Key Generation Tests...', 'info');
+            
+            try {
+                // Initialize standalone key management
+                if (!standaloneKeyManagement) {
+                    standaloneKeyManagement = new StandaloneKeyManagement();
+                }
+                
+                // Test 1: Generate new keys
+                log('Testing key regeneration...', 'info');
+                const newKeys = await standaloneKeyManagement.regenerateUserKeys();
+                
+                if (newKeys && newKeys.publicKey && newKeys.privateKey) {
+                    const publicKeyLength = newKeys.publicKey.length;
+                    const privateKeyLength = newKeys.privateKey.length;
+                    
+                    if (publicKeyLength >= 120 && privateKeyLength >= 180) {
+                        addTestResult('Key Generation - Valid Format', true, 
+                            `Public: ${publicKeyLength} chars, Private: ${privateKeyLength} chars`);
+                    } else {
+                        addTestResult('Key Generation - Valid Format', false, 
+                            `Expected ~124/184 chars, got ${publicKeyLength}/${privateKeyLength}`);
+                    }
+                } else {
+                    addTestResult('Key Generation - Valid Format', false, 'Keys not generated');
+                }
+
+                // Test 2: Key validation
+                log('Testing key validation...', 'info');
+                const publicKey = standaloneKeyManagement.getUserPublicKey();
+                const privateKey = standaloneKeyManagement.getUserPrivateKey();
+                
+                if (publicKey && privateKey) {
+                    addTestResult('Key Storage - Keys Accessible', true, 
+                        'Keys can be retrieved from storage');
+                } else {
+                    addTestResult('Key Storage - Keys Accessible', false, 'Keys not accessible');
+                }
+
+                // Test 3: Key format validation
+                log('Testing key format validation...', 'info');
+                const isValidPublic = publicKey && publicKey.startsWith('MFkwEwYHKOZIzj0CAQYIKOZIzj0DAQcDQgAE');
+                const isValidPrivate = privateKey && privateKey.startsWith('MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg');
+                
+                if (isValidPublic && isValidPrivate) {
+                    addTestResult('Key Format - PKCS#8/SPKI', true, 'Keys in correct PKCS#8/SPKI format');
+                } else {
+                    addTestResult('Key Format - PKCS#8/SPKI', false, 
+                        `Public valid: ${isValidPublic}, Private valid: ${isValidPrivate}`);
+                }
+
+            } catch (error) {
+                log(`❌ Key tests failed: ${error.message}`, 'error');
+                addTestResult('Key Generation Tests', false, error.message);
+            }
+        }
+
+        // ECDH Tests
+        async function runECDHTests() {
+            log('🔐 Starting ECDH Tests...', 'info');
+            
+            try {
+                // Create test contact key
+                const testContactId = 'test-contact-' + Date.now();
+                const testPublicKey = 'MFkwEwYHKOZIzj0CAQYIKOZIzj0DAQcDQgAE' + 
+                    'test'.repeat(20) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                
+                log('Creating test contact...', 'info');
+                await window.updateContactKey(testContactId, testPublicKey);
+                
+                // Test ECDH
+                log('Testing ECDH shared secret generation...', 'info');
+                const sharedSecret = await window.testECDH(testContactId);
+                
+                if (sharedSecret && sharedSecret.length > 0) {
+                    addTestResult('ECDH - Shared Secret Generation', true, 
+                        `Generated ${sharedSecret.length} character secret`);
+                } else {
+                    addTestResult('ECDH - Shared Secret Generation', false, 'Failed to generate shared secret');
+                }
+
+                // Test with real contact if available
+                const realContactId = 'mattchristiansenresearch@gmail.com';
+                const realContactKey = window.getContactKey(realContactId);
+                
+                if (realContactKey) {
+                    log('Testing ECDH with real contact...', 'info');
+                    const realSharedSecret = await window.testECDH(realContactId);
+                    
+                    if (realSharedSecret && realSharedSecret.length > 0) {
+                        addTestResult('ECDH - Real Contact', true, 
+                            `Generated ${realSharedSecret.length} character secret with real contact`);
+                    } else {
+                        addTestResult('ECDH - Real Contact', false, 'Failed with real contact');
+                    }
+                } else {
+                    addTestResult('ECDH - Real Contact', false, 'No real contact key available');
+                }
+
+            } catch (error) {
+                log(`❌ ECDH tests failed: ${error.message}`, 'error');
+                addTestResult('ECDH Tests', false, error.message);
+            }
+        }
+
+        // Encryption/Decryption Tests
+        async function runEncryptionTests() {
+            log('🔒 Starting Encryption/Decryption Tests...', 'info');
+            
+            try {
+                // Create test contact for encryption tests
+                const testContactId = 'encryption-test-' + Date.now();
+                const testPublicKey = 'MFkwEwYHKOZIzj0CAQYIKOZIzj0DAQcDQgAE' + 
+                    'test'.repeat(20) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                
+                await window.updateContactKey(testContactId, testPublicKey);
+                
+                // Test 1: Basic encryption/decryption
+                log('Testing basic encryption/decryption...', 'info');
+                const testMessage = 'Hello, encrypted world! ' + Date.now();
+                const success = await window.testEncryption(testContactId, testMessage);
+                
+                if (success) {
+                    addTestResult('Encryption - Basic Flow', true, 'Message encrypted and decrypted successfully');
+                } else {
+                    addTestResult('Encryption - Basic Flow', false, 'Encryption/decryption failed');
+                }
+
+                // Test 2: Empty message
+                log('Testing empty message...', 'info');
+                const emptySuccess = await window.testEncryption(testContactId, '');
+                
+                if (emptySuccess) {
+                    addTestResult('Encryption - Empty Message', true, 'Empty message handled correctly');
+                } else {
+                    addTestResult('Encryption - Empty Message', false, 'Empty message failed');
+                }
+
+                // Test 3: Long message
+                log('Testing long message...', 'info');
+                const longMessage = 'A'.repeat(1000) + ' - Long message test ' + Date.now();
+                const longSuccess = await window.testEncryption(testContactId, longMessage);
+                
+                if (longSuccess) {
+                    addTestResult('Encryption - Long Message', true, 'Long message encrypted/decrypted successfully');
+                } else {
+                    addTestResult('Encryption - Long Message', false, 'Long message failed');
+                }
+
+                // Test 4: Special characters
+                log('Testing special characters...', 'info');
+                const specialMessage = '🚀 Emoji test: 🌟✨🎉\nNew line\nTab\there\nUnicode: 你好世界';
+                const specialSuccess = await window.testEncryption(testContactId, specialMessage);
+                
+                if (specialSuccess) {
+                    addTestResult('Encryption - Special Characters', true, 'Special characters handled correctly');
+                } else {
+                    addTestResult('Encryption - Special Characters', false, 'Special characters failed');
+                }
+
+                // Test 5: Multiple messages
+                log('Testing multiple messages...', 'info');
+                const messages = [
+                    'First message',
+                    'Second message',
+                    'Third message'
+                ];
+                
+                let allPassed = true;
+                for (const msg of messages) {
+                    const msgSuccess = await window.testEncryption(testContactId, msg);
+                    if (!msgSuccess) {
+                        allPassed = false;
+                        break;
+                    }
+                }
+                
+                if (allPassed) {
+                    addTestResult('Encryption - Multiple Messages', true, 'All messages encrypted/decrypted successfully');
+                } else {
+                    addTestResult('Encryption - Multiple Messages', false, 'Some messages failed');
+                }
+
+            } catch (error) {
+                log(`❌ Encryption tests failed: ${error.message}`, 'error');
+                addTestResult('Encryption Tests', false, error.message);
+            }
+        }
+
+        // Integration Tests
+        async function runIntegrationTests() {
+            log('🔄 Starting Integration Tests...', 'info');
+            
+            try {
+                // Test 1: Full message flow simulation
+                log('Testing full message flow simulation...', 'info');
+                const testContactId = 'integration-test-' + Date.now();
+                const testPublicKey = 'MFkwEwYHKOZIzj0CAQYIKOZIzj0DAQcDQgAE' + 
+                    'test'.repeat(20) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                
+                await window.updateContactKey(testContactId, testPublicKey);
+                
+                // Simulate sending a message
+                const message = 'Integration test message ' + Date.now();
+                const sharedSecret = await window.keyManagement.generateSharedSecret(testContactId);
+                
+                if (sharedSecret) {
+                    const { E2EEncryption } = await import('./src/utils/encryption');
+                    const encrypted = await E2EEncryption.encryptMessage(message, sharedSecret);
+                    
+                    // Simulate receiving the message
+                    const decrypted = await E2EEncryption.decryptMessage(encrypted, sharedSecret);
+                    
+                    if (decrypted.verified && decrypted.message === message) {
+                        addTestResult('Integration - Full Message Flow', true, 'Complete send/receive flow works');
+                    } else {
+                        addTestResult('Integration - Full Message Flow', false, 'Message flow failed');
+                    }
+                } else {
+                    addTestResult('Integration - Full Message Flow', false, 'Shared secret generation failed');
+                }
+
+                // Test 2: Key persistence
+                log('Testing key persistence...', 'info');
+                const originalPublicKey = window.keyManagement.getUserPublicKey();
+                const originalPrivateKey = window.keyManagement.getUserPrivateKey();
+                
+                // Simulate page reload by clearing and reinitializing
+                window.keyManagement = null;
+                
+                // Wait a moment and check if keys are still accessible
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                if (window.keyManagement) {
+                    const newPublicKey = window.keyManagement.getUserPublicKey();
+                    const newPrivateKey = window.keyManagement.getUserPrivateKey();
+                    
+                    if (newPublicKey === originalPublicKey && newPrivateKey === originalPrivateKey) {
+                        addTestResult('Integration - Key Persistence', true, 'Keys persisted correctly');
+                    } else {
+                        addTestResult('Integration - Key Persistence', false, 'Keys not persisted');
+                    }
+                } else {
+                    addTestResult('Integration - Key Persistence', false, 'Service not reinitialized');
+                }
+
+            } catch (error) {
+                log(`❌ Integration tests failed: ${error.message}`, 'error');
+                addTestResult('Integration Tests', false, error.message);
+            }
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            log('🚀 Starting Comprehensive Crypto Test Suite...', 'info');
+            clearLog();
+            
+            // Wait for app to load
+            const appLoaded = await waitForApp();
+            if (!appLoaded) {
+                log('❌ Cannot run tests - app not loaded', 'error');
+                return;
+            }
+            
+            // Calculate total tests
+            totalTests = 15; // Approximate number of tests
+            currentTestIndex = 0;
+            
+            try {
+                await runKeyTests();
+                await runECDHTests();
+                await runEncryptionTests();
+                await runIntegrationTests();
+                
+                log('🎉 All tests completed!', 'success');
+                
+                const passed = testResults.filter(r => r.passed).length;
+                const total = testResults.length;
+                const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+                
+                if (successRate === 100) {
+                    log('🏆 PERFECT SCORE! All tests passed!', 'success');
+                } else if (successRate >= 80) {
+                    log('✅ Excellent! Most tests passed!', 'success');
+                } else if (successRate >= 60) {
+                    log('⚠️ Good progress, but some issues remain', 'warning');
+                } else {
+                    log('❌ Significant issues detected', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test suite failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run when page loads
+        window.onload = function() {
+            log('🔐 Siphera Crypto Test Suite Loaded', 'info');
+            log('Click "Run All Tests" to start comprehensive testing', 'info');
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,353 @@
+{
+    "Items": [
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "online"
+            },
+            "createdAt": {
+                "N": "1752498415338"
+            },
+            "email": {
+                "S": "siphera.us@gmail.com"
+            },
+            "familyName": {
+                "S": "m"
+            },
+            "displayName": {
+                "S": "mordo m"
+            },
+            "lastSeen": {
+                "N": "1753202448767"
+            },
+            "updatedAt": {
+                "N": "1753202448767"
+            },
+            "userId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "username": {
+                "S": "siphera.us@gmail.com"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "mordo"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "offline"
+            },
+            "createdAt": {
+                "N": "1752495961810"
+            },
+            "email": {
+                "S": "test@example.com"
+            },
+            "familyName": {
+                "S": "User"
+            },
+            "displayName": {
+                "S": "Test User"
+            },
+            "lastSeen": {
+                "N": "1752495961810"
+            },
+            "userId": {
+                "S": "testuser"
+            },
+            "updatedAt": {
+                "N": "1752495961810"
+            },
+            "username": {
+                "S": "testuser"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "Test"
+            }
+        },
+        {
+            "discoverable": {
+                "BOOL": true
+            },
+            "lastSeen": {
+                "N": "1752841843865"
+            },
+            "updatedAt": {
+                "N": "1752841843865"
+            },
+            "userId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "status": {
+                "S": "offline"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "offline"
+            },
+            "createdAt": {
+                "N": "1752496896357"
+            },
+            "email": {
+                "S": "test@example.com"
+            },
+            "familyName": {
+                "S": "User"
+            },
+            "displayName": {
+                "S": "Test User"
+            },
+            "lastSeen": {
+                "N": "1752496896357"
+            },
+            "userId": {
+                "S": "testuser3"
+            },
+            "updatedAt": {
+                "N": "1752496896357"
+            },
+            "username": {
+                "S": "testuser3"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "Test"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "offline"
+            },
+            "createdAt": {
+                "N": "1752498197498"
+            },
+            "email": {
+                "S": "test@example.com"
+            },
+            "familyName": {
+                "S": "User"
+            },
+            "displayName": {
+                "S": "Test User"
+            },
+            "lastSeen": {
+                "N": "1752498197498"
+            },
+            "userId": {
+                "S": "testuser6"
+            },
+            "updatedAt": {
+                "N": "1752498197498"
+            },
+            "username": {
+                "S": "testuser6"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "Test"
+            }
+        },
+        {
+            "lastSeen": {
+                "N": "1753192712013"
+            },
+            "updatedAt": {
+                "N": "1753192712013"
+            },
+            "userId": {
+                "S": "test-user"
+            },
+            "status": {
+                "S": "offline"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "offline"
+            },
+            "createdAt": {
+                "N": "1752496002169"
+            },
+            "email": {
+                "S": "test@example.com"
+            },
+            "familyName": {
+                "S": "User"
+            },
+            "displayName": {
+                "S": "Test User"
+            },
+            "lastSeen": {
+                "N": "1752496002169"
+            },
+            "userId": {
+                "S": "testuser2"
+            },
+            "updatedAt": {
+                "N": "1752496002169"
+            },
+            "username": {
+                "S": "testuser2"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "Test"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "online"
+            },
+            "createdAt": {
+                "N": "1752499137266"
+            },
+            "email": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "familyName": {
+                "S": "wonka"
+            },
+            "displayName": {
+                "S": "willy wonka"
+            },
+            "lastSeen": {
+                "N": "1753202281193"
+            },
+            "updatedAt": {
+                "N": "1753202281193"
+            },
+            "userId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "username": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "willy"
+            }
+        },
+        {
+            "lastSeen": {
+                "N": "1752256335975"
+            },
+            "updatedAt": {
+                "N": "1752256335975"
+            },
+            "userId": {
+                "S": "611b4570-a0f1-70b0-c922-7aa61f5fee35"
+            },
+            "status": {
+                "S": "online"
+            }
+        },
+        {
+            "lastSeen": {
+                "N": "1752758918145"
+            },
+            "updatedAt": {
+                "N": "1752758918145"
+            },
+            "userId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "status": {
+                "S": "offline"
+            }
+        },
+        {
+            "phoneNumber": {
+                "S": "+1234567890"
+            },
+            "contacts": {
+                "L": []
+            },
+            "status": {
+                "S": "offline"
+            },
+            "createdAt": {
+                "N": "1752496978052"
+            },
+            "email": {
+                "S": "test@example.com"
+            },
+            "familyName": {
+                "S": "User"
+            },
+            "displayName": {
+                "S": "Test User"
+            },
+            "lastSeen": {
+                "N": "1752496978052"
+            },
+            "userId": {
+                "S": "testuser4"
+            },
+            "updatedAt": {
+                "N": "1752496978052"
+            },
+            "username": {
+                "S": "testuser4"
+            },
+            "discoverable": {
+                "BOOL": true
+            },
+            "givenName": {
+                "S": "Test"
+            }
+        }
+    ],
+    "Count": 11,
+    "ScannedCount": 11,
+    "ConsumedCapacity": null
+}

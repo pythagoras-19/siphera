@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Messages</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .success {
+            color: #44ff44;
+        }
+        .warning {
+            color: #ffaa44;
+        }
+        button {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #666;
+        }
+        .danger {
+            background: #ff4444;
+        }
+        .danger:hover {
+            background: #cc3333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Clear Messages Tool</h1>
+        
+        <div class="section">
+            <h2>⚠️ WARNING: This will clear ALL chat messages!</h2>
+            <p>This tool will:</p>
+            <ul>
+                <li>Clear all stored messages from localStorage</li>
+                <li>Clear chat sessions and message history</li>
+                <li>Keep your new cryptographic keys</li>
+                <li>Allow you to start fresh with proper encryption</li>
+            </ul>
+            <button onclick="checkStorage()">Check Current Storage</button>
+            <button onclick="clearMessages()" class="danger">Clear ALL Messages</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="section">
+            <h2>Results</h2>
+            <div id="results" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff4444' : type === 'success' ? '#44ff44' : type === 'warning' ? '#ffaa44' : '#00ff00';
+            resultsDiv.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function checkStorage() {
+            log('🔍 Checking current storage...', 'info');
+            
+            const allKeys = Object.keys(localStorage);
+            const sipheraKeys = allKeys.filter(key => key.includes('siphera'));
+            
+            log(`Total localStorage keys: ${allKeys.length}`, 'info');
+            log(`Siphera-related keys: ${sipheraKeys.length}`, 'info');
+            
+            sipheraKeys.forEach(key => {
+                log(`Found key: ${key}`, 'info');
+                try {
+                    const value = localStorage.getItem(key);
+                    const parsed = JSON.parse(value);
+                    
+                    if (key.includes('messages') || key.includes('history') || key.includes('session')) {
+                        if (Array.isArray(parsed)) {
+                            log(`  - Array with ${parsed.length} items`, 'info');
+                        } else if (typeof parsed === 'object') {
+                            const keys = Object.keys(parsed);
+                            log(`  - Object with keys: ${keys.join(', ')}`, 'info');
+                        }
+                    } else if (key.includes('keys')) {
+                        if (parsed.userKeyPair) {
+                            log(`  - User keys found (public key length: ${parsed.userKeyPair.publicKey.length})`, 'info');
+                        }
+                        if (parsed.contactKeys) {
+                            log(`  - Contact keys: ${parsed.contactKeys.length}`, 'info');
+                        }
+                    }
+                } catch (error) {
+                    log(`  - Error parsing: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        function clearMessages() {
+            log('🗑️ Clearing all messages and chat data...', 'warning');
+            
+            const allKeys = Object.keys(localStorage);
+            const sipheraKeys = allKeys.filter(key => key.includes('siphera'));
+            
+            let clearedCount = 0;
+            let keptCount = 0;
+            
+            sipheraKeys.forEach(key => {
+                // Keep the keys, clear everything else
+                if (key.includes('keys')) {
+                    log(`Keeping: ${key} (cryptographic keys)`, 'info');
+                    keptCount++;
+                } else {
+                    localStorage.removeItem(key);
+                    log(`Cleared: ${key}`, 'info');
+                    clearedCount++;
+                }
+            });
+            
+            log(`✅ Cleared ${clearedCount} items, kept ${keptCount} key items`, 'success');
+            log('🎉 Message clearing complete! Please restart your Siphera app.', 'success');
+            log('📝 New messages will use your regenerated keys for proper encryption.', 'success');
+        }
+
+        // Initialize
+        log('🔧 Clear Messages Tool Ready', 'info');
+        log('Click "Check Current Storage" to see what\'s stored', 'info');
+        log('Click "Clear ALL Messages" to start fresh with new keys', 'info');
+    </script>
+</body>
+</html> 

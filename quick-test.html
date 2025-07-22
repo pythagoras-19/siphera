@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: inherit;
+        }
+        button:hover {
+            background: #357abd;
+        }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+        .info { color: #74c0fc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Quick Test</h1>
+        
+        <div class="section">
+            <h2>Test New Message</h2>
+            <button onclick="testNewMessage()">📤 Test New Message</button>
+            <button onclick="checkAppKeys()">🔍 Check App Keys</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            logDiv.innerHTML += `[${timestamp}] <span class="${className}">${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function checkAppKeys() {
+            log('🔍 Checking if app can access the contact key...');
+            
+            try {
+                const keysData = localStorage.getItem('siphera_keys');
+                if (!keysData) {
+                    log('❌ No keys found', 'error');
+                    return;
+                }
+
+                const parsed = JSON.parse(keysData);
+                const contactKey = parsed.contactKeys?.find(c => c.userId === 'mattchristiansenresearch@gmail.com');
+                
+                if (contactKey) {
+                    log('✅ Contact key found in localStorage', 'success');
+                    log(`🔑 Contact key length: ${contactKey.publicKey.length}`);
+                    log(`🔑 Contact key preview: ${contactKey.publicKey.substring(0, 50)}...`);
+                    
+                    // Test if the app's key management would find this
+                    const userKeyPair = parsed.userKeyPair;
+                    if (userKeyPair) {
+                        log('✅ User key pair found', 'success');
+                        log(`🔑 User public key length: ${userKeyPair.publicKey.length}`);
+                        log(`🔑 User private key length: ${userKeyPair.privateKey.length}`);
+                    } else {
+                        log('❌ No user key pair found', 'error');
+                    }
+                } else {
+                    log('❌ Contact key not found', 'error');
+                    log('📋 Available contacts:', parsed.contactKeys?.map(c => c.userId).join(', ') || 'None');
+                }
+
+            } catch (error) {
+                log(`❌ Error checking keys: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNewMessage() {
+            log('📤 Testing new message encryption/decryption...');
+            
+            try {
+                const keysData = localStorage.getItem('siphera_keys');
+                if (!keysData) {
+                    log('❌ No keys found', 'error');
+                    return;
+                }
+
+                const parsed = JSON.parse(keysData);
+                const userPrivateKey = parsed.userKeyPair?.privateKey;
+                const contactKey = parsed.contactKeys?.find(c => c.userId === 'mattchristiansenresearch@gmail.com');
+                
+                if (!userPrivateKey || !contactKey) {
+                    log('❌ Missing keys for test', 'error');
+                    return;
+                }
+
+                // Test message
+                const testMessage = "Hello from quick test! " + Date.now();
+                log(`📝 Test message: ${testMessage}`);
+
+                // Generate shared secret
+                const privateKeyBuffer = Uint8Array.from(atob(userPrivateKey), c => c.charCodeAt(0));
+                const publicKeyBuffer = Uint8Array.from(atob(contactKey.publicKey), c => c.charCodeAt(0));
+                
+                const privateKeyObj = await window.crypto.subtle.importKey(
+                    'pkcs8',
+                    privateKeyBuffer,
+                    { name: 'ECDH', namedCurve: 'P-256' },
+                    false,
+                    ['deriveBits']
+                );
+                
+                const publicKeyObj = await window.crypto.subtle.importKey(
+                    'spki',
+                    publicKeyBuffer,
+                    { name: 'ECDH', namedCurve: 'P-256' },
+                    false,
+                    []
+                );
+                
+                const sharedSecretBuffer = await window.crypto.subtle.deriveBits(
+                    { name: 'ECDH', public: publicKeyObj },
+                    privateKeyObj,
+                    256
+                );
+                
+                const sharedSecret = btoa(String.fromCharCode(...new Uint8Array(sharedSecretBuffer)));
+                log('✅ ECDH shared secret generated', 'success');
+                log(`🔐 Shared secret: ${sharedSecret.substring(0, 20)}...`);
+
+                // Test encryption (simplified)
+                const salt = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(16))));
+                const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                
+                // Derive encryption key from shared secret + salt
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    'raw',
+                    new TextEncoder().encode(sharedSecret + salt),
+                    'PBKDF2',
+                    false,
+                    ['deriveBits']
+                );
+                
+                const encryptionKey = await window.crypto.subtle.deriveBits(
+                    { name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' },
+                    keyMaterial,
+                    256
+                );
+                
+                const aesKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    encryptionKey,
+                    'AES-GCM',
+                    false,
+                    ['encrypt', 'decrypt']
+                );
+                
+                // Encrypt
+                const encryptedBuffer = await window.crypto.subtle.encrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    aesKey,
+                    new TextEncoder().encode(testMessage)
+                );
+                
+                const encryptedText = btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer)));
+                log('✅ Message encrypted successfully', 'success');
+                log(`🔒 Encrypted text: ${encryptedText.substring(0, 50)}...`);
+
+                // Decrypt
+                const decryptedBuffer = await window.crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    aesKey,
+                    Uint8Array.from(atob(encryptedText), c => c.charCodeAt(0))
+                );
+                
+                const decryptedText = new TextDecoder().decode(decryptedBuffer);
+                log('✅ Message decrypted successfully', 'success');
+                log(`📝 Decrypted text: ${decryptedText}`);
+                
+                if (decryptedText === testMessage) {
+                    log('🎉 ENCRYPTION/DECRYPTION TEST PASSED!', 'success');
+                } else {
+                    log('❌ Decrypted text does not match original', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Error in test: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run on load
+        window.onload = function() {
+            log('⚡ Quick Test Tool Ready');
+            log('Click "Check App Keys" to verify contact key is accessible');
+            log('Click "Test New Message" to test encryption/decryption');
+        };
+    </script>
+</body>
+</html> 

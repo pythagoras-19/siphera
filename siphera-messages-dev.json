@@ -1,0 +1,3776 @@
+{
+    "Items": [
+        {
+            "content": {
+                "S": "MPG34ObuFhnEsjPpY14nHCMktLE1w9mL"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752698857820_z0q7tygr2"
+                    },
+                    "content": {
+                        "S": "7XZ4PZbfVgfbH2QteGQ+t1MXoX4sp0Ka9c2W3X+rn1hde7TC"
+                    },
+                    "timestamp": {
+                        "N": "1752698857841"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "9967ef2f-08eb-4c31-a597-c668c92eaf29"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752698857844"
+            },
+            "encryptedContent": {
+                "S": "MPG34ObuFhnEsjPpY14nHCMktLE1w9mL"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "8QWyx0zniOOyr5kmP3AN+w=="
+                    },
+                    "encryptedText": {
+                        "S": "MPG34ObuFhnEsjPpY14nHCMktLE1w9mL"
+                    },
+                    "iv": {
+                        "S": "53Hfur70PDkfrRaP"
+                    },
+                    "timestamp": {
+                        "N": "1752698857820"
+                    },
+                    "hmac": {
+                        "S": "CwEQ/SWUxexDIoTmD1SkDTsCxXOoi4FrZwJKU5mm3YE="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "83ef3d40-fe98-495d-90cd-8f2a30b5daf0"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752585073893"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "4I5lfXVN5jHnBJIlDZKSS7r9UXXKqZjABqA="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "869d95bc-0892-431e-9c08-27208a5d7827"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752681802566"
+            },
+            "encryptedContent": {
+                "S": "4I5lfXVN5jHnBJIlDZKSS7r9UXXKqZjABqA="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "K8lO6z68fe/qY6dZ1Dqjvg=="
+                    },
+                    "encryptedText": {
+                        "S": "4I5lfXVN5jHnBJIlDZKSS7r9UXXKqZjABqA="
+                    },
+                    "iv": {
+                        "S": "1yrYU7R7CHQfj1tE"
+                    },
+                    "timestamp": {
+                        "N": "1752681802563"
+                    },
+                    "hmac": {
+                        "S": "HkNXgxE1hmbnSvMWJljqQi3E5uodWGl1PrHN4r3xYQM="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "dc16a561-2313-40a0-911d-25cd9e21f175"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584945978"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "nLRlMFDUiF1rjJmATeuKeVnII5ICmjh3JWE="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753194253407_not9zzf6i"
+                    },
+                    "content": {
+                        "S": "XpuA+Tbmz6vi56eQTea4Q4BNjZGfPwqCbRItqlKgbG/s8CI6Zr8="
+                    },
+                    "timestamp": {
+                        "N": "1753194586381"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "ab9f60c2-507b-4cc0-bac7-a4194f38b472"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753194586385"
+            },
+            "encryptedContent": {
+                "S": "nLRlMFDUiF1rjJmATeuKeVnII5ICmjh3JWE="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "kHrUmh5OMVHEkFObtNaSqQ=="
+                    },
+                    "encryptedText": {
+                        "S": "nLRlMFDUiF1rjJmATeuKeVnII5ICmjh3JWE="
+                    },
+                    "iv": {
+                        "S": "oo03M3kDn3em1MWB"
+                    },
+                    "timestamp": {
+                        "N": "1753194586381"
+                    },
+                    "hmac": {
+                        "S": "19Ywh8uqMjdNl/IgUdSVB6GvyMHw99cZ2MTF/eplooU="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "OiWILiglTGu3afQsHbIEe6px"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753191430158_8xkdnoo51"
+                    },
+                    "content": {
+                        "S": "JG5oF3Yr+DHylEzwqsKbw//O04+5PVOE5khHkZh3"
+                    },
+                    "timestamp": {
+                        "N": "1753191430170"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "98871f35-ec63-4242-8f88-82e1040ca706"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753191430174"
+            },
+            "encryptedContent": {
+                "S": "OiWILiglTGu3afQsHbIEe6px"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "EcEggCVQn01uzgCi3lJTKA=="
+                    },
+                    "encryptedText": {
+                        "S": "OiWILiglTGu3afQsHbIEe6px"
+                    },
+                    "iv": {
+                        "S": "bhoEPdaD7qHVyhhu"
+                    },
+                    "timestamp": {
+                        "N": "1753191430158"
+                    },
+                    "hmac": {
+                        "S": "xR/Ybru66nwCFs91vtrnhuzUR5Vj1kbKCJnDXPgWHr8="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "4zt1M/Gh7j3P42V4QZFZjCdJ71okEkLhD815gGuP"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753192830474_9pfucid7i"
+                    },
+                    "content": {
+                        "S": "y502OjfXPWnEr+cTfBDO0v8Z8zuOYaJLVn00y3Dp1vqW83vkjm0/Og4a"
+                    },
+                    "timestamp": {
+                        "N": "1753192830487"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "e853acbe-b3ee-4ec0-8a93-5f05997212ba"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753192830489"
+            },
+            "encryptedContent": {
+                "S": "4zt1M/Gh7j3P42V4QZFZjCdJ71okEkLhD815gGuP"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "QAazgj93+2bzycJsCBPRNQ=="
+                    },
+                    "encryptedText": {
+                        "S": "4zt1M/Gh7j3P42V4QZFZjCdJ71okEkLhD815gGuP"
+                    },
+                    "iv": {
+                        "S": "k6MXXR0pRJhB/Esy"
+                    },
+                    "timestamp": {
+                        "N": "1753192830474"
+                    },
+                    "hmac": {
+                        "S": "7lq3kBRTyxxLFQSWGnYaol8R7GRKI7KQIP2PfpgBTaQ="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "ChCNk9eSqhHRVIp0mxXErbbltmNX76gZGVY="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "78SxxRfCHvMGpoqL2jwrIg=="
+                    }
+                }
+            },
+            "messageId": {
+                "S": "b83a6aa1-e7cf-4fa2-a548-449bd89b7c24"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752675034457"
+            },
+            "encryptedContent": {
+                "S": "ChCNk9eSqhHRVIp0mxXErbbltmNX76gZGVY="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Uh"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "114aff70-1393-4eb4-aa15-bc6f433cd718"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753190193860"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Uh"
+            },
+            "recipientId": {
+                "S": "test-recipient"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test-salt-1753190193857"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Uh"
+                    },
+                    "iv": {
+                        "S": "test-iv-123456789012"
+                    },
+                    "hmac": {
+                        "S": "test-hmac-1753190193857"
+                    },
+                    "timestamp": {
+                        "N": "1753190193857"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "hyNp0qStVyLn4I/o6U2roAhN+xRz3/whf31RQw=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753196050607_nxqdxvasi"
+                    },
+                    "content": {
+                        "S": "3hzTxjJwmHE0k4X+7JVGlCDTALxB/iZxxmlDHyWIiBGDNM3ELPjUtg=="
+                    },
+                    "timestamp": {
+                        "N": "1753196932960"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "d5b595b9-3526-4134-bde0-f5e23bf474e2"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753196933006"
+            },
+            "encryptedContent": {
+                "S": "hyNp0qStVyLn4I/o6U2roAhN+xRz3/whf31RQw=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "TRVE4NaCjDIuQ3cy9AU4IQ=="
+                    },
+                    "encryptedText": {
+                        "S": "hyNp0qStVyLn4I/o6U2roAhN+xRz3/whf31RQw=="
+                    },
+                    "iv": {
+                        "S": "XmuIE5LbBAGw1czK"
+                    },
+                    "timestamp": {
+                        "N": "1753196932960"
+                    },
+                    "hmac": {
+                        "S": "XCcy5f6NkX3rZ2vaTCilnpzrYIjT7L+mPxmjfHxN62Y="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "caa9ad3b-9cd5-47fd-82f2-0dc55e15adb0"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584289371"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "edb5e67c-dadb-4170-a1fd-484cd1c5b54b"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752582334201"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "bx9rXNyQm+7dS9SaiWUkA9aEKtbaJcFm"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752693464565_x44pc88xp"
+                    },
+                    "content": {
+                        "S": "TXaeVMRAWX8n+CgKJy24koiVfn35kFDftK3oIrL/ooRZzUgG"
+                    },
+                    "timestamp": {
+                        "N": "1752693464581"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "d71a7dbc-edbc-42ae-80b4-451c82d65c1e"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752693464583"
+            },
+            "encryptedContent": {
+                "S": "bx9rXNyQm+7dS9SaiWUkA9aEKtbaJcFm"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "ObKjPTPK4kPL+/q6ayTQoQ=="
+                    },
+                    "encryptedText": {
+                        "S": "bx9rXNyQm+7dS9SaiWUkA9aEKtbaJcFm"
+                    },
+                    "iv": {
+                        "S": "DF4gd73s9snsgkZQ"
+                    },
+                    "timestamp": {
+                        "N": "1752693464564"
+                    },
+                    "hmac": {
+                        "S": "cEZs4CRzHLhZxSJxQE1CCI456iWFxzvZNWk1wGvC+Ik="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "8351d572-a592-4d04-8d74-c34db1e63f7f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584604592"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "wygGxI9s+HhVLpI3sR07yii9chALlg=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753195618604_8n32v5y77"
+                    },
+                    "content": {
+                        "S": "sp8XuqP3B7mmWHx++PhQla+sC+hqB9bcvR/t83T3q1OrcA=="
+                    },
+                    "timestamp": {
+                        "N": "1753195618626"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "b9a9290b-d252-402d-8ea2-7caadb834df1"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753195618635"
+            },
+            "encryptedContent": {
+                "S": "wygGxI9s+HhVLpI3sR07yii9chALlg=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "+TUiKk2gN0ZUOHr3CHji1A=="
+                    },
+                    "encryptedText": {
+                        "S": "wygGxI9s+HhVLpI3sR07yii9chALlg=="
+                    },
+                    "iv": {
+                        "S": "k0xHe5Q5seTcIouN"
+                    },
+                    "timestamp": {
+                        "N": "1753195618604"
+                    },
+                    "hmac": {
+                        "S": "C41/uUogfSitfJO12L3RtDqyY5+4nCA3reM82vjZDD4="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "aRIR1ejjsdokQ34HDecV3VQ="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752698857820_z0q7tygr2"
+                    },
+                    "content": {
+                        "S": "JiIlhNSV1VkZwItJvyBFDsWlzxDAjkh+zXpY8dU="
+                    },
+                    "timestamp": {
+                        "N": "1752699114658"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "83cdfa4f-3c25-4517-a70e-ddb780d9a4a1"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699114661"
+            },
+            "encryptedContent": {
+                "S": "aRIR1ejjsdokQ34HDecV3VQ="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "Yz2pwz0MrIGXllLlj3puwg=="
+                    },
+                    "encryptedText": {
+                        "S": "aRIR1ejjsdokQ34HDecV3VQ="
+                    },
+                    "iv": {
+                        "S": "DIsfZgIhs/fGSazA"
+                    },
+                    "timestamp": {
+                        "N": "1752699114658"
+                    },
+                    "hmac": {
+                        "S": "fiEUUQCm5uHjvDjH/uFxJVKAjbEQHM76FCtprtfJzkg="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "EYEzZTCV2dRNoLtooHdcyyVzYsbcf28bS4MBSVw="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753196050607_nxqdxvasi"
+                    },
+                    "content": {
+                        "S": "0Tj9YXoUt95prCiXg4xHn8YqSJNx5BpaxvbzGJjipb37O/UvGLSzbEs="
+                    },
+                    "timestamp": {
+                        "N": "1753196050619"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "d8c36f3e-3f3b-43d3-956a-2190b1d4e3ba"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753196050621"
+            },
+            "encryptedContent": {
+                "S": "EYEzZTCV2dRNoLtooHdcyyVzYsbcf28bS4MBSVw="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "R2a/Y9mSTSDzP1O5+xjxHQ=="
+                    },
+                    "encryptedText": {
+                        "S": "EYEzZTCV2dRNoLtooHdcyyVzYsbcf28bS4MBSVw="
+                    },
+                    "iv": {
+                        "S": "8AoiZneXiLkTfvZ6"
+                    },
+                    "timestamp": {
+                        "N": "1753196050607"
+                    },
+                    "hmac": {
+                        "S": "/PyC5oEE/Ylf0eRg+U7AgQypaDAeAncKU37ysoNSrwk="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "mpbHrWp50Sxjm/fMojfl4gRMDqU="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "HjEIF3aB3PHJZtTD0pwkwQ=="
+                    }
+                }
+            },
+            "messageId": {
+                "S": "1afe5d9d-c1d8-4022-b68b-629d6dfe1940"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752599621003"
+            },
+            "encryptedContent": {
+                "S": "mpbHrWp50Sxjm/fMojfl4gRMDqU="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello from willy wonka! This is a properly encoded test message."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "699718b1-168e-4468-b49c-b7b98f384db9"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752758690579"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHByb3Blcmx5IGVuY29kZWQgdGVzdCBtZXNzYWdlLg=="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752758690579"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHByb3Blcmx5IGVuY29kZWQgdGVzdCBtZXNzYWdlLg=="
+                    },
+                    "iv": {
+                        "S": "test_iv_1752758690579"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752758690579"
+                    },
+                    "timestamp": {
+                        "N": "1752758690579"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "4T9KI2nlUNUq2lwHttoVIGrJiPwF6w=="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "yIdVWV7UUBhVBcnq"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "ed6bee08-f6ab-49d5-9294-e758c53a60e1"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752677214715"
+            },
+            "encryptedContent": {
+                "S": "4T9KI2nlUNUq2lwHttoVIGrJiPwF6w=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "9367bed6-09d2-4663-9b24-73dc36284230"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752504169473"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "JU8HPdIcwYlxE4TgpSbX6RNqvA=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753192455171_i0v7eypk0"
+                    },
+                    "content": {
+                        "S": "yqnvnguZfQQuwJyx+iQammo9y4DtW/VNX8ch617HrA=="
+                    },
+                    "timestamp": {
+                        "N": "1753192690441"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "ffdf653d-f69b-48b4-a54f-6d79371a2ae2"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753192690443"
+            },
+            "encryptedContent": {
+                "S": "JU8HPdIcwYlxE4TgpSbX6RNqvA=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "+h/++We4mRmf1Zuji4Vanw=="
+                    },
+                    "encryptedText": {
+                        "S": "JU8HPdIcwYlxE4TgpSbX6RNqvA=="
+                    },
+                    "iv": {
+                        "S": "lwmor9PraaFpIOnv"
+                    },
+                    "timestamp": {
+                        "N": "1753192690441"
+                    },
+                    "hmac": {
+                        "S": "pss2w5guF7wevqpdGBSfFcWnX5wURS6KTFwpe/t5cDg="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "FdoW16AYhz42kAp0LbmUF8+66NRI"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752759537923_1fute8rh1"
+                    },
+                    "content": {
+                        "S": "xb7ry5N4Jtu1cosNMZS5pUBRBZMvbM2ETlD+GSCzPcHM"
+                    },
+                    "timestamp": {
+                        "N": "1752759537957"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "04c069bf-a8aa-4d6a-a9f6-b9a1bda92e0a"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752759537959"
+            },
+            "encryptedContent": {
+                "S": "FdoW16AYhz42kAp0LbmUF8+66NRI"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "hLGOJydhVsMjTKoyje7AZA=="
+                    },
+                    "encryptedText": {
+                        "S": "FdoW16AYhz42kAp0LbmUF8+66NRI"
+                    },
+                    "iv": {
+                        "S": "l3nGkRhPWLC8F0Gc"
+                    },
+                    "timestamp": {
+                        "N": "1752759537923"
+                    },
+                    "hmac": {
+                        "S": "hrSkqT40m3OkN171NAzMJ/FNAYpx4wVUil3cgtilJIg="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1-1752499326519-sb9tvbfu0"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752499326519"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "4J/ZynmmYWAtLr6xorVSmtXZjGAIWR3pg016+jvzvrsC1rwNthLrKqYepIaoPT23"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "1dc1de10-6d93-496f-add5-6c7eb41bba48"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753190613788"
+            },
+            "encryptedContent": {
+                "S": "4J/ZynmmYWAtLr6xorVSmtXZjGAIWR3pg016+jvzvrsC1rwNthLrKqYepIaoPT23"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "encryption_salt_1753190613764"
+                    },
+                    "encryptedText": {
+                        "S": "4J/ZynmmYWAtLr6xorVSmtXZjGAIWR3pg016+jvzvrsC1rwNthLrKqYepIaoPT23"
+                    },
+                    "iv": {
+                        "S": "9rFbIpAfMmQKkWJj"
+                    },
+                    "hmac": {
+                        "S": "4iAoAbEmmudP9rlGA2vI9egkRV/6Jof5Chy/xzYtgEo="
+                    },
+                    "timestamp": {
+                        "N": "1753190613786"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "UulFsl+SPK04W2MpHRc8XJ6YRg=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753199240034_scdkt5cxd"
+                    },
+                    "content": {
+                        "S": "O+tkOWI8phA3N7RKsFJoFihZPBcLM6EHpJ7IOERp4g=="
+                    },
+                    "timestamp": {
+                        "N": "1753199240048"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "0d9e1217-bdf2-48cf-a69a-f63f36855c60"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753199240054"
+            },
+            "encryptedContent": {
+                "S": "UulFsl+SPK04W2MpHRc8XJ6YRg=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "MdUj0JdipRjgPr8k46NIhg=="
+                    },
+                    "encryptedText": {
+                        "S": "UulFsl+SPK04W2MpHRc8XJ6YRg=="
+                    },
+                    "iv": {
+                        "S": "qn+uEd2xGitqY8lB"
+                    },
+                    "timestamp": {
+                        "N": "1753199240034"
+                    },
+                    "hmac": {
+                        "S": "Oe2nK600biGUdVqWgDisFoQBfBKeqHenTgKET0s2tQw="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello from willy wonka! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "6c5b2830-08c5-4e45-abb6-4882f9536088"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699422391"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699422391"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699422391"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699422391"
+                    },
+                    "timestamp": {
+                        "N": "1752699422391"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "2X79cFJWVnYWxkAn6msj5RwaGmw20hfeJ2XuWK69Vw=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753197206033_jvtjz5zez"
+                    },
+                    "content": {
+                        "S": "ji2xTYWrsjT+VXFx1tF9HJyYr247ZqC4L6OrJFQ+3G1hVuZWgOozVKVakQ=="
+                    },
+                    "timestamp": {
+                        "N": "1753197206043"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "3d839001-d6a9-40d5-b260-b52764d150cd"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753197206045"
+            },
+            "encryptedContent": {
+                "S": "2X79cFJWVnYWxkAn6msj5RwaGmw20hfeJ2XuWK69Vw=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "Rqn0upeqP9JqKKIaSeqDgQ=="
+                    },
+                    "encryptedText": {
+                        "S": "2X79cFJWVnYWxkAn6msj5RwaGmw20hfeJ2XuWK69Vw=="
+                    },
+                    "iv": {
+                        "S": "sNaag08VUsBCLvuA"
+                    },
+                    "timestamp": {
+                        "N": "1753197206032"
+                    },
+                    "hmac": {
+                        "S": "O3bnJAx6s5o13D9NocpeS+Vr7mt6Ryxq3hvkFplN93E="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "fe3a422c-da76-42e7-a4b2-51731a32e52f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752583441234"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "9L+jP2onaqboGDKLpaCGASQT"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753191397135_30wp2fx00"
+                    },
+                    "content": {
+                        "S": "6BLHLo2l/OL9tD+9igiTcs8S9edoHJW/SQlMxiwt"
+                    },
+                    "timestamp": {
+                        "N": "1753191397154"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "542ee88f-a14f-4b37-926d-4806a28c0c2f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753191397163"
+            },
+            "encryptedContent": {
+                "S": "9L+jP2onaqboGDKLpaCGASQT"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "g/htEF1n9aq8z2axuI7OSw=="
+                    },
+                    "encryptedText": {
+                        "S": "9L+jP2onaqboGDKLpaCGASQT"
+                    },
+                    "iv": {
+                        "S": "pF4oP4NHWGqntI2B"
+                    },
+                    "timestamp": {
+                        "N": "1753191397134"
+                    },
+                    "hmac": {
+                        "S": "Z9fyBsF1bs69n8wtpyy1ZfE+9tjYgIoBuaR+p31hyEE="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "20b4c1e9-cd18-4ec6-bf90-c9a7965a52df"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752504147565"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "8qHkBiWKt0AqYmNq6+plCvIM"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753195697465_8zv80fob7"
+                    },
+                    "content": {
+                        "S": "wCw5NpC2WbXg5aFS2Kh4dC0h5SmxcVwkt09bc/la"
+                    },
+                    "timestamp": {
+                        "N": "1753195697485"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "a27543fe-de1c-4de3-b31c-d90cd0ca3cd3"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753195697501"
+            },
+            "encryptedContent": {
+                "S": "8qHkBiWKt0AqYmNq6+plCvIM"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "aBsm6k61v2y4ixqsgKjO2w=="
+                    },
+                    "encryptedText": {
+                        "S": "8qHkBiWKt0AqYmNq6+plCvIM"
+                    },
+                    "iv": {
+                        "S": "Kfw9eYC+fk4KLtFM"
+                    },
+                    "timestamp": {
+                        "N": "1753195697465"
+                    },
+                    "hmac": {
+                        "S": "2+i924C1Z/6+yCusgRbNkm/jAdUi1paOGPKzEGBp8R4="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "6811ef26-d69b-4af8-9395-655fb95ed4d7"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584450058"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "UknEYKeMVyYHiqhLC61YRuW4ZvDo"
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "XqTuimvR3K8c6BKI"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "c1a078a8-6251-4a78-afa1-a291ab9130c7"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752679530814"
+            },
+            "encryptedContent": {
+                "S": "UknEYKeMVyYHiqhLC61YRuW4ZvDo"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "52a85195-9df7-4873-a09e-07d983e3a16a"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752521692105"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "a6be5881-5557-4571-80c1-f16aa678c2c1"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752583507199"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "UKAIhr0FFw8I1QSTYtOn+/8gICIaSSq+xSl/XQwCH5yj4VKlGEqbsZergYGu2NGKxEBGPjBAz2gQpIc="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752697049003_pq4oq90kh"
+                    },
+                    "content": {
+                        "S": "TQP+IcYRTSrmSLIBeEphA2UkoCW/pCnAzdhT3ycMWV+ykunJ1wq6sTAjxUqGbiNWj9nB39oFUVW6KTQXWVRVLFcEW7kCv5U="
+                    },
+                    "timestamp": {
+                        "N": "1752697049028"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "a7484d42-69f8-43ec-8bfe-e1c25f119956"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752697049133"
+            },
+            "encryptedContent": {
+                "S": "UKAIhr0FFw8I1QSTYtOn+/8gICIaSSq+xSl/XQwCH5yj4VKlGEqbsZergYGu2NGKxEBGPjBAz2gQpIc="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "0iWF3VOZkKZzRmwsF4swXA=="
+                    },
+                    "encryptedText": {
+                        "S": "UKAIhr0FFw8I1QSTYtOn+/8gICIaSSq+xSl/XQwCH5yj4VKlGEqbsZergYGu2NGKxEBGPjBAz2gQpIc="
+                    },
+                    "iv": {
+                        "S": "9tYmC8vBFE3j2Gf3"
+                    },
+                    "timestamp": {
+                        "N": "1752697049003"
+                    },
+                    "hmac": {
+                        "S": "3oDk958dFXSu0PnneJ39ixQMpfRwwSHszFVdzZrOWwA="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "igjCdRqsTj71AZ7c06AVCOK2sItNeha5"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753191822783_ypifof6zo"
+                    },
+                    "content": {
+                        "S": "cAC43+zyaXHs43QN1drxv7xU1agK9GevDwusvcetVrdVbtuA"
+                    },
+                    "timestamp": {
+                        "N": "1753191822794"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "d9d2e9f0-69ed-4ea6-a7bd-7f4272361269"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753191822798"
+            },
+            "encryptedContent": {
+                "S": "igjCdRqsTj71AZ7c06AVCOK2sItNeha5"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "Vg5Np4Z/zngurk0HuPtMhQ=="
+                    },
+                    "encryptedText": {
+                        "S": "igjCdRqsTj71AZ7c06AVCOK2sItNeha5"
+                    },
+                    "iv": {
+                        "S": "EeFiWwzpw7guu8zM"
+                    },
+                    "timestamp": {
+                        "N": "1753191822783"
+                    },
+                    "hmac": {
+                        "S": "mVJ14rwxGXBMMgul0nRPyyKr5A5HI3Xmmw8Y55YBrvc="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "HwD0obL//mMZBgXMpXhb+9OG"
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "TCfnPJQ9IRJLf87rbG6fPQ=="
+                    }
+                }
+            },
+            "messageId": {
+                "S": "8087aaac-259c-4ac6-bcfb-c8c2625ec972"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752674668177"
+            },
+            "encryptedContent": {
+                "S": "HwD0obL//mMZBgXMpXhb+9OG"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "ckxFj+0kIxVWrAw489WxkOGiEA=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752758926223_0joq3v3oo"
+                    },
+                    "content": {
+                        "S": "9FR1k9om2XOcPE1dY1rd6VrZT2w+MGMaQ1F/QusAmg=="
+                    },
+                    "timestamp": {
+                        "N": "1752758926239"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "7de1c2f1-8313-4011-abea-2ecd3436ebfc"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752758926241"
+            },
+            "encryptedContent": {
+                "S": "ckxFj+0kIxVWrAw489WxkOGiEA=="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "4LKErUSLqzzfWGvX0IfLDQ=="
+                    },
+                    "encryptedText": {
+                        "S": "ckxFj+0kIxVWrAw489WxkOGiEA=="
+                    },
+                    "iv": {
+                        "S": "BSMzpPhi/xyt3LuZ"
+                    },
+                    "timestamp": {
+                        "N": "1752758926223"
+                    },
+                    "hmac": {
+                        "S": "n1ZvpreQGZ0ozApsBhD19bDOV9sY1sqyzbnC44Z/3SY="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "902e1d49-752c-47dd-b8fa-bd0bfef05024"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752520698717"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Nzy7QZ/61h9jAF7SJNg84+fVDq9LgA=="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "Q8Wh6UVND5Dm3giD"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "cf52d719-59d3-429f-91a8-0f87d22c3d6e"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752681189741"
+            },
+            "encryptedContent": {
+                "S": "Nzy7QZ/61h9jAF7SJNg84+fVDq9LgA=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "BvvIrrR6fz5EP+Di4d5m4/GWhCdKP4fz3/UeGw=="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "HiCJDVMiEk7LP9mE/QMgwQ=="
+                    }
+                }
+            },
+            "messageId": {
+                "S": "15631bfe-9610-4fe5-a06f-63d82a5721f9"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752676013198"
+            },
+            "encryptedContent": {
+                "S": "BvvIrrR6fz5EP+Di4d5m4/GWhCdKP4fz3/UeGw=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "nrL+sbn9FYEgwkF9vPYEDL7xMa2Ok/qYk4JP"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752693406651_qilljkw2o"
+                    },
+                    "content": {
+                        "S": "GgEtBwqvHyNs2t67jdFGI9oXvkiasBAbOMn+eGpbwVcfMk2+Mh+z"
+                    },
+                    "timestamp": {
+                        "N": "1752693406664"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "1818a3a5-5e05-4c12-b063-cd53b48216c3"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752693406668"
+            },
+            "encryptedContent": {
+                "S": "nrL+sbn9FYEgwkF9vPYEDL7xMa2Ok/qYk4JP"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "KLaZ8s0ry/l+Sb66vBKHxQ=="
+                    },
+                    "encryptedText": {
+                        "S": "nrL+sbn9FYEgwkF9vPYEDL7xMa2Ok/qYk4JP"
+                    },
+                    "iv": {
+                        "S": "VKYZF20d24BpwzkJ"
+                    },
+                    "timestamp": {
+                        "N": "1752693406651"
+                    },
+                    "hmac": {
+                        "S": "Tqpg0h+VFLa5Z9hBHfvcJMGATpDkBDdW3+wngPW1/tE="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Xfi5ha5N0Vx9piqDbwM/PbrC9D4jcbu7S+zq"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752690218581_8w14urh8r"
+                    },
+                    "content": {
+                        "S": "NY4QLj5Tm4petfZaffsan4F0zxtp+YfpET5vKkklar14DxwIYwSz"
+                    },
+                    "timestamp": {
+                        "N": "1752690218581"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "4386ce2a-5bd6-4de6-a51b-579613ff691b"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752690218587"
+            },
+            "encryptedContent": {
+                "S": "Xfi5ha5N0Vx9piqDbwM/PbrC9D4jcbu7S+zq"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "AJ6GgCfIvC93P3+12PF6rw=="
+                    },
+                    "encryptedText": {
+                        "S": "Xfi5ha5N0Vx9piqDbwM/PbrC9D4jcbu7S+zq"
+                    },
+                    "iv": {
+                        "S": "RaNbUVHQd7k8VLG4"
+                    },
+                    "timestamp": {
+                        "N": "1752690218580"
+                    },
+                    "hmac": {
+                        "S": "VG3WNHpSn+VPVloORlloUb8iI6not8/cS6f0894k0M0="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Q/OMIsYZAsTFUTyGsMv9+UYLanO8qIwZD7O/zb7KRoItYHR/fq/h6iqISdlWShP8"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "b6c8d4fc-a199-4557-b0a8-d7f60607af0e"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753190546331"
+            },
+            "encryptedContent": {
+                "S": "Q/OMIsYZAsTFUTyGsMv9+UYLanO8qIwZD7O/zb7KRoItYHR/fq/h6iqISdlWShP8"
+            },
+            "recipientId": {
+                "S": "testuser"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "encryption_salt_1753190546306"
+                    },
+                    "encryptedText": {
+                        "S": "Q/OMIsYZAsTFUTyGsMv9+UYLanO8qIwZD7O/zb7KRoItYHR/fq/h6iqISdlWShP8"
+                    },
+                    "iv": {
+                        "S": "JHPxb1+0Qa0qa86o"
+                    },
+                    "hmac": {
+                        "S": "h6KA2wA7ShvVyLAwoP4Wp5/+Yvl7FH6c/BZLDlN3S/k="
+                    },
+                    "timestamp": {
+                        "N": "1753190546330"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "t5/HT7Br+MAGrC9JQ80a+RX0PYRigwu4gwloO4DWHJA/Nm6tonbAJH0tLrYC0fnz"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "67ff53be-65df-4fd5-8476-52e432f46a56"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753190564404"
+            },
+            "encryptedContent": {
+                "S": "t5/HT7Br+MAGrC9JQ80a+RX0PYRigwu4gwloO4DWHJA/Nm6tonbAJH0tLrYC0fnz"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "encryption_salt_1753190564382"
+                    },
+                    "encryptedText": {
+                        "S": "t5/HT7Br+MAGrC9JQ80a+RX0PYRigwu4gwloO4DWHJA/Nm6tonbAJH0tLrYC0fnz"
+                    },
+                    "iv": {
+                        "S": "0jW/OauI6wZnU/TC"
+                    },
+                    "hmac": {
+                        "S": "uiHZre41FmQfF/2BW6N1yI4Se1CnhouYwOCR3Mfh2ss="
+                    },
+                    "timestamp": {
+                        "N": "1753190564403"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "BWJ8wD2FSQYRT5/Weq4BiUFtpMnNyosJ"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753197908913_3lnfaz65m"
+                    },
+                    "content": {
+                        "S": "YadbCRAnnCYFWYND+R2a6ey9vvs/rB6tURXcrkQ7s6r0rKcu"
+                    },
+                    "timestamp": {
+                        "N": "1753197908929"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "af29b879-b416-4c92-bb0a-764f669f4911"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753197908930"
+            },
+            "encryptedContent": {
+                "S": "BWJ8wD2FSQYRT5/Weq4BiUFtpMnNyosJ"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "p2xP4rAq0Wx3XEO8GFvGAQ=="
+                    },
+                    "encryptedText": {
+                        "S": "BWJ8wD2FSQYRT5/Weq4BiUFtpMnNyosJ"
+                    },
+                    "iv": {
+                        "S": "+/k6d+DgHNHViSJ/"
+                    },
+                    "timestamp": {
+                        "N": "1753197908912"
+                    },
+                    "hmac": {
+                        "S": "P3rvxj/8BCkh/qCtBeY/R2NzXGAlerIlvrCeTdKeKFg="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "I91LzYcMDTac5646FNzk6kUGvOkTE8rcfb6+"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753194253407_not9zzf6i"
+                    },
+                    "content": {
+                        "S": "pjEVgO2DO7kpdksqBeiWSU8AgkPjsreNrXTR6+uuDeBJRk0fWdgF"
+                    },
+                    "timestamp": {
+                        "N": "1753194253423"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "9b5fe6f1-08ef-45c1-aee2-3c3f50a264ec"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753194253426"
+            },
+            "encryptedContent": {
+                "S": "I91LzYcMDTac5646FNzk6kUGvOkTE8rcfb6+"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "x4orWUdkx7mSJI5Cx/6GTg=="
+                    },
+                    "encryptedText": {
+                        "S": "I91LzYcMDTac5646FNzk6kUGvOkTE8rcfb6+"
+                    },
+                    "iv": {
+                        "S": "CXC5xXl613g7Ezy6"
+                    },
+                    "timestamp": {
+                        "N": "1753194253407"
+                    },
+                    "hmac": {
+                        "S": "9gqEbX5WIAVzXUSFS2iSaAxOwCMXG0pIYJ26sMBkE90="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "K7d7QNzJmg+Q/QP3OdYwveXN"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753192770051_ncuuh5jfn"
+                    },
+                    "content": {
+                        "S": "94lqvS1BQX3zDMmhuQjbDJdsPAMR83n5wNGo1E7s"
+                    },
+                    "timestamp": {
+                        "N": "1753192770064"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "03e0a4cd-c05c-484c-8944-927fd12d102f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753192770065"
+            },
+            "encryptedContent": {
+                "S": "K7d7QNzJmg+Q/QP3OdYwveXN"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "e/1Rz8TFm/ZiqoDiJudVNg=="
+                    },
+                    "encryptedText": {
+                        "S": "K7d7QNzJmg+Q/QP3OdYwveXN"
+                    },
+                    "iv": {
+                        "S": "lJpFg+DlHjY6fdcQ"
+                    },
+                    "timestamp": {
+                        "N": "1753192770050"
+                    },
+                    "hmac": {
+                        "S": "qfpNrP1ha16skCMIVNufE5tXhBsM0IayGtenuqI0Mzc="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "q1bK/wEBtqmko1YsxImaOWhtmPSe60nJsw=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752841663081_ag17doc63"
+                    },
+                    "content": {
+                        "S": "9fKI9sR7SB8ekNA4KB2/dcx6uwRa1sl/FasNOrsmhDmfZookMA=="
+                    },
+                    "timestamp": {
+                        "N": "1752841663095"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "72364786-8f00-4233-b602-b131c3a990b1"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752841663099"
+            },
+            "encryptedContent": {
+                "S": "q1bK/wEBtqmko1YsxImaOWhtmPSe60nJsw=="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "g8RPOXLOQCKjn4KHBXBE/Q=="
+                    },
+                    "encryptedText": {
+                        "S": "q1bK/wEBtqmko1YsxImaOWhtmPSe60nJsw=="
+                    },
+                    "iv": {
+                        "S": "HckyNsRRto/1Iad/"
+                    },
+                    "timestamp": {
+                        "N": "1752841663081"
+                    },
+                    "hmac": {
+                        "S": "HTTgrM6/3oasq4KB1MYCtLtJFh+iQ1y8ZQb9qR6vleo="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "FKWI6LUOmmVOQA7sJF5WxRjU"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753192455171_i0v7eypk0"
+                    },
+                    "content": {
+                        "S": "PlSV+zKwrBOFn2FNrIulOR6WgQ64fHMCCbJ5ICLP"
+                    },
+                    "timestamp": {
+                        "N": "1753192744943"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "6fc1acd7-5bd4-4cad-b4b2-c7287cebef16"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753192744952"
+            },
+            "encryptedContent": {
+                "S": "FKWI6LUOmmVOQA7sJF5WxRjU"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "fmlY/w7zSj/x28DAPknduQ=="
+                    },
+                    "encryptedText": {
+                        "S": "FKWI6LUOmmVOQA7sJF5WxRjU"
+                    },
+                    "iv": {
+                        "S": "9YsZ1VWf99OOm+C/"
+                    },
+                    "timestamp": {
+                        "N": "1753192744943"
+                    },
+                    "hmac": {
+                        "S": "MxbsRoyfYSjySsT6AJ4KlZ+PwafTu9pAr187QriSSj0="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "+YDyiAgYA12YHrrqQGw1K+4PbkOvP4JRfxM="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "ReLAokUVu/FcB2Lg"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "7446dfa2-04d2-41b9-8504-26c2a2c3fc4f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752676631389"
+            },
+            "encryptedContent": {
+                "S": "+YDyiAgYA12YHrrqQGw1K+4PbkOvP4JRfxM="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1-1752499294996-513gpo4qb"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752499294996"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "fb5SDqZdCVxr9KiU5hUKjTdGWQ=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752842436300_jv0p3bz4n"
+                    },
+                    "content": {
+                        "S": "mK7MTLcnq6J9SK7m5vR7vAJD8u4RNfZWkCngqzNgMw=="
+                    },
+                    "timestamp": {
+                        "N": "1752842436317"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "740ddd08-d9c3-4e46-9b9f-53749be15c98"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752842436319"
+            },
+            "encryptedContent": {
+                "S": "fb5SDqZdCVxr9KiU5hUKjTdGWQ=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "aaYKjTAUxuV5mBJzWEQp1A=="
+                    },
+                    "encryptedText": {
+                        "S": "fb5SDqZdCVxr9KiU5hUKjTdGWQ=="
+                    },
+                    "iv": {
+                        "S": "23Go4A68/PGeQOKM"
+                    },
+                    "timestamp": {
+                        "N": "1752842436300"
+                    },
+                    "hmac": {
+                        "S": "0jN+JAKgnVxDdS52sRP5KDd9O7MA/0HkR9UrNfUxPpE="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello from willy wonka! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "cd32f1e8-76d9-404d-9c49-dfc54f9d9fb8"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699602325"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699602325"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699602325"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699602325"
+                    },
+                    "timestamp": {
+                        "N": "1752699602325"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "xvsMgF9ynnBCn4R+F7vOHKFf2w=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753190943288_264zmm4s2"
+                    },
+                    "content": {
+                        "S": "77SIEn8xXXvWF/SIngMZAXwu3Je/JkOnHie7P4nHiw=="
+                    },
+                    "timestamp": {
+                        "N": "1753190943300"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "bdef7ea1-6e09-4e96-b7d1-04eddd1b853b"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753190943304"
+            },
+            "encryptedContent": {
+                "S": "xvsMgF9ynnBCn4R+F7vOHKFf2w=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "8czGsJb+gBqw/Gt/BIQCRg=="
+                    },
+                    "encryptedText": {
+                        "S": "xvsMgF9ynnBCn4R+F7vOHKFf2w=="
+                    },
+                    "iv": {
+                        "S": "+huL4h9EZakT/yC4"
+                    },
+                    "timestamp": {
+                        "N": "1753190943288"
+                    },
+                    "hmac": {
+                        "S": "10HbYszbhafevZYvyp3hbVS9VpFCPD9ixDW9R0dv9ZU="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "OWGTIUiJ2+zpAzZ00cjHLdnoKZw="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "8js7ptJe5Eim/zxY"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "ee8c4aee-7f3c-400f-a868-a1069b4ab86f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752681506106"
+            },
+            "encryptedContent": {
+                "S": "OWGTIUiJ2+zpAzZ00cjHLdnoKZw="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "tpUPAS9wWgiIZRjfjRNML42upBsfll4+"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752698526651_5dca7fsfi"
+                    },
+                    "content": {
+                        "S": "z+9B0hCX7fOiunMRcpjrfn5qinZwWou27iS79D47xO6ZgzTc"
+                    },
+                    "timestamp": {
+                        "N": "1752698526662"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "97e73b90-9b03-46a8-aad5-436c286fa2d0"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752698526664"
+            },
+            "encryptedContent": {
+                "S": "tpUPAS9wWgiIZRjfjRNML42upBsfll4+"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "T6n7JzM4BnWtGf1ZT5Cv6g=="
+                    },
+                    "encryptedText": {
+                        "S": "tpUPAS9wWgiIZRjfjRNML42upBsfll4+"
+                    },
+                    "iv": {
+                        "S": "9fvgcx2in6u0Y7v0"
+                    },
+                    "timestamp": {
+                        "N": "1752698526651"
+                    },
+                    "hmac": {
+                        "S": "7IgA8v3cCp1qrMQH5x98W1cgoYULwgzdLcy45d5Ah9E="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello from willy wonka! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "4b24a5db-a351-4980-b0aa-863b4e7c3d7a"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699479878"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699479878"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699479878"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699479878"
+                    },
+                    "timestamp": {
+                        "N": "1752699479878"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "f6c69be5-d7b3-4681-ae1f-8b7aad2c6010"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699553548"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8hIFRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Ugc2VudCBUTyB5b3Uu"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699553549"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8hIFRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Ugc2VudCBUTyB5b3Uu"
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699553549"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699553549"
+                    },
+                    "timestamp": {
+                        "N": "1752699553549"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello from willy wonka! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "9aecf161-09af-4f1b-9593-60ab4b9c7bf5"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699464411"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699464411"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8gZnJvbSB3aWxseSB3b25rYSEgVGhpcyBpcyBhIHRlc3QgbWVzc2FnZSBzZW50IFRPIHlvdS4="
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699464411"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699464411"
+                    },
+                    "timestamp": {
+                        "N": "1752699464411"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "PIseHwEZOBr+LI/b+9HiX/hGXPxaXOW7v88="
+            },
+            "metadata": {
+                "M": {
+                    "iv": {
+                        "S": "vwqDKiYm/pOSEWvH"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "00072118-dd12-4edb-93d4-d9c167bf8361"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752678918212"
+            },
+            "encryptedContent": {
+                "S": "PIseHwEZOBr+LI/b+9HiX/hGXPxaXOW7v88="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "TEVl6idzY+Hn9yVcE9b4GOh0EkDyjDKW37Q="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752697950528_wyroo31h7"
+                    },
+                    "content": {
+                        "S": "aMdRa6MQErIBCzLrnF03bTz4ssb+H8PvWRGIIZ7gpQ3r2BDbCYg="
+                    },
+                    "timestamp": {
+                        "N": "1752697950545"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "146e756d-7583-4a5d-a4e3-3d2f057f81c0"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752697950546"
+            },
+            "encryptedContent": {
+                "S": "TEVl6idzY+Hn9yVcE9b4GOh0EkDyjDKW37Q="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "4oar4XIRoYF4vxSxO8ucPg=="
+                    },
+                    "encryptedText": {
+                        "S": "TEVl6idzY+Hn9yVcE9b4GOh0EkDyjDKW37Q="
+                    },
+                    "iv": {
+                        "S": "37jbDACEnqS45fQ+"
+                    },
+                    "timestamp": {
+                        "N": "1752697950528"
+                    },
+                    "hmac": {
+                        "S": "u0eVcyu1pCzeNH8MmITQmbo+CmzVjxUSuF4ok+3AowI="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "2Lfe1+Cig6CmPZ4xu4ZoE52C0/oWig4DmMc="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752698526651_5dca7fsfi"
+                    },
+                    "content": {
+                        "S": "G8AVjlsbl5UT2xmsxnjH9PtD52dOF0+QOYHJQCT2gpQ+pJX4O8A="
+                    },
+                    "timestamp": {
+                        "N": "1752698676780"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "cf5374c4-73ac-4d7d-bf3c-502600403395"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752698676783"
+            },
+            "encryptedContent": {
+                "S": "2Lfe1+Cig6CmPZ4xu4ZoE52C0/oWig4DmMc="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "3QbYaPe7dMfMsGP7Fd5lNQ=="
+                    },
+                    "encryptedText": {
+                        "S": "2Lfe1+Cig6CmPZ4xu4ZoE52C0/oWig4DmMc="
+                    },
+                    "iv": {
+                        "S": "0DvExFWDfoomlafQ"
+                    },
+                    "timestamp": {
+                        "N": "1752698676780"
+                    },
+                    "hmac": {
+                        "S": "Dlb8ew+inajm4t0Td+S55ojoKcC+gO4X5IbSp9QbySA="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1-1752501006866-8tw58lrou"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752501006866"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "bQ4FsNru3saJeoBh/O2v3ddhEXTQ"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753199231987_o28gxwd60"
+                    },
+                    "content": {
+                        "S": "Uk6d09y7HelaNWSqMsRcXdlW0UXzhIrDO10XYnPqObIR"
+                    },
+                    "timestamp": {
+                        "N": "1753199232004"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "dc482125-aedf-4921-9d6d-296fe53b9055"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753199232004"
+            },
+            "encryptedContent": {
+                "S": "bQ4FsNru3saJeoBh/O2v3ddhEXTQ"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "0rdiFnjXXCdzSQNVVjhZ3w=="
+                    },
+                    "encryptedText": {
+                        "S": "bQ4FsNru3saJeoBh/O2v3ddhEXTQ"
+                    },
+                    "iv": {
+                        "S": "zzNlJ3Y6MASwVUMp"
+                    },
+                    "timestamp": {
+                        "N": "1753199231986"
+                    },
+                    "hmac": {
+                        "S": "TqRjQOrIRSnnBFFot95YxNCZrsh/R6qYZ2FGMSfijMI="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "96c32051-cb7f-46ad-b748-6f9271b0a167"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584938353"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "HbJ4fqhWSctIdxbVSiiEPSGh+YY="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753192455171_i0v7eypk0"
+                    },
+                    "content": {
+                        "S": "uwqmUwigpONOCVyY4sLBbieAIITpMGoJx52YaTs7Nd0="
+                    },
+                    "timestamp": {
+                        "N": "1753192455182"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "0df6f5cb-d054-4cc7-af5d-202c9d16a4dc"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753192455186"
+            },
+            "encryptedContent": {
+                "S": "HbJ4fqhWSctIdxbVSiiEPSGh+YY="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "mfcWZed4PSIemX2/ajZnZw=="
+                    },
+                    "encryptedText": {
+                        "S": "HbJ4fqhWSctIdxbVSiiEPSGh+YY="
+                    },
+                    "iv": {
+                        "S": "jI7cluVi0ncXTMb8"
+                    },
+                    "timestamp": {
+                        "N": "1753192455171"
+                    },
+                    "hmac": {
+                        "S": "1v6SGXtZvYA01rLlYe0nGvyL6YpF8POqpi8Q9J3BbqA="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "+kPOCjBSrs1pQZaOJjQMrp7IQm7ZXF21XJYX+A=="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "3e91f2dd-3e7c-4f90-b3e1-f634e02b6159"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752681931161"
+            },
+            "encryptedContent": {
+                "S": "+kPOCjBSrs1pQZaOJjQMrp7IQm7ZXF21XJYX+A=="
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "qFKjCQ8eH5acF89aFIIyoA=="
+                    },
+                    "encryptedText": {
+                        "S": "+kPOCjBSrs1pQZaOJjQMrp7IQm7ZXF21XJYX+A=="
+                    },
+                    "iv": {
+                        "S": "L2B+1Wm2RXNs+lfE"
+                    },
+                    "timestamp": {
+                        "N": "1752681931157"
+                    },
+                    "hmac": {
+                        "S": "TFqUEQvOI9q85MohtkobgkocAuoz2Nw9O6f3aeUd1+E="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "jrqFBlFBZiRBRafN9l6y5EHXnJsc8Pa8"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752689621785_uej4q276n"
+                    },
+                    "content": {
+                        "S": "t2b34IJMi7WBN+LBUf4FbZYjRGaK8GgCgRFLw08zoru5OLRe"
+                    },
+                    "timestamp": {
+                        "N": "1752689621785"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "1b21c8f6-aba7-4eef-a04a-629bd403395b"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752689621794"
+            },
+            "encryptedContent": {
+                "S": "jrqFBlFBZiRBRafN9l6y5EHXnJsc8Pa8"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "rLa0K/TPGU6ZWX9SkVwiww=="
+                    },
+                    "encryptedText": {
+                        "S": "jrqFBlFBZiRBRafN9l6y5EHXnJsc8Pa8"
+                    },
+                    "iv": {
+                        "S": "gNYQzaimGleDM3rv"
+                    },
+                    "timestamp": {
+                        "N": "1752689621785"
+                    },
+                    "hmac": {
+                        "S": "uuNwuBR7cXAfzSS5nob9t5q6Ivi3LEZ9tzv8/PPT3Ug="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "test"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "6e1ad039-d834-4394-9da6-2d345e8361c6"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752585379070"
+            },
+            "encryptedContent": {
+                "S": "test"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "fbf9cc86-d6f1-4337-9fb6-0576279d60ac"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752584311747"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "w46U3RIZo09XZYVlgIoPY0oplc++OUkHAMnx"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1753196971197_2c0v8avpi"
+                    },
+                    "content": {
+                        "S": "FyFXTygliaZMFo5yfucEHjvl6q+ID2ewjGgB/2xiCz+WALZp2DCW"
+                    },
+                    "timestamp": {
+                        "N": "1753196971212"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "315f4d9d-33c5-48b7-ab76-ec9a9f85c107"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1753196971214"
+            },
+            "encryptedContent": {
+                "S": "w46U3RIZo09XZYVlgIoPY0oplc++OUkHAMnx"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "sxdRCD351orolvJqLC3s3w=="
+                    },
+                    "encryptedText": {
+                        "S": "w46U3RIZo09XZYVlgIoPY0oplc++OUkHAMnx"
+                    },
+                    "iv": {
+                        "S": "VxSkLp0JlgqeqFzA"
+                    },
+                    "timestamp": {
+                        "N": "1753196971197"
+                    },
+                    "hmac": {
+                        "S": "aU4bh4YLSTc9GlPqmsO9gimP9gsxeHgn/FnBzvmSuxQ="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "test test test"
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "fda29298-63de-4bc8-a7b3-b7d09b9c520f"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "317b6560-10a1-70e2-9e29-dc4d2d33bbf1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752585435722"
+            },
+            "encryptedContent": {
+                "S": "test test test"
+            },
+            "recipientId": {
+                "S": "mattchristiansenresearch@gmail.com"
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "4RGUT+brAM3zbBZ9TkZ5VeBFd3D+TRq2PFc="
+            },
+            "metadata": {
+                "M": {}
+            },
+            "senderReference": {
+                "M": {
+                    "keyId": {
+                        "S": "sender_key_1752698857820_z0q7tygr2"
+                    },
+                    "content": {
+                        "S": "kvFZiz2mNt5jhKgUMm3J26M0AsbSDxIGQXxnvD+fE92yMbjhF5s="
+                    },
+                    "timestamp": {
+                        "N": "1752757672115"
+                    }
+                }
+            },
+            "messageId": {
+                "S": "162ffe08-5abe-4497-9f61-9a4a8e5ba4db"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "819bd580-70a1-7065-54e1-bdf1e1e679a1"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752757672117"
+            },
+            "encryptedContent": {
+                "S": "4RGUT+brAM3zbBZ9TkZ5VeBFd3D+TRq2PFc="
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "MbJ5vEoAA6i1eEdx7GSjLg=="
+                    },
+                    "encryptedText": {
+                        "S": "4RGUT+brAM3zbBZ9TkZ5VeBFd3D+TRq2PFc="
+                    },
+                    "iv": {
+                        "S": "xKCsm1EeAJLCdaYf"
+                    },
+                    "timestamp": {
+                        "N": "1752757672115"
+                    },
+                    "hmac": {
+                        "S": "I6zU1v7QRusQjET0YW+4atsg0lhVpKS4yYT0CfDAsBE="
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        },
+        {
+            "content": {
+                "S": "Hello! This is a test message sent TO you."
+            },
+            "metadata": {
+                "M": {}
+            },
+            "messageId": {
+                "S": "196d6088-a082-4fce-bf69-f15c533fc546"
+            },
+            "isEncrypted": {
+                "BOOL": true
+            },
+            "senderId": {
+                "S": "test-sender"
+            },
+            "messageType": {
+                "S": "text"
+            },
+            "timestamp": {
+                "N": "1752699296419"
+            },
+            "encryptedContent": {
+                "S": "SGVsbG8hIFRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Ugc2VudCBUTyB5b3Uu"
+            },
+            "recipientId": {
+                "S": "siphera.us@gmail.com"
+            },
+            "encryptedData": {
+                "M": {
+                    "salt": {
+                        "S": "test_salt_1752699296419"
+                    },
+                    "encryptedText": {
+                        "S": "SGVsbG8hIFRoaXMgaXMgYSB0ZXN0IG1lc3NhZ2Ugc2VudCBUTyB5b3Uu"
+                    },
+                    "iv": {
+                        "S": "test_iv_1752699296419"
+                    },
+                    "hmac": {
+                        "S": "test_hmac_1752699296419"
+                    },
+                    "timestamp": {
+                        "N": "1752699296419"
+                    }
+                }
+            },
+            "isRead": {
+                "BOOL": false
+            }
+        }
+    ],
+    "Count": 77,
+    "ScannedCount": 77,
+    "ConsumedCapacity": null
+}

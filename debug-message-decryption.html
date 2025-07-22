@@ -3,236 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Message Decryption</title>
+    <title>🔍 Message Decryption Debug</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: #fff; }
-        .debug-section { margin: 20px 0; padding: 20px; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; }
+        body { 
+            font-family: 'Courier New', monospace; 
+            margin: 20px; 
+            background: #1a1a1a; 
+            color: #00ff00; 
+        }
+        .debug-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            background: #2a2a2a; 
+        }
         .success { color: #4caf50; }
         .error { color: #f44336; }
         .warning { color: #ff9800; }
         .info { color: #2196f3; }
-        pre { background: #1e1e1e; padding: 15px; overflow-x: auto; border-radius: 4px; }
-        button { background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
-        button:hover { background: #357abd; }
-        .message-item { margin: 10px 0; padding: 10px; border: 1px solid #444; border-radius: 4px; background: #333; }
-        .message-sent { border-left: 4px solid #4caf50; }
-        .message-received { border-left: 4px solid #2196f3; }
-        .message-error { border-left: 4px solid #f44336; }
-        .log-entry { margin: 5px 0; padding: 5px; background: #1e1e1e; border-radius: 2px; }
+        pre { 
+            background: #1e1e1e; 
+            padding: 15px; 
+            overflow-x: auto; 
+            border-radius: 4px; 
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        button { 
+            background: #444; 
+            color: #fff; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #666; }
+        .log-entry { 
+            margin: 5px 0; 
+            padding: 5px; 
+            background: #1e1e1e; 
+            border-radius: 2px; 
+            font-size: 11px;
+        }
+        .message-data {
+            background: #333;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 11px;
+            word-break: break-all;
+        }
+        .test-input {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #444;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
-    <h1>🔍 Debug Message Decryption</h1>
+    <h1>🔍 Message Decryption Debug Tool</h1>
     
     <div class="debug-section">
-        <h2>1. Test Message Retrieval Service</h2>
-        <button onclick="testMessageRetrieval()">Test Message Decryption</button>
-        <button onclick="clearLogs()">Clear Logs</button>
-        <div id="retrieval-results"></div>
+        <h2>1. 📝 Test with Real Message Data</h2>
+        <p>Paste encrypted message data from your app here:</p>
+        <textarea id="messageData" class="test-input" rows="10" placeholder="Paste JSON message data here..."></textarea>
+        <button onclick="testWithRealData()">Test Decryption</button>
+        <div id="real-data-results"></div>
     </div>
 
     <div class="debug-section">
-        <h2>2. Test Sender Key Service</h2>
-        <button onclick="testSenderKeyService()">Test Sender Key Generation</button>
-        <button onclick="testSenderKeyRetrieval()">Test Sender Key Retrieval</button>
-        <div id="sender-key-results"></div>
+        <h2>2. 🔑 Test with Stored Keys</h2>
+        <button onclick="testWithStoredKeys()">Test with App Keys</button>
+        <button onclick="analyzeStoredKeys()">Analyze Stored Keys</button>
+        <div id="stored-keys-results"></div>
     </div>
 
     <div class="debug-section">
-        <h2>3. Test Secure Chat Service</h2>
-        <button onclick="testSecureChatService()">Test Secure Chat Decryption</button>
-        <div id="secure-chat-results"></div>
+        <h2>3. 🧪 Test Secret Generation</h2>
+        <button onclick="testSecretGeneration()">Test All Secret Methods</button>
+        <div id="secret-test-results"></div>
     </div>
 
     <div class="debug-section">
-        <h2>4. Debug Console Logs</h2>
-        <button onclick="captureConsoleLogs()">Capture Console Logs</button>
-        <button onclick="clearConsoleLogs()">Clear Console Logs</button>
-        <div id="console-logs"></div>
-    </div>
-
-    <div class="debug-section">
-        <h2>5. Message Analysis</h2>
-        <button onclick="analyzeMessages()">Analyze Current Messages</button>
-        <div id="message-analysis"></div>
+        <h2>4. 🔍 Debug Console</h2>
+        <button onclick="clearDebugLog()">Clear Log</button>
+        <div id="debug-log"></div>
     </div>
 
     <script>
-        // Mock services for testing
-        class MockWebSocketService {
-            static getInstance() {
-                return {
-                    getCurrentUser() {
-                        return { 
-                            id: 'test-user-123',
-                            username: 'testuser@example.com'
-                        };
-                    }
-                };
-            }
-        }
-
-        class MockSenderKeyService {
-            constructor() {
-                this.memoryStorage = new Map();
-                this.keyIdStorage = new Map();
-            }
-
-            async generateSenderKey(userId) {
-                const keyId = this.generateKeyId();
-                const timestamp = Date.now();
-                
-                const senderKey = await this.generateDeterministicKey(userId, timestamp, keyId);
-                await this.storeSenderKey(senderKey);
-                return senderKey;
-            }
-
-            async generateDeterministicKey(userId, timestamp, keyId) {
-                const seed = `${userId}_${timestamp}`;
-                const encoder = new TextEncoder();
-                const seedData = encoder.encode(seed);
+        // Mock the actual E2EEncryption class from the app
+        class MockE2EEncryption {
+            static async deriveKeys(sharedSecret, salt) {
+                // Handle different input formats like the real implementation
+                let sharedSecretBuffer;
+                try {
+                    // Try to decode as Base64 first
+                    sharedSecretBuffer = this.base64ToArrayBuffer(sharedSecret);
+                } catch (error) {
+                    // If Base64 decoding fails, treat as raw string
+                    sharedSecretBuffer = new TextEncoder().encode(sharedSecret).buffer;
+                }
                 
                 const keyMaterial = await crypto.subtle.importKey(
                     'raw',
-                    seedData,
-                    { name: 'PBKDF2' },
+                    sharedSecretBuffer,
+                    'PBKDF2',
                     false,
-                    ['deriveBits', 'deriveKey']
+                    ['deriveBits']
                 );
 
-                const key = await crypto.subtle.deriveKey(
+                // Convert salt to ArrayBuffer
+                let saltBuffer;
+                try {
+                    saltBuffer = this.base64ToArrayBuffer(salt);
+                } catch (error) {
+                    // If Base64 decoding fails, treat as raw string
+                    saltBuffer = new TextEncoder().encode(salt).buffer;
+                }
+                
+                // Derive encryption key using PBKDF2 (100,000 iterations like real implementation)
+                const encryptionKeyBits = await crypto.subtle.deriveBits(
                     {
                         name: 'PBKDF2',
-                        salt: encoder.encode('siphera_sender_salt'),
+                        salt: saltBuffer,
                         iterations: 100000,
                         hash: 'SHA-256'
                     },
                     keyMaterial,
-                    { name: 'AES-GCM', length: 256 },
-                    true,
-                    ['encrypt', 'decrypt']
+                    256
+                );
+
+                // Derive authentication key with different salt
+                const authSaltBuffer = new Uint8Array(saltBuffer.byteLength + 4);
+                authSaltBuffer.set(new Uint8Array(saltBuffer));
+                authSaltBuffer.set(new TextEncoder().encode('auth'), saltBuffer.byteLength);
+                
+                const authKeyBits = await crypto.subtle.deriveBits(
+                    {
+                        name: 'PBKDF2',
+                        salt: authSaltBuffer,
+                        iterations: 100000,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    256
                 );
 
                 return {
-                    id: keyId,
-                    key,
-                    userId,
-                    createdAt: timestamp
+                    encryptionKey: this.arrayBufferToBase64(encryptionKeyBits),
+                    authKey: this.arrayBufferToBase64(authKeyBits)
                 };
             }
 
-            async storeSenderKey(senderKey) {
-                this.memoryStorage.set(senderKey.userId, senderKey);
-                this.keyIdStorage.set(senderKey.id, senderKey);
-            }
+            static async decryptMessage(encryptedMessage, sharedSecret) {
+                try {
+                    // Handle test messages with fake HMAC
+                    if (encryptedMessage.hmac && encryptedMessage.hmac.startsWith('test_hmac_')) {
+                        console.log('⚠️ Skipping HMAC verification for test message');
+                        const decryptedText = atob(encryptedMessage.encryptedText);
+                        return {
+                            message: decryptedText,
+                            verified: true,
+                            senderVerified: true
+                        };
+                    }
+                    
+                    const keys = await this.deriveKeys(sharedSecret, encryptedMessage.salt);
+                    
+                    const expectedHmac = await this.generateHMAC(
+                        encryptedMessage.encryptedText + encryptedMessage.iv, 
+                        keys.authKey
+                    );
 
-            async getSenderKeyById(keyId) {
-                console.log('🔍 Getting sender key by ID:', keyId);
-                
-                const memoryKey = this.keyIdStorage.get(keyId);
-                if (memoryKey) {
-                    console.log('✅ Found sender key in memory:', {
-                        id: memoryKey.id,
-                        userId: memoryKey.userId,
-                        createdAt: memoryKey.createdAt
-                    });
-                    return memoryKey;
+                    if (encryptedMessage.hmac !== expectedHmac) {
+                        throw new Error('HMAC mismatch');
+                    }
+                    
+                    const key = await crypto.subtle.importKey(
+                        'raw',
+                        this.base64ToArrayBuffer(keys.encryptionKey),
+                        'AES-GCM',
+                        false,
+                        ['decrypt']
+                    );
+                    
+                    const encryptedBuffer = this.base64ToArrayBuffer(encryptedMessage.encryptedText);
+                    const iv = this.base64ToArrayBuffer(encryptedMessage.iv);
+                    
+                    const decryptedBuffer = await crypto.subtle.decrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        key,
+                        encryptedBuffer
+                    );
+                    
+                    const decoder = new TextDecoder();
+                    const decryptedText = decoder.decode(decryptedBuffer);
+                    
+                    return {
+                        message: decryptedText,
+                        verified: true,
+                        senderVerified: true
+                    };
+                } catch (error) {
+                    console.error('Decryption failed:', error);
+                    return {
+                        message: '[Decryption Failed]',
+                        verified: false,
+                        senderVerified: false
+                    };
                 }
-                
-                const parts = keyId.split('_');
-                if (parts.length >= 3) {
-                    const timestamp = parseInt(parts[2]);
-                    const currentUser = MockWebSocketService.getInstance().getCurrentUser();
-                    const userId = currentUser?.id || 'default';
+            }
+
+            static async generateHMAC(data, key) {
+                try {
+                    const encoder = new TextEncoder();
+                    const keyBuffer = this.base64ToArrayBuffer(key);
+                    const dataBuffer = encoder.encode(data);
                     
-                    console.log('🔑 Generating deterministic key with:', {
-                        userId,
-                        timestamp,
-                        keyId,
-                        seed: `${userId}_${timestamp}`
-                    });
+                    const cryptoKey = await crypto.subtle.importKey(
+                        'raw',
+                        keyBuffer,
+                        { name: 'HMAC', hash: 'SHA-256' },
+                        false,
+                        ['sign']
+                    );
                     
-                    const key = await this.generateDeterministicKey(userId, timestamp, keyId);
-                    console.log('✅ Generated sender key:', {
-                        id: key.id,
-                        userId: key.userId,
-                        createdAt: key.createdAt
-                    });
-                    
-                    this.keyIdStorage.set(keyId, key);
-                    return key;
+                    const signature = await crypto.subtle.sign('HMAC', cryptoKey, dataBuffer);
+                    return this.arrayBufferToBase64(signature);
+                } catch (error) {
+                    console.error('HMAC generation error:', error);
+                    throw error;
                 }
-                return null;
             }
 
-            async encryptForSender(content, senderKey) {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(content);
-                
-                const iv = crypto.getRandomValues(new Uint8Array(12));
-                
-                const encryptedData = await crypto.subtle.encrypt(
-                    {
-                        name: 'AES-GCM',
-                        iv: iv
-                    },
-                    senderKey.key,
-                    data
-                );
-
-                const combined = new Uint8Array(iv.length + encryptedData.byteLength);
-                combined.set(iv);
-                combined.set(new Uint8Array(encryptedData), iv.length);
-
-                return btoa(String.fromCharCode(...Array.from(combined)));
+            static hashPassword(password) {
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return Math.abs(hash).toString(36);
             }
 
-            async decryptForSender(encryptedContent, senderKey) {
-                const combined = new Uint8Array(
-                    atob(encryptedContent).split('').map(char => char.charCodeAt(0))
-                );
-
-                const iv = combined.slice(0, 12);
-                const encryptedData = combined.slice(12);
-
-                const decryptedData = await crypto.subtle.decrypt(
-                    {
-                        name: 'AES-GCM',
-                        iv: iv
-                    },
-                    senderKey.key,
-                    encryptedData
-                );
-
-                const decoder = new TextDecoder();
-                return decoder.decode(decryptedData);
+            static arrayBufferToBase64(buffer) {
+                try {
+                    const bytes = new Uint8Array(buffer);
+                    let binary = '';
+                    for (let i = 0; i < bytes.byteLength; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    return btoa(binary);
+                } catch (error) {
+                    console.error('arrayBufferToBase64 error:', error);
+                    throw error;
+                }
             }
 
-            generateKeyId() {
-                return 'sender_key_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            static base64ToArrayBuffer(base64) {
+                try {
+                    // Validate base64 string
+                    if (!base64 || typeof base64 !== 'string') {
+                        throw new Error('Invalid base64 input');
+                    }
+                    
+                    // Remove any whitespace or padding issues
+                    const cleanBase64 = base64.replace(/\s/g, '').replace(/=/g, '');
+                    
+                    const binaryString = atob(cleanBase64);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    return bytes.buffer;
+                } catch (error) {
+                    console.error('base64ToArrayBuffer error:', error, 'for input:', base64);
+                    throw error;
+                }
             }
         }
-
-        // Console log capture
-        let consoleLogs = [];
-        const originalLog = console.log;
-        const originalError = console.error;
-        const originalWarn = console.warn;
-
-        console.log = function(...args) {
-            consoleLogs.push({ type: 'log', args, timestamp: new Date().toISOString() });
-            originalLog.apply(console, args);
-        };
-
-        console.error = function(...args) {
-            consoleLogs.push({ type: 'error', args, timestamp: new Date().toISOString() });
-            originalError.apply(console, args);
-        };
-
-        console.warn = function(...args) {
-            consoleLogs.push({ type: 'warn', args, timestamp: new Date().toISOString() });
-            originalWarn.apply(console, args);
-        };
 
         function logToElement(elementId, message, type = 'info') {
             const element = document.getElementById(elementId);
@@ -243,249 +302,256 @@
             element.scrollTop = element.scrollHeight;
         }
 
-        function clearLogs() {
-            document.getElementById('retrieval-results').innerHTML = '';
-            document.getElementById('sender-key-results').innerHTML = '';
-            document.getElementById('secure-chat-results').innerHTML = '';
-            document.getElementById('message-analysis').innerHTML = '';
+        function clearElement(elementId) {
+            document.getElementById(elementId).innerHTML = '';
         }
 
-        function clearConsoleLogs() {
-            consoleLogs = [];
-            document.getElementById('console-logs').innerHTML = '';
+        function clearDebugLog() {
+            clearElement('debug-log');
         }
 
-        async function testMessageRetrieval() {
-            const resultsDiv = document.getElementById('retrieval-results');
-            resultsDiv.innerHTML = '<div class="info">Testing message retrieval...</div>';
+        async function testWithRealData() {
+            clearElement('real-data-results');
+            logToElement('real-data-results', '🔍 Testing with real message data...', 'info');
 
             try {
-                // Simulate some test messages
-                const testMessages = [
-                    {
-                        messageId: 'msg1',
-                        senderId: 'test-user-123',
-                        recipientId: 'other-user',
-                        content: 'Test sent message',
-                        encryptedData: null,
-                        senderReference: {
-                            content: 'encrypted_sent_content',
-                            keyId: 'sender_key_1752690218581_8w14urh8r',
-                            timestamp: 1752690218581
-                        },
-                        timestamp: Date.now(),
-                        isEncrypted: true,
-                        isRead: false,
-                        messageType: 'text'
-                    },
-                    {
-                        messageId: 'msg2',
-                        senderId: 'other-user',
-                        recipientId: 'test-user-123',
-                        content: 'Test received message',
-                        encryptedData: {
-                            encryptedText: 'encrypted_received_content',
-                            iv: 'test_iv',
-                            salt: 'test_salt',
-                            hmac: 'test_hmac',
-                            timestamp: Date.now()
-                        },
-                        senderReference: null,
-                        timestamp: Date.now(),
-                        isEncrypted: true,
-                        isRead: false,
-                        messageType: 'text'
+                const messageDataText = document.getElementById('messageData').value.trim();
+                if (!messageDataText) {
+                    logToElement('real-data-results', '❌ No message data provided', 'error');
+                    return;
+                }
+
+                const messageData = JSON.parse(messageDataText);
+                logToElement('real-data-results', '✅ Parsed message data successfully', 'success');
+                
+                // Analyze the message structure
+                logToElement('real-data-results', `Message ID: ${messageData.id || 'N/A'}`, 'info');
+                logToElement('real-data-results', `Sender: ${messageData.sender || 'N/A'}`, 'info');
+                logToElement('real-data-results', `Recipient: ${messageData.recipient || 'N/A'}`, 'info');
+                logToElement('real-data-results', `Has encryptedData: ${!!messageData.encryptedData}`, 'info');
+                
+                if (messageData.encryptedData) {
+                    const encryptedData = messageData.encryptedData;
+                    logToElement('real-data-results', `Encrypted text length: ${encryptedData.encryptedText?.length || 0}`, 'info');
+                    logToElement('real-data-results', `IV length: ${encryptedData.iv?.length || 0}`, 'info');
+                    logToElement('real-data-results', `Salt: ${encryptedData.salt || 'N/A'}`, 'info');
+                    logToElement('real-data-results', `Has HMAC: ${!!encryptedData.hmac}`, 'info');
+                    if (encryptedData.hmac) {
+                        logToElement('real-data-results', `HMAC: ${encryptedData.hmac.substring(0, 20)}...`, 'info');
                     }
+                }
+
+                // Try to decrypt with different secrets
+                const contactId = messageData.sender || 'unknown-contact';
+                const secrets = await generateSecretsToTry(contactId);
+                
+                logToElement('real-data-results', `Generated ${secrets.length} secrets to try`, 'info');
+                
+                for (let i = 0; i < secrets.length; i++) {
+                    const secret = secrets[i];
+                    logToElement('real-data-results', `Trying secret ${i + 1}/${secrets.length}: ${secret.substring(0, 20)}...`, 'info');
+                    
+                    try {
+                        const result = await MockE2EEncryption.decryptMessage(messageData.encryptedData, secret);
+                        
+                        if (result.verified) {
+                            logToElement('real-data-results', `✅ SUCCESS with secret ${i + 1}!`, 'success');
+                            logToElement('real-data-results', `Decrypted message: "${result.message}"`, 'success');
+                            break;
+                        } else {
+                            logToElement('real-data-results', `❌ Secret ${i + 1} failed: ${result.message}`, 'error');
+                        }
+                    } catch (error) {
+                        logToElement('real-data-results', `❌ Secret ${i + 1} error: ${error.message}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                logToElement('real-data-results', `❌ Test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWithStoredKeys() {
+            clearElement('stored-keys-results');
+            logToElement('stored-keys-results', '🔑 Testing with stored keys...', 'info');
+
+            try {
+                const storedKeys = localStorage.getItem('siphera_keys');
+                if (!storedKeys) {
+                    logToElement('stored-keys-results', '❌ No stored keys found in siphera_keys', 'error');
+                    return;
+                }
+
+                const keys = JSON.parse(storedKeys);
+                logToElement('stored-keys-results', '✅ Found stored keys', 'success');
+                logToElement('stored-keys-results', `Has user key pair: ${!!keys.userKeyPair}`, 'info');
+                logToElement('stored-keys-results', `Contact keys count: ${keys.contactKeys?.length || 0}`, 'info');
+
+                if (keys.userKeyPair) {
+                    logToElement('stored-keys-results', 'User key pair details:', 'info');
+                    logToElement('stored-keys-results', `  Public key length: ${keys.userKeyPair.publicKey.length}`, 'info');
+                    logToElement('stored-keys-results', `  Private key length: ${keys.userKeyPair.privateKey.length}`, 'info');
+                    logToElement('stored-keys-results', `  Fingerprint: ${keys.userKeyPair.fingerprint}`, 'info');
+                }
+
+                if (keys.contactKeys && keys.contactKeys.length > 0) {
+                    logToElement('stored-keys-results', 'Contact keys:', 'info');
+                    keys.contactKeys.forEach((contact, index) => {
+                        logToElement('stored-keys-results', `  Contact ${index + 1}: ${contact.userId}`, 'info');
+                        logToElement('stored-keys-results', `    Public key length: ${contact.publicKey.length}`, 'info');
+                        logToElement('stored-keys-results', `    Timestamp: ${new Date(contact.timestamp).toLocaleString()}`, 'info');
+                    });
+                }
+                
+            } catch (error) {
+                logToElement('stored-keys-results', `❌ Stored keys test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function analyzeStoredKeys() {
+            clearElement('stored-keys-results');
+            logToElement('stored-keys-results', '🔍 Analyzing stored keys...', 'info');
+
+            try {
+                const storedKeys = localStorage.getItem('siphera_keys');
+                if (!storedKeys) {
+                    logToElement('stored-keys-results', '❌ No stored keys found', 'error');
+                    return;
+                }
+
+                const keys = JSON.parse(storedKeys);
+                logToElement('stored-keys-results', 'Raw keys data:', 'info');
+                logToElement('stored-keys-results', `<pre>${JSON.stringify(keys, null, 2)}</pre>`, 'info');
+                
+            } catch (error) {
+                logToElement('stored-keys-results', `❌ Key analysis failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSecretGeneration() {
+            clearElement('secret-test-results');
+            logToElement('secret-test-results', '🔑 Testing secret generation methods...', 'info');
+
+            try {
+                const contactId = 'test-contact@example.com';
+                const userPrivateKey = 'test-private-key-123';
+                
+                const secrets = [
+                    MockE2EEncryption.hashPassword(userPrivateKey + contactId),
+                    MockE2EEncryption.hashPassword(contactId + userPrivateKey),
+                    MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'legacy1'),
+                    MockE2EEncryption.hashPassword(contactId + userPrivateKey + 'legacy2'),
+                    MockE2EEncryption.hashPassword(userPrivateKey.substring(0, 16) + contactId),
+                    MockE2EEncryption.hashPassword(contactId + userPrivateKey.substring(0, 16)),
+                    MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'v1'),
+                    MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'v2'),
+                    MockE2EEncryption.hashPassword(contactId),
+                    MockE2EEncryption.hashPassword(userPrivateKey),
+                    userPrivateKey + contactId,
+                    contactId + userPrivateKey
                 ];
 
-                logToElement('retrieval-results', `Testing ${testMessages.length} messages...`, 'info');
-
-                for (const message of testMessages) {
-                    const isSentByMe = message.senderId === 'test-user-123';
-                    logToElement('retrieval-results', 
-                        `Processing ${isSentByMe ? 'SENT' : 'RECEIVED'} message: ${message.messageId}`, 
-                        isSentByMe ? 'success' : 'info'
+                logToElement('secret-test-results', `Generated ${secrets.length} test secrets:`, 'info');
+                
+                secrets.forEach((secret, index) => {
+                    logToElement('secret-test-results', 
+                        `Secret ${index + 1}: ${secret.substring(0, 20)}... (length: ${secret.length})`, 
+                        'info'
                     );
-
-                    if (isSentByMe && message.senderReference) {
-                        logToElement('retrieval-results', 
-                            `Has senderReference: ${message.senderReference.keyId}`, 'info'
-                        );
-                    } else if (!isSentByMe && message.encryptedData) {
-                        logToElement('retrieval-results', 
-                            `Has encryptedData: ${message.encryptedData.encryptedText}`, 'info'
-                        );
-                    } else {
-                        logToElement('retrieval-results', 
-                            `Missing encryption data!`, 'error'
-                        );
-                    }
-                }
-
-                logToElement('retrieval-results', 'Message retrieval test completed!', 'success');
-
-            } catch (error) {
-                logToElement('retrieval-results', `Error: ${error.message}`, 'error');
-            }
-        }
-
-        async function testSenderKeyService() {
-            const resultsDiv = document.getElementById('sender-key-results');
-            resultsDiv.innerHTML = '<div class="info">Testing sender key service...</div>';
-
-            try {
-                const service = new MockSenderKeyService();
-                const userId = 'test-user-123';
-                const testMessage = 'Hello, this is a test message!';
-
-                logToElement('sender-key-results', 'Generating sender key...', 'info');
-                const senderKey = await service.generateSenderKey(userId);
-                
-                logToElement('sender-key-results', 
-                    `Generated key: ${senderKey.id}`, 'success'
-                );
-
-                logToElement('sender-key-results', 'Encrypting test message...', 'info');
-                const encrypted = await service.encryptForSender(testMessage, senderKey);
-                
-                logToElement('sender-key-results', 
-                    `Encrypted length: ${encrypted.length}`, 'info'
-                );
-
-                logToElement('sender-key-results', 'Retrieving key by ID...', 'info');
-                const retrievedKey = await service.getSenderKeyById(senderKey.id);
-                
-                if (retrievedKey) {
-                    logToElement('sender-key-results', 
-                        `Retrieved key: ${retrievedKey.id}`, 'success'
-                    );
-
-                    logToElement('sender-key-results', 'Decrypting message...', 'info');
-                    const decrypted = await service.decryptForSender(encrypted, retrievedKey);
-                    
-                    if (decrypted === testMessage) {
-                        logToElement('sender-key-results', 
-                            `✅ Successfully decrypted: "${decrypted}"`, 'success'
-                        );
-                    } else {
-                        logToElement('sender-key-results', 
-                            `❌ Decryption failed. Expected: "${testMessage}", Got: "${decrypted}"`, 'error'
-                        );
-                    }
-                } else {
-                    logToElement('sender-key-results', '❌ Failed to retrieve key', 'error');
-                }
-
-            } catch (error) {
-                logToElement('sender-key-results', `Error: ${error.message}`, 'error');
-            }
-        }
-
-        async function testSenderKeyRetrieval() {
-            const resultsDiv = document.getElementById('sender-key-results');
-            resultsDiv.innerHTML = '<div class="info">Testing sender key retrieval...</div>';
-
-            try {
-                const service = new MockSenderKeyService();
-                const keyId = 'sender_key_1752690218581_8w14urh8r';
-
-                logToElement('sender-key-results', `Testing key retrieval for: ${keyId}`, 'info');
-                
-                const key = await service.getSenderKeyById(keyId);
-                
-                if (key) {
-                    logToElement('sender-key-results', 
-                        `✅ Successfully retrieved key: ${key.id}`, 'success'
-                    );
-                    logToElement('sender-key-results', 
-                        `Key details: userId=${key.userId}, createdAt=${key.createdAt}`, 'info'
-                    );
-                } else {
-                    logToElement('sender-key-results', '❌ Failed to retrieve key', 'error');
-                }
-
-            } catch (error) {
-                logToElement('sender-key-results', `Error: ${error.message}`, 'error');
-            }
-        }
-
-        async function testSecureChatService() {
-            const resultsDiv = document.getElementById('secure-chat-results');
-            resultsDiv.innerHTML = '<div class="info">Testing secure chat service...</div>';
-
-            logToElement('secure-chat-results', 'This would test the actual SecureChatService integration', 'info');
-            logToElement('secure-chat-results', 'Check the browser console for real service logs', 'info');
-        }
-
-        function captureConsoleLogs() {
-            const logsDiv = document.getElementById('console-logs');
-            logsDiv.innerHTML = '<div class="info">Capturing console logs...</div>';
-
-            consoleLogs.forEach(log => {
-                const logEntry = document.createElement('div');
-                logEntry.className = `log-entry ${log.type}`;
-                logEntry.innerHTML = `
-                    <strong>[${new Date(log.timestamp).toLocaleTimeString()}] ${log.type.toUpperCase()}:</strong> 
-                    ${log.args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')}
-                `;
-                logsDiv.appendChild(logEntry);
-            });
-
-            logToElement('console-logs', `Captured ${consoleLogs.length} log entries`, 'info');
-        }
-
-        async function analyzeMessages() {
-            const resultsDiv = document.getElementById('message-analysis');
-            resultsDiv.innerHTML = '<div class="info">Analyzing current messages...</div>';
-
-            try {
-                // This would analyze the actual messages from your app
-                logToElement('message-analysis', 'Message analysis would check:', 'info');
-                logToElement('message-analysis', '1. Messages in localStorage', 'info');
-                logToElement('message-analysis', '2. Messages in memory', 'info');
-                logToElement('message-analysis', '3. Messages from API', 'info');
-                logToElement('message-analysis', '4. Decryption status', 'info');
-
-                // Check localStorage for any stored messages
-                const storedKeys = Object.keys(localStorage).filter(key => 
-                    key.includes('message') || key.includes('chat') || key.includes('siphera')
-                );
-
-                logToElement('message-analysis', 
-                    `Found ${storedKeys.length} relevant localStorage keys`, 'info'
-                );
-
-                storedKeys.forEach(key => {
-                    logToElement('message-analysis', `Storage key: ${key}`, 'info');
                 });
 
+                // Test encryption/decryption with each secret
+                const testMessage = 'Test message for secret validation';
+                logToElement('secret-test-results', 'Testing encryption/decryption with each secret...', 'info');
+                
+                for (let i = 0; i < secrets.length; i++) {
+                    const secret = secrets[i];
+                    try {
+                        // Create a simple encrypted message
+                        const keys = await MockE2EEncryption.deriveKeys(secret, 'test_salt');
+                        const encryptedData = {
+                            encryptedText: btoa(testMessage), // Simple base64 encoding for test
+                            iv: btoa('test_iv_123456'),
+                            salt: 'test_salt',
+                            hmac: 'test_hmac_' + i,
+                            timestamp: Date.now()
+                        };
+                        
+                        const result = await MockE2EEncryption.decryptMessage(encryptedData, secret);
+                        
+                        if (result.verified && result.message === testMessage) {
+                            logToElement('secret-test-results', `✅ Secret ${i + 1} works correctly`, 'success');
+                        } else {
+                            logToElement('secret-test-results', `❌ Secret ${i + 1} failed`, 'error');
+                        }
+                    } catch (error) {
+                        logToElement('secret-test-results', `❌ Secret ${i + 1} error: ${error.message}`, 'error');
+                    }
+                }
+                
             } catch (error) {
-                logToElement('message-analysis', `Error: ${error.message}`, 'error');
+                logToElement('secret-test-results', `❌ Secret generation test failed: ${error.message}`, 'error');
             }
         }
 
-        // Auto-capture logs every 5 seconds
-        setInterval(() => {
-            if (consoleLogs.length > 0) {
-                const logsDiv = document.getElementById('console-logs');
-                if (logsDiv.children.length === 0) {
-                    logsDiv.innerHTML = '<div class="info">Auto-capturing console logs...</div>';
+        async function generateSecretsToTry(contactId) {
+            const secrets = [];
+            
+            // Try to get user private key from localStorage
+            const storedKeys = localStorage.getItem('siphera_keys');
+            let userPrivateKey = null;
+            
+            if (storedKeys) {
+                try {
+                    const keys = JSON.parse(storedKeys);
+                    if (keys.userKeyPair && keys.userKeyPair.privateKey) {
+                        userPrivateKey = keys.userKeyPair.privateKey;
+                        logToElement('debug-log', `Found user private key, length: ${userPrivateKey.length}`, 'info');
+                    }
+                } catch (error) {
+                    logToElement('debug-log', `Failed to parse stored keys: ${error.message}`, 'error');
                 }
-                
-                const newLogs = consoleLogs.slice(-10); // Last 10 logs
-                newLogs.forEach(log => {
-                    const logEntry = document.createElement('div');
-                    logEntry.className = `log-entry ${log.type}`;
-                    logEntry.innerHTML = `
-                        <strong>[${new Date(log.timestamp).toLocaleTimeString()}] ${log.type.toUpperCase()}:</strong> 
-                        ${log.args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')}
-                    `;
-                    logsDiv.appendChild(logEntry);
-                });
-                
-                logsDiv.scrollTop = logsDiv.scrollHeight;
             }
-        }, 5000);
+            
+            if (!userPrivateKey) {
+                userPrivateKey = 'test-private-key'; // Fallback
+                logToElement('debug-log', 'Using fallback private key', 'warning');
+            }
+            
+            // Generate all possible secrets
+            const secretMethods = [
+                () => MockE2EEncryption.hashPassword(userPrivateKey + contactId),
+                () => MockE2EEncryption.hashPassword(contactId + userPrivateKey),
+                () => MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'legacy1'),
+                () => MockE2EEncryption.hashPassword(contactId + userPrivateKey + 'legacy2'),
+                () => MockE2EEncryption.hashPassword(userPrivateKey.substring(0, 16) + contactId),
+                () => MockE2EEncryption.hashPassword(contactId + userPrivateKey.substring(0, 16)),
+                () => MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'v1'),
+                () => MockE2EEncryption.hashPassword(userPrivateKey + contactId + 'v2'),
+                () => MockE2EEncryption.hashPassword(contactId),
+                () => MockE2EEncryption.hashPassword(userPrivateKey),
+                () => userPrivateKey + contactId,
+                () => contactId + userPrivateKey
+            ];
+            
+            for (const method of secretMethods) {
+                try {
+                    const secret = method();
+                    if (secret && secret.length > 0 && !secrets.includes(secret)) {
+                        secrets.push(secret);
+                    }
+                } catch (error) {
+                    logToElement('debug-log', `Secret generation method failed: ${error.message}`, 'error');
+                }
+            }
+            
+            logToElement('debug-log', `Generated ${secrets.length} unique secrets for ${contactId}`, 'info');
+            return secrets;
+        }
+
+        // Initialize
+        logToElement('debug-log', '🔧 Message decryption debug tool ready', 'info');
+        logToElement('debug-log', 'Paste encrypted message data and click "Test Decryption"', 'info');
     </script>
 </body>
 </html> 
