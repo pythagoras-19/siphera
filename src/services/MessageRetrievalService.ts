@@ -14,6 +14,7 @@ export interface DecryptedMessage {
   messageType: string;
   isSentByMe: boolean;
   canRead: boolean;
+  isLegacy?: boolean;
 }
 
 export interface RawMessage {
@@ -246,6 +247,18 @@ export class MessageRetrievalService {
       };
     } catch (error) {
       console.error('Failed to decrypt recipient message:', error);
+      
+      // Check if this is a legacy message
+      if (error instanceof Error && error.message === 'LEGACY_MESSAGE_INCOMPATIBLE') {
+        return {
+          ...message,
+          content: 'This message was sent before secure key exchange. Decryption not possible.',
+          isSentByMe: false,
+          canRead: false,
+          isLegacy: true
+        };
+      }
+      
       return {
         ...message,
         content: '[Received message - decryption failed]',

@@ -250,6 +250,13 @@ export class SecureChatService {
       timestamp: encryptedMessage.timestamp
     });
     
+    // Check if this is a legacy message (before proper ECDH key exchange)
+    const isLegacyMessage = this.isLegacyMessage(encryptedMessage);
+    if (isLegacyMessage) {
+      console.log(`🏛️ Legacy message detected from ${senderId} - marking as incompatible`);
+      throw new Error('LEGACY_MESSAGE_INCOMPATIBLE');
+    }
+    
     // Try multiple secrets for decryption (for backward compatibility)
     const secretsToTry = await this.generateSecretsToTry(senderId);
     
@@ -363,6 +370,23 @@ export class SecureChatService {
       timestamp: encryptedMessage.timestamp
     });
     throw new Error('Message decryption failed - no working secret found');
+  }
+
+  /**
+   * Check if a message is a legacy message (before proper ECDH key exchange)
+   */
+  private isLegacyMessage(encryptedMessage: SecureMessage): boolean {
+    // Legacy messages are those sent before we had proper ECDH key exchange
+    // We can identify them by timestamp before we added the contact key
+    const legacyCutoffTime = new Date('2025-01-22T10:07:00').getTime(); // When we added the contact key
+    const messageTime = encryptedMessage.timestamp;
+    
+    // If message is older than the cutoff, it's legacy
+    if (messageTime < legacyCutoffTime) {
+      return true;
+    }
+    
+    return false;
   }
 
   /**

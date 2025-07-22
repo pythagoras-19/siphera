@@ -372,6 +372,25 @@
   box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
 }
 
+/* Legacy message styling */
+.message.legacy .message-content {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  border-color: rgba(108, 117, 125, 0.3);
+  box-shadow: 0 4px 16px rgba(108, 117, 125, 0.3);
+  opacity: 0.8;
+}
+
+.message.legacy .message-content p {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.legacy-indicator {
+  color: #6c757d;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
 .message-content p {
   margin: 0 0 6px 0;
   color: #ffffff;

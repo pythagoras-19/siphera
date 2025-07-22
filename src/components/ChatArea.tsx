@@ -359,14 +359,19 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedContact, onShowContacts }) 
             const canRead = msg.metadata?.canRead !== false; // Default to true if not specified
             
             return (
-              <div key={`${msg.messageId || msg.id || 'msg'}-${idx}`} className={`message ${isOwnMessage ? 'me' : 'them'}`}>
+              <div key={`${msg.messageId || msg.id || 'msg'}-${idx}`} className={`message ${isOwnMessage ? 'me' : 'them'} ${msg.metadata?.isLegacy ? 'legacy' : ''}`}>
                 <div className="message-content">
                   <p className={!canRead ? 'message-unreadable' : ''}>
                     {msg.text || msg.content}
                   </p>
                   <div className="message-meta">
                     <span className="message-time">{formatTime(msg.timestamp)}</span>
-                    {msg.isEncrypted && (
+                    {msg.metadata?.isLegacy && (
+                      <span className="legacy-indicator" title="Legacy message - sent before secure key exchange">
+                        🏛️
+                      </span>
+                    )}
+                    {msg.isEncrypted && !msg.metadata?.isLegacy && (
                       <span className="encryption-indicator" title="End-to-End Encrypted">
                         🔒
                       </span>
