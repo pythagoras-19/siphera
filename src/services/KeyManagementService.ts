@@ -300,14 +300,35 @@ export class KeyManagementService {
     
     console.log('🔄 Regenerating user keys...');
     
-    // Clear existing keys
+    // Clear existing keys from memory
     this.userKeyPair = null;
     this.contactKeys.clear();
     
-    // Generate new keys
-    const newKeyPair = await this.initializeUserKeys();
+    // Clear stored keys from localStorage
+    await this.secureStorage.clearKeys();
+    
+    // Force generate new keys (bypass the existing key check)
+    console.log('🔑 Generating new ECDH key pair...');
+    const newKeyPair = await E2EEncryption.generateKeyPair();
+    
+    // Store the new keys
+    this.userKeyPair = newKeyPair;
+    this.isInitialized = true;
+    
+    const keysToStore: StoredKeys = {
+      userKeyPair: newKeyPair as KeyPair,
+      contactKeys: [],
+      lastBackup: Date.now()
+    };
+    
+    await this.secureStorage.storeKeys(keysToStore);
     
     console.log('✅ User keys regenerated successfully');
+    console.log('🔑 New key lengths:', {
+      publicKeyLength: newKeyPair.publicKey.length,
+      privateKeyLength: newKeyPair.privateKey.length
+    });
+    
     return newKeyPair;
   }
 
