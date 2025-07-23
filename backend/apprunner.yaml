@@ -1,0 +1,26 @@
+version: 1.0
+runtime: nodejs18
+build:
+  commands:
+    build:
+      - npm ci
+      - npm run build
+run:
+  runtime-version: 18
+  command: npm start
+  network:
+    port: 3007
+    env: PORT
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: AWS_REGION
+      value: us-east-2
+    - name: CORS_ORIGIN
+      value: https://main.d3jalokjfvgsqi.amplifyapp.com
+    - name: USERS_TABLE
+      value: siphera-users-dev
+    - name: MESSAGES_TABLE
+      value: siphera-messages-dev
+    - name: SESSIONS_TABLE
+      value: siphera-sessions-dev 
