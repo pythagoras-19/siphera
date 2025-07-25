@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './ContactList.css';
 import { useAuth } from '../contexts/AuthContext';
 import { UserService } from '../services/userService';
-import { v4 as uuidv4 } from 'uuid';
 
 interface ContactListProps {
   onContactSelect: (contact: string) => void;
