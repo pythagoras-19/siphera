@@ -1,6 +1,6 @@
 import { User } from '../types/user';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3007';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://gbhftb5ndy.us-east-2.awsapprunner.com';
 
 export interface UserSearchResult {
   success: boolean;
