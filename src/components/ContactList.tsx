@@ -31,13 +31,15 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
     const userService = new UserService();
     userService.getAllUsers()
       .then(users => {
+        console.log('🔍 Fetched users:', users);
         // Filter out the current user
         const otherUsers = users.filter(u => u.userId !== user.id);
+        console.log('👥 Other users (contacts):', otherUsers);
         setContacts(otherUsers);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching users:', error);
+        console.error('❌ Error fetching users:', error);
         setLoading(false);
       });
   }, [user?.id]);
@@ -51,11 +53,13 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
     
     setSearching(true);
     try {
+      console.log('🔍 Searching for:', searchQuery);
       const userService = new UserService();
       const users = await userService.searchUsers(searchQuery, user.id);
+      console.log('🔍 Search results:', users);
       setSearchResults(users);
     } catch (error) {
-      console.error('Error searching users:', error);
+      console.error('❌ Error searching users:', error);
       setSearchResults([]);
     } finally {
       setSearching(false);
