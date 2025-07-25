@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ContactList.css';
 import { useAuth } from '../contexts/AuthContext';
+import { UserService } from '../services/userService';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ContactListProps {
@@ -27,13 +28,19 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
   useEffect(() => {
     if (!user?.id) return;
     setLoading(true);
-    fetch(`/api/contacts?currentUserId=${encodeURIComponent(user.id)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setContacts(data.users);
+    
+    const userService = new UserService();
+    userService.getAllUsers()
+      .then(users => {
+        // Filter out the current user
+        const otherUsers = users.filter(u => u.userId !== user.id);
+        setContacts(otherUsers);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(error => {
+        console.error('Error fetching users:', error);
+        setLoading(false);
+      });
   }, [user?.id]);
 
   const filteredContacts = contacts.filter(contact =>
@@ -45,13 +52,9 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
     
     setSearching(true);
     try {
-      const response = await fetch(`/api/users/search/${encodeURIComponent(searchQuery)}?currentUserId=${encodeURIComponent(user.id)}`);
-      const data = await response.json();
-      if (data.success) {
-        setSearchResults(data.users);
-      } else {
-        setSearchResults([]);
-      }
+      const userService = new UserService();
+      const users = await userService.searchUsers(searchQuery, user.id);
+      setSearchResults(users);
     } catch (error) {
       console.error('Error searching users:', error);
       setSearchResults([]);
@@ -64,19 +67,13 @@ const ContactList: React.FC<ContactListProps> = ({ onContactSelect }) => {
     if (!user?.id) return;
     
     try {
-      const response = await fetch(`/api/users/${user.id}/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contactId: userId }),
-      });
-      const data = await response.json();
-      if (data.success) {
+      const userService = new UserService();
+      const success = await userService.addContact(user.id, userId);
+      if (success) {
         // Refresh contacts list
-        const contactsResponse = await fetch(`/api/contacts?currentUserId=${encodeURIComponent(user.id)}`);
-        const contactsData = await contactsResponse.json();
-        if (contactsData.success) {
-          setContacts(contactsData.users);
-        }
+        const users = await userService.getAllUsers();
+        const otherUsers = users.filter(u => u.userId !== user.id);
+        setContacts(otherUsers);
         // Clear search
         setSearchQuery('');
         setSearchResults([]);
